@@ -1,0 +1,74 @@
+<!-- #Llamar a layout_dashboard.html -->
+{% extends 'layout_dashboard.html' %}
+
+{% block titulo %}Fortress Educa - Configuración Usuario{% endblock %}
+
+<!-- Titulo del Header -->
+{% set header_title = "Ajustes Adicionales" %}
+
+<!-- invocar el bloque -->
+{% block Contenido_Pagina %}
+    
+    <main class="page-content">
+        <div class="row g-4">
+            
+            <!-- Notification Prefs -->
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm p-4">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-bell me-2 text-primary"></i>Preferencias de
+                        Notificación</h5>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="emailNotif" checked>
+                        <label class="form-check-label" for="emailNotif">Recibir alertas por Correo
+                            Electrónico</label>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="smsNotif">
+                        <label class="form-check-label" for="smsNotif">Recibir alertas por SMS</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="browserNotif" checked>
+                        <label class="form-check-label" for="browserNotif">Notificaciones en el
+                            Navegador</label>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Language -->
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm p-4">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-globe me-2 text-primary"></i>Idioma de la
+                        Plataforma</h5>
+                    <select class="form-select">
+                        <option selected>Español (Colombia)</option>
+                        <option>English (US)</option>
+                        <option>Français</option>
+                    </select>
+                    <p class="small text-muted mt-3">
+                        Esto cambiará el idioma de toda la interfaz del panel del solicitante.
+                    </p>
+                </div>
+            </div>
+    
+            <!-- Delete Account -->
+            <div class="col-12">
+                <div class="card border-0 shadow-sm p-4 border-start border-danger border-4">
+                    <h5 class="fw-bold text-danger mb-3">Zona de Peligro</h5>
+                    <p class="mb-4">Al eliminar su cuenta, se perderá el acceso a todos sus trámites digitales.
+                        Sus datos físicos en la institución permanecerán según la ley de restitución.</p>
+                    <button class="btn btn-outline-danger" onclick="confirmDelete()">Eliminar mi cuenta
+                        digital</button>
+    
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function confirmDelete() {
+            if (confirm('¿Está completamente seguro? Esta acción no se puede deshacer y perderá acceso a su panel Fortress.')) {
+                alert('Solicitud de eliminación enviada. Un funcionario se pondrá en contacto para validar su identidad.');
+            }
+        }
+    </script>
+{% endblock %}

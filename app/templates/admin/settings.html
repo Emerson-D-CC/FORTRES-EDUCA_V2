@@ -1,0 +1,441 @@
+<!-- #Llamar a layout_admin.html -->
+{% extends 'layout_admin.html' %}
+
+{% block titulo %}Fortress Educa - Configuración Admin{% endblock %}
+
+<!-- Titulo del Header -->
+{% set admin_header_title = "Configuración del Sistema" %}
+
+<!-- invocar el bloque -->
+{% block Contenido_Pagina %}
+
+    <main class="page-content">
+    
+        <!-- Pestañas de Configuración -->
+        <ul class="nav nav-tabs mb-4" id="settingsTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-bold" id="tab-colegios" data-bs-toggle="tab"
+                    data-bs-target="#config-colegios" type="button">
+                    <i class="fas fa-school me-1"></i> Colegios de Engativá
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold" id="tab-sistema" data-bs-toggle="tab" data-bs-target="#config-sistema"
+                    type="button">
+                    <i class="fas fa-sliders-h me-1"></i> Configuración del Sistema
+                </button>
+            </li>
+        </ul>
+    
+        <div class="tab-content">
+    
+            <!-- 1. CONFIGURACIÓN DE COLEGIOS DE ENGATIVÁ -->
+            <div class="tab-pane fade show active" id="config-colegios">
+    
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h5 class="fw-bold mb-1">
+                            <i class="fas fa-school me-2 text-primary"></i>Colegios Públicos de Engativá
+                        </h5>
+                        <p class="text-muted small mb-0">
+                            Configure los colegios disponibles, cupos por grado y jornadas.
+                            <em>FUTURA INTEGRACIÓN CON BASE DE DATOS.</em>
+                        </p>
+                    </div>
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addCollegeModal">
+                        <i class="fas fa-plus me-1"></i>Agregar Colegio
+                    </button>
+                </div>
+    
+                <!--
+                                DATA_SOURCE: GET /api/admin/configuracion/colegios
+                                LISTA DE COLEGIOS PÚBLICOS DE ENGATIVÁ CON CUPOS POR GRADO
+                                Nota: La modificación aquí afecta directamente el proceso de asignación de cupos
+                            -->
+                <div class="row g-4">
+    
+                    <!-- Colegio 1 -->
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h6 class="fw-bold mb-0">IED La Merced</h6>
+                                    <small class="text-muted">Código DANE: 111001000534</small>
+                                </div>
+                                <div>
+                                    <span class="badge bg-success me-1">Activo</span>
+                                    <button class="btn btn-outline-secondary btn-sm" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="small text-muted mb-2">
+                                <i class="fas fa-map-marker-alt me-1"></i>Calle 67 #77-50, Quirigua
+                            </p>
+    
+                            <!-- Cupos por grado y jornada -->
+                            <!-- DATA_SOURCE: tabla 'cupos_colegios' WHERE colegio_id = 1 -->
+                            <div class="accordion accordion-flush" id="accordionIEDMerced">
+                                <div class="accordion-item border-0">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button p-2 py-1 small" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#collapseIEDMerced">
+                                            <strong>Cupos por Grado y Jornada</strong>
+                                        </button>
+                                    </h2>
+                                    <div id="collapseIEDMerced" class="accordion-collapse collapse show">
+                                        <div class="accordion-body p-2">
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-striped small mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Grado</th>
+                                                            <th>Mañana</th>
+                                                            <th>Tarde</th>
+                                                            <th>Total</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>Transición</td>
+                                                            <td><input type="number" class="form-control form-control-sm"
+                                                                    value="5" min="0"></td>
+                                                            <td><input type="number" class="form-control form-control-sm"
+                                                                    value="3" min="0"></td>
+                                                            <td class="fw-bold">8</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>1° Primaria</td>
+                                                            <td><input type="number" class="form-control form-control-sm"
+                                                                    value="3" min="0"></td>
+                                                            <td><input type="number" class="form-control form-control-sm"
+                                                                    value="2" min="0"></td>
+                                                            <td class="fw-bold">5</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>4° Primaria</td>
+                                                            <td><input type="number" class="form-control form-control-sm"
+                                                                    value="4" min="0"></td>
+                                                            <td><input type="number" class="form-control form-control-sm"
+                                                                    value="3" min="0"></td>
+                                                            <td class="fw-bold">7</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="d-flex justify-content-end mt-2">
+                                                <button class="btn btn-success btn-sm">
+                                                    <i class="fas fa-save me-1"></i>Guardar Cupos
+                                                    <!-- FUTURA INTEGRACIÓN: PUT /api/admin/colegios/{id}/cupos -->
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- Colegio 2 -->
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h6 class="fw-bold mb-0">IED Las Ferias</h6>
+                                    <small class="text-muted">Código DANE: 111001000437</small>
+                                </div>
+                                <div>
+                                    <span class="badge bg-success me-1">Activo</span>
+                                    <button class="btn btn-outline-secondary btn-sm" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="small text-muted mb-2">
+                                <i class="fas fa-map-marker-alt me-1"></i>Cra 78A #70-35, Las Ferias
+                            </p>
+    
+                            <!-- DATA_SOURCE: tabla 'cupos_colegios' WHERE colegio_id = 2 -->
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped small mb-2">
+                                    <thead>
+                                        <tr>
+                                            <th>Grado</th>
+                                            <th>Mañana</th>
+                                            <th>Tarde</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>2° Primaria</td>
+                                            <td><input type="number" class="form-control form-control-sm" value="2" min="0">
+                                            </td>
+                                            <td><input type="number" class="form-control form-control-sm" value="3" min="0">
+                                            </td>
+                                            <td class="fw-bold">5</td>
+                                        </tr>
+                                        <tr>
+                                            <td>6° Bachillerato</td>
+                                            <td><input type="number" class="form-control form-control-sm" value="5" min="0">
+                                            </td>
+                                            <td><input type="number" class="form-control form-control-sm" value="4" min="0">
+                                            </td>
+                                            <td class="fw-bold">9</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <button class="btn btn-success btn-sm">
+                                    <i class="fas fa-save me-1"></i>Guardar Cupos
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- Colegio 3 -->
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h6 class="fw-bold mb-0">IED Marco Tulio Fernández</h6>
+                                    <small class="text-muted">Código DANE: 111001000429</small>
+                                </div>
+                                <div>
+                                    <span class="badge bg-success me-1">Activo</span>
+                                    <button class="btn btn-outline-secondary btn-sm" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="small text-muted mb-2">
+                                <i class="fas fa-map-marker-alt me-1"></i>Cra. 73 # 63-31, Engativá
+                            </p>
+                            <div class="text-center py-2">
+                                <button class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-plus me-1"></i>Configuar Cupos
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- Agregar nuevo colegio (placeholder) -->
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm p-4 d-flex align-items-center justify-content-center"
+                            style="border: 2px dashed #dee2e6 !important; min-height: 160px; cursor: pointer;"
+                            data-bs-toggle="modal" data-bs-target="#addCollegeModal">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-plus-circle fa-3x mb-2" style="color: var(--color-accent-green);"></i>
+                                <p class="mb-0 fw-bold">Agregar Nuevo Colegio</p>
+                                <small>Registre un nuevo IED de Engativá</small>
+                            </div>
+                        </div>
+                    </div>
+    
+                </div>
+            </div>
+    
+            <!-- 2. CONFIGURACIÓN DEL SISTEMA -->
+            <div class="tab-pane fade" id="config-sistema">
+    
+                <h5 class="fw-bold mb-4">
+                    <i class="fas fa-sliders-h me-2 text-primary"></i>Reglas del Sistema de Asignación
+                </h5>
+    
+                <!--
+                                DATA_SOURCE: GET + PUT /api/admin/configuracion/sistema
+                                ESTAS REGLAS GOBIERNAN EL MOTOR DE ASIGNACIÓN AUTOMÁTICA
+                                FUTURA INTEGRACIÓN CON MOTOR DE PRIORIDADES
+                            -->
+    
+                <!-- Prioridades Automáticas -->
+                <div class="card border-0 shadow-sm p-4 mb-4">
+                    <h6 class="fw-bold mb-4">
+                        <i class="fas fa-sort-amount-down me-2 text-warning"></i>Prioridades Automáticas de
+                        Asignación
+                    </h6>
+                    <div class="alert alert-info small py-2 mb-4">
+                        <i class="fas fa-info-circle me-1"></i>
+                        El sistema asignará prioridades automáticamente según estos criterios. El orden
+                        determina la prioridad.
+                        Las solicitudes con mayor puntaje total serán atendidas primero.
+                    </div>
+    
+                    <table class="table align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Prioridad</th>
+                                <th>Criterio</th>
+                                <th>Punch de Prioridad</th>
+                                <th>Activo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge bg-danger me-2">1</span>Máxima</td>
+                                <td>Víctima de conflicto armado (con certificado UARIV)</td>
+                                <td><input type="number" class="form-control form-control-sm" value="100"
+                                        style="width: 80px;"></td>
+                                <td>
+                                    <div class="form-check form-switch"><input class="form-check-input" type="checkbox"
+                                            checked></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-danger me-2">2</span>Alta</td>
+                                <td>Desplazamiento forzado (con declaración)</td>
+                                <td><input type="number" class="form-control form-control-sm" value="90"
+                                        style="width: 80px;"></td>
+                                <td>
+                                    <div class="form-check form-switch"><input class="form-check-input" type="checkbox"
+                                            checked></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge" style="background:#e67e22;">3</span> Media-Alta</td>
+                                <td>No escolarizado por más de 2 años</td>
+                                <td><input type="number" class="form-control form-control-sm" value="80"
+                                        style="width: 80px;"></td>
+                                <td>
+                                    <div class="form-check form-switch"><input class="form-check-input" type="checkbox"
+                                            checked></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-warning text-dark me-2">4</span>Media</td>
+                                <td>Vulnerabilidad económica (con SISBEN IV nivel A o B)</td>
+                                <td><input type="number" class="form-control form-control-sm" value="70"
+                                        style="width: 80px;"></td>
+                                <td>
+                                    <div class="form-check form-switch"><input class="form-check-input" type="checkbox"
+                                            checked></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge bg-success me-2">5</span>Normal</td>
+                                <td>Residente en Engativá sin condición especial</td>
+                                <td><input type="number" class="form-control form-control-sm" value="50"
+                                        style="width: 80px;"></td>
+                                <td>
+                                    <div class="form-check form-switch"><input class="form-check-input" type="checkbox"
+                                            checked></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="d-flex justify-content-end mt-2">
+                        <button class="btn btn-primary px-4">
+                            <i class="fas fa-save me-1"></i>Guardar Reglas de Prioridad
+                            <!-- FUTURA INTEGRACIÓN: PUT /api/admin/configuracion/prioridades -->
+                        </button>
+                    </div>
+                </div>
+    
+                <!-- Configuraciones Generales -->
+                <div class="card border-0 shadow-sm p-4 mb-4">
+                    <h6 class="fw-bold mb-4">
+                        <i class="fas fa-wrench me-2 text-primary"></i>Parámetros Generales del Sistema
+                    </h6>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Período Académico Activo</label>
+                            <input type="text" class="form-control" value="2026-1">
+                            <div class="form-text">Período en el que se están asignando cupos.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Máximo de Solicitudes por Acudiente</label>
+                            <input type="number" class="form-control" value="3" min="1" max="10">
+                            <div class="form-text">Número máximo de menores por acudiente.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Días de Revisión de Solicitudes</label>
+                            <input type="number" class="form-control" value="15" min="1" max="60">
+                            <div class="form-text">Días hábiles para procesar una solicitud.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Asignación Automática</label>
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" id="asignacionAutomatica">
+                                <label class="form-check-label" for="asignacionAutomatica">
+                                    Activar asignación automática basada en prioridades
+                                </label>
+                            </div>
+                            <div class="form-text">
+                                Si está activo, el sistema asignará cupos automáticamente al haber
+                                disponibilidad.
+                                <br><em>FUTURA INTEGRACIÓN CON MOTOR DE ASIGNACIÓN</em>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-4">
+                        <button class="btn btn-primary px-4">
+                            <i class="fas fa-save me-1"></i>Guardar Configuración
+                            <!-- FUTURA INTEGRACIÓN: PUT /api/admin/configuracion/sistema -->
+                        </button>
+                    </div>
+                </div>
+    
+            </div>
+        </div>
+    
+    </main>
+
+    <!-- Modal: Agregar Colegio -->
+    <div class="modal fade" id="addCollegeModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fas fa-school me-2 text-primary"></i>Agregar Colegio de Engativá
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!--
+                        FUTURA INTEGRACIÓN: POST /api/admin/colegios
+                        ESTO REGISTRARÁ EL NUEVO COLEGIO EN LA BASE DE DATOS
+                    -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Nombre de la Institución Educativa *</label>
+                        <input type="text" class="form-control" placeholder="Ej: IED Quirigua" id="nombreColegio">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Código DANE</label>
+                        <input type="text" class="form-control" placeholder="Ej: 111001000xxx" id="codeDane">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Dirección</label>
+                        <input type="text" class="form-control" placeholder="Dirección del colegio en Engativá"
+                            id="direccionColegio">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Jornadas Disponibles</label>
+                        <div class="d-flex gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="jManana" checked>
+                                <label class="form-check-label" for="jManana">Mañana</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="jTarde">
+                                <label class="form-check-label" for="jTarde">Tarde</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="jNocturna">
+                                <label class="form-check-label" for="jNocturna">Nocturna</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary px-4">
+                        <i class="fas fa-save me-1"></i>Registrar Colegio
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

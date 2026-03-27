@@ -1,0 +1,209 @@
+<!-- #Llamar a layout_admin.html -->
+{% extends 'layout_admin.html' %}
+
+{% block titulo %}Fortress Educa - Historial Auditoría{% endblock %}
+
+<!-- Titulo del Header -->
+{% set admin_header_title = "Historial y Auditoría del Sistema" %}
+
+<!-- invocar el bloque -->
+{% block Contenido_Pagina %}
+
+    <main class="page-content">
+    
+        <div class="alert alert-light border small py-2 mb-4">
+            <i class="fas fa-shield-alt text-primary me-1"></i>
+            <strong>Módulo de Auditoría:</strong> Este registro captura todas las acciones sensibles del sistema
+            para garantizar transparencia y trazabilidad. No puede ser modificado por los administradores.
+            <br>
+            <em class="text-muted">FUTURA INTEGRACIÓN CON BASE DE DATOS - tabla 'auditoria_log'</em>
+        </div>
+    
+        <!-- Filtros de Auditoría -->
+        <div class="card border-0 shadow-sm p-3 mb-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold">Tipo de Evento</label>
+                    <select class="form-select form-select-sm" id="filtroEvento">
+                        <option value="">Todos los eventos</option>
+                        <option value="solicitud_nueva">Nueva Solicitud de Cupo</option>
+                        <option value="cupo_asignado">Asignación de Cupo</option>
+                        <option value="estado_cambiado">Cambio de Estado</option>
+                        <option value="config_cambiada">Cambio de Configuración</option>
+                        <option value="login_admin">Inicio de Sesión Admin</option>
+                        <option value="login_acudiente">Inicio de Sesión Acudiente</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold">Fecha Desde</label>
+                    <input type="date" class="form-control form-control-sm" id="fechaDesde">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold">Fecha Hasta</label>
+                    <input type="date" class="form-control form-control-sm" id="fechaHasta">
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button class="btn btn-outline-secondary btn-sm flex-grow-1" id="btnFiltrarAuditoria">
+                        <i class="fas fa-filter me-1"></i>Filtrar
+                    </button>
+                    <button class="btn btn-outline-success btn-sm" id="btnExportarAuditoria">
+                        <i class="fas fa-download me-1"></i>CSV
+                    </button>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Tabla de Historial -->
+        <div class="card border-0 shadow-sm p-4">
+            <h5 class="fw-bold mb-4">
+                <i class="fas fa-scroll me-2 text-primary"></i>Registro de Auditoría
+            </h5>
+    
+            <!--
+                            AQUÍ SE CARGARÁN LOS EVENTOS DESDE LA BASE DE DATOS
+                            DATA_SOURCE: GET /api/admin/auditoria?tipo=&fechaDesde=&fechaHasta=&page=
+                            ESTA TABLA SE ALIMENTARÁ AUTOMÁTICAMENTE CON CADA ACCIÓN DEL SISTEMA
+                            Estructura tabla BD: (id, timestamp, tipo_evento, usuario, detalle, ip_address, resultado)
+                        -->
+            <div class="table-responsive">
+                <table class="table table-hover align-middle small">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Fecha y Hora</th>
+                            <th>Tipo de Evento</th>
+                            <th>Usuario</th>
+                            <th>Detalle</th>
+                            <th>IP</th>
+                            <th>Resultado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Evento: Asignación de Cupo -->
+                        <tr>
+                            <td class="text-nowrap">
+                                <i class="fas fa-clock text-muted me-1"></i>
+                                19 Feb 2026, 10:32 AM
+                            </td>
+                            <td>
+                                <span class="badge bg-success">
+                                    <i class="fas fa-school me-1"></i>Cupo Asignado
+                                </span>
+                            </td>
+                            <td>Adm. Luis Narváez</td>
+                            <td>Cupo asignado a <strong>#EDU-0040</strong> (Laura Pérez) en IED Las Ferias · 2°
+                                Primaria</td>
+                            <td><code>192.168.1.10</code></td>
+                            <td><span class="badge bg-success">Exitoso</span></td>
+                        </tr>
+    
+                        <!-- Evento: Nueva Solicitud -->
+                        <tr>
+                            <td class="text-nowrap">
+                                <i class="fas fa-clock text-muted me-1"></i>
+                                19 Feb 2026, 09:15 AM
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">
+                                    <i class="fas fa-file-alt me-1"></i>Nueva Solicitud
+                                </span>
+                            </td>
+                            <td>María García (acudiente)</td>
+                            <td>Nueva solicitud de cupo registrada: <strong>#EDU-0041</strong> · Carlos García ·
+                                4° Primaria · Prioridad Alta</td>
+                            <td><code>190.24.18.55</code></td>
+                            <td><span class="badge bg-success">Exitoso</span></td>
+                        </tr>
+    
+                        <!-- Evento: Cambio de Estado -->
+                        <tr>
+                            <td class="text-nowrap">
+                                <i class="fas fa-clock text-muted me-1"></i>
+                                19 Feb 2026, 11:30 AM
+                            </td>
+                            <td>
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-exchange-alt me-1"></i>Cambio Estado
+                                </span>
+                            </td>
+                            <td>Func. Ana Bejarano</td>
+                            <td>Estado de solicitud <strong>#EDU-0041</strong> cambiado de "Pendiente" a "En
+                                Revisión"</td>
+                            <td><code>192.168.1.12</code></td>
+                            <td><span class="badge bg-success">Exitoso</span></td>
+                        </tr>
+    
+                        <!-- Evento: Login Admin -->
+                        <tr>
+                            <td class="text-nowrap">
+                                <i class="fas fa-clock text-muted me-1"></i>
+                                19 Feb 2026, 08:45 AM
+                            </td>
+                            <td>
+                                <span class="badge bg-dark">
+                                    <i class="fas fa-shield-alt me-1"></i>Login Admin
+                                </span>
+                            </td>
+                            <td>Adm. Luis Narváez</td>
+                            <td>Inicio de sesión administrativo exitoso (credential: ADM-0001)</td>
+                            <td><code>192.168.1.10</code></td>
+                            <td><span class="badge bg-success">Exitoso</span></td>
+                        </tr>
+    
+                        <!-- Evento: Config Cambiada -->
+                        <tr>
+                            <td class="text-nowrap">
+                                <i class="fas fa-clock text-muted me-1"></i>
+                                18 Feb 2026, 03:15 PM
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">
+                                    <i class="fas fa-cog me-1"></i>Configuración
+                                </span>
+                            </td>
+                            <td>Adm. Claudia Vargas</td>
+                            <td>Actualización de cupos disponibles en IED Quirigua: 8 cupos en 4° Primaria
+                                (jornada mañana)</td>
+                            <td><code>192.168.1.11</code></td>
+                            <td><span class="badge bg-success">Exitoso</span></td>
+                        </tr>
+    
+                        <!-- Evento: Login Fallido -->
+                        <tr>
+                            <td class="text-nowrap">
+                                <i class="fas fa-clock text-muted me-1"></i>
+                                18 Feb 2026, 11:02 AM
+                            </td>
+                            <td>
+                                <span class="badge bg-dark">
+                                    <i class="fas fa-user-lock me-1"></i>Intento Login
+                                </span>
+                            </td>
+                            <td>Desconocido</td>
+                            <td>Intento de acceso administrativo fallido con credencial inválida (3 intentos)
+                            </td>
+                            <td><code>200.45.12.99</code></td>
+                            <td><span class="badge bg-danger">Bloqueado</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+    
+            <!-- Paginación -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <small class="text-muted">Mostrando 6 de 342 registros de auditoría</small>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item disabled"><a class="page-link" href="#">Anterior</a></li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">...</a></li>
+                        <li class="page-item"><a class="page-link" href="#">57</a></li>
+                        <li class="page-item"><a class="page-link" href="#">Siguiente</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    
+    </main>
+
+{% endblock %}

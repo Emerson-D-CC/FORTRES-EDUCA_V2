@@ -1,0 +1,248 @@
+<!-- #Llamar a layout_dashboard.html -->
+{% extends 'layout_dashboard.html' %}
+
+{% block titulo %}Fortress Educa - Panel Usuario{% endblock %}
+
+<!-- Titulo del Header -->
+{% set header_title = "Panel Principal" %}
+
+<!-- invocar el bloque -->
+{% block Contenido_Pagina %}
+
+    <!-- Page Content -->
+    <main class="page-content">
+        <!-- Welcome Banner -->
+        <div class="alert border-0 shadow-sm mb-4" role="alert"
+            style="background: linear-gradient(135deg, #e8f5e9, #e3f2fd); border-left: 4px solid var(--color-accent-green) !important;">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-graduation-cap fa-2x me-3" style="color: var(--color-accent-green);"></i>
+                <div>
+                    <h5 class="alert-heading mb-1" style="color: var(--color-primary-dark);">
+                        ¡Bienvenida al Sistema de Cupos Educativos de Engativá!
+                    </h5>
+                    <p class="mb-0 text-muted small">
+                        Desde este panel puede gestionar la solicitud de cupo educativo para su menor a cargo
+                        en los colegios públicos de la localidad de Engativá.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+            <!--
+                AQUÍ SE MOSTRARÁ EL ESTADO DEL CUPO EDUCATIVO DESDE LA BASE DE DATOS
+                DATA_SOURCE: GET /api/solicitudes/resumen/{userId}
+                FUTURA INTEGRACIÓN CON SISTEMA DE CUPOS
+            -->
+
+                <!-- Stats Grid -->
+        <div class="row g-4 mb-4">
+            <!-- Estado del Cupo -->
+            <div class="col-md-6 col-xl-3">
+                <div class="stat-card status-pending">
+                    <div class="stat-icon">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    <!-- DATA_SOURCE: solicitud.estado (Pendiente / En revisión / Cupo asignado / En lista de espera / Rechazado) -->
+                    <div class="stat-value">En Revisión</div>
+                    <div class="stat-label">Estado del Cupo</div>
+                </div>
+            </div>
+
+            <!-- Colegio Asignado -->
+            <div class="col-md-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon"
+                        style="background: linear-gradient(135deg, rgba(17,153,142,0.1), rgba(56,239,125,0.1));">
+                        <i class="fas fa-school" style="color: var(--color-accent-green);"></i>
+                    </div>
+                    <!-- DATA_SOURCE: solicitud.colegio_asignado (null si no asignado aún) -->
+                    <div class="stat-value h6 mb-0 text-muted">Sin asignar</div>
+                    <div class="stat-label">Colegio Asignado</div>
+                </div>
+            </div>
+
+            <!-- Fecha de Solicitud -->
+            <div class="col-md-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <!-- DATA_SOURCE: solicitud.fecha_ingreso -->
+                    <div class="stat-value h5 mb-0">19 Feb, 2026</div>
+                    <div class="stat-label">Fecha de Solicitud</div>
+                </div>
+            </div>
+
+            <!-- Nivel de Prioridad -->
+            <div class="col-md-6 col-xl-3">
+                <div class="stat-card security-high">
+                    <div class="stat-icon" style="background: rgba(203,45,62,0.1);">
+                        <i class="fas fa-exclamation-circle" style="color: var(--color-danger);"></i>
+                    </div>
+                    <!-- DATA_SOURCE: solicitud.nivel_prioridad (calculado por el sistema) -->
+                    <div class="stat-value text-danger">Alta</div>
+                    <div class="stat-label">Nivel de Prioridad</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información del Caso -->
+        <div class="row g-4 mb-4">
+            <!-- Resumen Acudiente y Menor -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm p-4 h-100">
+                    <h5 class="fw-bold mb-4"><i class="fas fa-id-card me-2 text-primary"></i>Información del
+                        Caso</h5>
+                    <!--
+                        DATA_SOURCE: tabla 'acudientes' + tabla 'menores'
+                        AQUÍ SE MOSTRARÁ EL ESTADO DEL CUPO EDUCATIVO DESDE LA BASE DE DATOS
+                    -->
+                    <div class="table-responsive">
+                        <table class="table table-borderless small">
+                            <tbody>
+                                <tr>
+                                    <td class="text-muted fw-bold w-50">Acudiente:</td>
+                                    <td class="fw-bold">María García Rodríguez</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-bold">Menor registrado:</td>
+                                    <td class="fw-bold">Carlos García Rodríguez</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-bold">Grado solicitado:</td>
+                                    <td>4° de Primaria</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-bold">Tipo de afectación:</td>
+                                    <td><span class="badge bg-danger">Desplazamiento Forzado</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-bold">Jornada preferida:</td>
+                                    <td>Mañana</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-bold">ID Solicitud:</td>
+                                    <td class="text-primary fw-bold">#EDU-2026-0041</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estado Visual del Proceso -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm p-4 h-100"
+                    style="background: linear-gradient(135deg, #f8fffe, #f0f9f4);">
+                    <h5 class="fw-bold mb-4"><i class="fas fa-tasks me-2 text-success"></i>Estado del Proceso
+                    </h5>
+                    <!-- DATA_SOURCE: solicitud.etapa_actual -->
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0"
+                                style="width:36px; height:36px; background: var(--color-accent-green);">
+                                <i class="fas fa-check text-white small"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold small">Solicitud Enviada</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">19 Feb 2026, 09:15 AM</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0"
+                                style="width:36px; height:36px; background: var(--color-primary-light);">
+                                <i class="fas fa-search text-white small"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold small">En Revisión</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">En proceso desde 19 Feb,
+                                    11:00 AM</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center opacity-50">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0"
+                                style="width:36px; height:36px; background: #dee2e6;">
+                                <i class="fas fa-clipboard-check text-white small"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold small text-muted">Validación de Documentos</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">Pendiente</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center opacity-50">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0"
+                                style="width:36px; height:36px; background: #dee2e6;">
+                                <i class="fas fa-school text-white small"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold small text-muted">Asignación de Cupo</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">Pendiente</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center opacity-50">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0"
+                                style="width:36px; height:36px; background: #dee2e6;">
+                                <i class="fas fa-flag-checkered text-white small"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold small text-muted">Confirmación</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">Pendiente</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acciones Rápidas -->
+        <h5 class="mb-3 text-muted">Acciones Rápidas</h5>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <a href="{{ url_for('dashboard.dashboard_request') }}"
+                    class="card h-100 p-3 text-decoration-none border-0 shadow-sm hover-elevate">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle text-white p-3 me-3"
+                            style="background: linear-gradient(135deg, var(--color-accent-green), var(--color-primary-light));">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 text-dark fw-bold">Nueva Solicitud de Cupo</h6>
+                            <small class="text-muted">Inicie un nuevo proceso de asignación.</small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ url_for('dashboard.dashboard_status') }}"
+                    class="card h-100 p-3 text-decoration-none border-0 shadow-sm hover-elevate">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle text-white p-3 me-3"
+                            style="background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary-dark));">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 text-dark fw-bold">Ver Seguimiento</h6>
+                            <small class="text-muted">Consulte el estado de su solicitud.</small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ url_for('dashboard.dashboard_profile') }}"
+                    class="card h-100 p-3 text-decoration-none border-0 shadow-sm hover-elevate">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle text-white p-3 me-3"
+                            style="background: linear-gradient(135deg, var(--color-warning), #e67e22);">
+                            <i class="fas fa-user-edit"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1 text-dark fw-bold">Actualizar Perfil</h6>
+                            <small class="text-muted">Mantenga sus datos actualizados.</small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </main>
+    
+{% endblock %}

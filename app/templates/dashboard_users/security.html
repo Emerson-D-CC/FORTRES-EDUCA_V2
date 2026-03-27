@@ -1,0 +1,115 @@
+<!-- #Llamar a layout_dashboard.html -->
+{% extends 'layout_dashboard.html' %}
+
+{% block titulo %}Fortress Educa - Seguridad{% endblock %}
+
+<!-- Titulo del Header -->
+{% set header_title = "Centro de Seguridad" %}
+
+<!-- invocar el bloque -->
+{% block Contenido_Pagina %}
+    
+    <main class="page-content">
+        <div class="row g-4">
+            <!-- 2FA Section -->
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm p-4 h-100 text-center">
+                    <i class="fas fa-shield-alt fa-3x mb-3 text-primary"></i>
+                    <h5 class="fw-bold">Autenticación de Dos Factores (2FA)</h5>
+                    <p class="text-muted small">Añada una capa extra de seguridad a su cuenta usando Google
+                        Authenticator.</p>
+    
+                    <div class="d-flex align-items-center justify-content-center gap-3 my-4">
+                        <span class="fw-bold small">Desactivado</span>
+                        <label class="switch">
+                            <input type="checkbox" id="twoFactorToggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="fw-bold small">Activado</span>
+                    </div>
+    
+                    <div id="qrSection" class="d-none animate-fade-in">
+                        <div class="qr-placeholder mb-3">
+                            <i class="fas fa-qrcode fa-5x text-muted opacity-25"></i>
+                        </div>
+                        <p class="small text-muted mb-3">Escanee este código con su aplicación 2FA.</p>
+                        <button class="btn btn-primary btn-sm w-100">Activar 2FA</button>
+                    </div>
+    
+                    <!-- AQUÍ SE INTEGRARÁ EL SISTEMA 2FA (Google Authenticator u otro) -->
+                </div>
+            </div>
+    
+            <!-- Change Password -->
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm p-4 h-100">
+                    <h5 class="fw-bold mb-4">Actualizar Contraseña</h5>
+                    <form>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Contraseña Actual</label>
+                            <input type="password" class="form-control" placeholder="••••••••">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Nueva Contraseña</label>
+                            <input type="password" class="form-control" placeholder="••••••••">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold">Confirmar Nueva Contraseña</label>
+                            <input type="password" class="form-control" placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Actualizar Contraseña</button>
+                        <!-- FUTURA IMPLEMENTACIÓN DE HASH DE CONTRASEÑAS Y VALIDACIÓN SEGURA EN BACKEND -->
+                    </form>
+                </div>
+            </div>
+    
+            <!-- Session History -->
+            <div class="col-12">
+                <div class="card border-0 shadow-sm p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0">Sesiones Activas</h5>
+                        <button class="btn btn-outline-danger btn-sm">Cerrar todas las sesiones</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Dispositivo</th>
+                                    <th>Ubicación</th>
+                                    <th>Fecha/Hora</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><i class="fas fa-desktop me-2 text-primary"></i> Chrome - Windows</td>
+                                    <td>Ciudad Central (IP: 192.168.1.5)</td>
+                                    <td>Hoy, 10:30 AM</td>
+                                    <td><span class="badge bg-success">Actual</span></td>
+                                </tr>
+                                <tr>
+                                    <td><i class="fas fa-mobile-alt me-2 text-primary"></i> iPhone 13 - Safari
+                                    </td>
+                                    <td>Bogotá, Colombia</td>
+                                    <td>Ayer, 08:15 PM</td>
+                                    <td><span class="badge bg-secondary">Activa</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('twoFactorToggle')?.addEventListener('change', function (e) {
+            const qrSection = document.getElementById('qrSection');
+            if (e.target.checked) {
+                qrSection.classList.remove('d-none');
+            } else {
+                qrSection.classList.add('d-none');
+            }
+        });
+    </script>
+{% endblock %}

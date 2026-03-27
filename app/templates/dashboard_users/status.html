@@ -1,0 +1,190 @@
+<!-- #Llamar a layout_dashboard.html -->
+{% extends 'layout_dashboard.html' %}
+
+{% block titulo %}Fortress Educa - Seguimiento{% endblock %}
+
+<!-- Titulo del Header -->
+{% set header_title = "Seguimiento de Solicitudes de Cupo" %}
+
+<!-- invocar el bloque -->
+{% block Contenido_Pagina %}
+
+    <main class="page-content">
+
+        <!-- Tabla de Solicitudes y Timeline -->
+        <div class="row g-4">
+            <!-- Tabla de Solicitudes -->
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fas fa-list me-2 text-primary"></i>Mis Solicitudes de Cupo
+                        </h5>
+                        <a href="{{ url_for('dashboard.dashboard_request') }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus me-1"></i> Nueva
+                        </a>
+                    </div>
+
+                    <!--
+                                    AQUÍ SE CARGARÁN LAS SOLICITUDES DESDE LA BASE DE DATOS
+                                    DATA_SOURCE: GET /api/solicitudes/acudiente/{userId}
+                                -->
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" id="tablaSolicitudes">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Menor</th>
+                                    <th>Grado</th>
+                                    <th>Estado</th>
+                                    <th>Colegio</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Solicitud Activa -->
+                                <tr class="table-active" style="cursor: pointer;" onclick="selectRequest(this, 'EDU-0041')">
+                                    <td><strong class="text-primary">#EDU-0041</strong></td>
+                                    <td>Carlos García</td>
+                                    <td>4° Primaria</td>
+                                    <td><span class="badge bg-warning">En Revisión</span></td>
+                                    <td><span class="text-muted small">Sin asignar</span></td>
+                                    <td><small>19 Feb 2026</small></td>
+                                </tr>
+                                <!-- Solicitud Anterior -->
+                                <tr style="cursor: pointer; opacity: 0.65;" onclick="selectRequest(this, 'EDU-0018')">
+                                    <td><strong class="text-primary">#EDU-0018</strong></td>
+                                    <td>Carlos García</td>
+                                    <td>3° Primaria</td>
+                                    <td><span class="badge bg-secondary">Archivada</span></td>
+                                    <td><span class="text-muted small">IED Quirigua</span></td>
+                                    <td><small>05 Ene 2025</small></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <hr>
+                    <div class="text-end">
+                        <button class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-download me-1"></i> Descargar Constancia (Simulado)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline del Proceso -->
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm p-4" style="background: linear-gradient(135deg, #f8fff9, #f0f9f4);">
+                    <h5 class="fw-bold mb-1">
+                        <i class="fas fa-stream me-2" style="color: var(--color-accent-green);"></i>
+                        Línea de Tiempo
+                    </h5>
+                    <p class="text-muted small mb-4">Solicitud <strong>#EDU-0041</strong> · Carlos García</p>
+
+                    <!--
+                                    AQUÍ SE MOSTRARÁ EL PROGRESO DEL PROCESO DESDE LA BASE DE DATOS
+                                    DATA_SOURCE: tabla 'solicitud_eventos' WHERE solicitud_id = #EDU-0041
+                                -->
+                    <ul class="timeline">
+                        <li class="timeline-item completed">
+                            <div class="timeline-marker"><i class="fas fa-check"></i></div>
+                            <div class="timeline-content shadow-sm">
+                                <h6 class="fw-bold mb-1"><i class="fas fa-paper-plane me-1 text-success"></i>Solicitud
+                                    Enviada</h6>
+                                <p class="small text-muted mb-1">19 Feb 2026, 09:15 AM</p>
+                                <p class="small mb-0">La solicitud de cupo fue registrada correctamente en el
+                                    sistema.</p>
+                            </div>
+                        </li>
+                        <li class="timeline-item active">
+                            <div class="timeline-marker"><i class="fas fa-search"></i></div>
+                            <div class="timeline-content shadow-sm">
+                                <h6 class="fw-bold mb-1"><i class="fas fa-eye me-1"
+                                        style="color: var(--color-primary-light);"></i>En Revisión</h6>
+                                <p class="small text-muted mb-1">19 Feb 2026, 11:30 AM</p>
+                                <p class="small mb-0">Un funcionario educativo está revisando su solicitud y
+                                    documentos adjuntos.</p>
+                            </div>
+                        </li>
+                        <li class="timeline-item">
+                            <div class="timeline-marker"><i class="fas fa-clipboard-check"></i></div>
+                            <div class="timeline-content">
+                                <h6 class="fw-bold mb-1 text-muted">Validación de Documentos</h6>
+                                <p class="small text-muted mb-0">Pendiente</p>
+                            </div>
+                        </li>
+                        <li class="timeline-item">
+                            <div class="timeline-marker"><i class="fas fa-school"></i></div>
+                            <div class="timeline-content">
+                                <h6 class="fw-bold mb-1 text-muted">Asignación de Cupo</h6>
+                                <p class="small text-muted mb-0">Pendiente</p>
+                                <!-- AQUÍ SE ASIGNARÁ EL COLEGIO DISPONIBLE EN ENGATIVÁ -->
+                            </div>
+                        </li>
+                        <li class="timeline-item">
+                            <div class="timeline-marker"><i class="fas fa-flag-checkered"></i></div>
+                            <div class="timeline-content">
+                                <h6 class="fw-bold mb-1 text-muted">Confirmación Final</h6>
+                                <p class="small text-muted mb-0">Pendiente</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de Notificaciones -->
+        <div class="card border-0 shadow-sm p-4 mt-4">
+            <h5 class="fw-bold mb-4">
+                <i class="fas fa-bell me-2 text-warning"></i>Notificaciones del Sistema
+            </h5>
+            <!--
+                            DATA_SOURCE: tabla 'notificaciones' WHERE usuario_id = {userId}
+                            FUTURA INTEGRACIÓN CON BASE DE DATOS
+                        -->
+            <div class="list-group list-group-flush">
+                <div class="list-group-item d-flex align-items-start gap-3 py-3">
+                    <i class="fas fa-bell text-warning mt-1"></i>
+                    <div>
+                        <h6 class="mb-0 fw-bold">Actualización de Solicitud</h6>
+                        <p class="small text-muted mb-0">Su solicitud #EDU-0041 ha pasado al estado "En
+                            Revisión".
+                            Un funcionario se ha asignado a su caso.</p>
+                        <small class="text-info">Hace 2 horas</small>
+                    </div>
+                </div>
+                <div class="list-group-item d-flex align-items-start gap-3 py-3">
+                    <i class="fas fa-info-circle text-primary mt-1"></i>
+                    <div>
+                        <h6 class="mb-0 fw-bold">Documentos Recibidos</h6>
+                        <p class="small text-muted mb-0">Se han recibido correctamente los documentos adjuntos a
+                            su solicitud #EDU-0041.</p>
+                        <small class="text-info">Hace 3 horas</small>
+                    </div>
+                </div>
+                <div class="list-group-item d-flex align-items-start gap-3 py-3">
+                    <i class="fas fa-check-circle text-success mt-1"></i>
+                    <div>
+                        <h6 class="mb-0 fw-bold">Solicitud Registrada</h6>
+                        <p class="small text-muted mb-0">Su solicitud de cupo educativo fue exitosamente
+                            registrada en el sistema con ID: #EDU-0041.</p>
+                        <small class="text-success">19 Feb 2026, 09:15 AM</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Función para cambiar la solicitud seleccionada en la tabla
+        function selectRequest(row, id) {
+            document.querySelectorAll('#tablaSolicitudes tbody tr').forEach(r => r.classList.remove('table-active'));
+            row.classList.add('table-active');
+            // AQUÍ SE CARGARÍA EL TIMELINE DESDE LA BASE DE DATOS SEGÚN EL ID SELECCIONADO
+            // DATA_SOURCE: GET /api/solicitudes/timeline/{solicitudId}
+            console.log('Cargando timeline para solicitud:', id);
+        }
+    </script>
+{% endblock %}

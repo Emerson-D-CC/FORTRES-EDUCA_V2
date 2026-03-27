@@ -1,0 +1,255 @@
+<!-- #Llamar a layout_admin.html -->
+{% extends 'layout_admin.html' %}
+
+{% block titulo %}Fortress Educa - Panel Administrativo{% endblock %}
+
+<!-- Titulo del Header -->
+{% set admin_header_title = "Panel Administrativo" %}
+
+<!-- invocar el bloque -->
+{% block Contenido_Pagina %}
+
+
+    <main class="page-content">
+    
+        <!-- Alerta de Sistema -->
+        <div class="alert alert-warning small py-2 mb-4 d-flex align-items-center gap-2">
+            <i class="fas fa-exclamation-triangle me-1"></i>
+            <span>
+                <strong>Modo Demostración:</strong> Los datos mostrados son ejemplos.
+                FUTURA INTEGRACIÓN CON BASE DE DATOS Y BACKEND real.
+            </span>
+        </div>
+    
+        <!-- Métricas Generales -->
+        <!--
+                        AQUÍ SE CARGARÁN LAS MÉTRICAS DESDE LA BASE DE DATOS
+                        DATA_SOURCE: GET /api/admin/dashboard/stats
+                    -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <!-- DATA_SOURCE: total_solicitudes -->
+                    <div class="stat-value">87</div>
+                    <div class="stat-label">Total Solicitudes</div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="stat-card status-pending">
+                    <div class="stat-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <!-- DATA_SOURCE: solicitudes_en_revision -->
+                    <div class="stat-value">24</div>
+                    <div class="stat-label">En Revisión</div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="stat-card security-high">
+                    <div class="stat-icon" style="background: rgba(17,153,142,0.1);">
+                        <i class="fas fa-school" style="color: var(--color-accent-green);"></i>
+                    </div>
+                    <!-- DATA_SOURCE: cupos_asignados -->
+                    <div class="stat-value text-success">43</div>
+                    <div class="stat-label">Cupos Asignados</div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-door-open"></i>
+                    </div>
+                    <!-- DATA_SOURCE: cupos_disponibles_engativa -->
+                    <div class="stat-value" style="color: var(--color-accent-green);">312</div>
+                    <div class="stat-label">Cupos Disponibles Engativá</div>
+                </div>
+            </div>
+        </div>
+    
+        <div class="row g-4">
+            <!-- Gráfico de Actividad -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fas fa-chart-bar me-2 text-primary"></i>Actividad de Solicitudes
+                        </h5>
+                        <select class="form-select form-select-sm" style="width: auto;">
+                            <option>Últimos 7 días</option>
+                            <option>Último mes</option>
+                            <option>Últimos 3 meses</option>
+                        </select>
+                    </div>
+                    <!-- DATA_SOURCE: GET /api/admin/dashboard/activity-chart -->
+                    <canvas id="activityChart" height="120"></canvas>
+                </div>
+            </div>
+    
+            <!-- Solicitudes Recientes -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm p-4 h-100">
+                    <h5 class="fw-bold mb-3">
+                        <i class="fas fa-clock me-2 text-warning"></i>Últimas Solicitudes
+                    </h5>
+                    <!--
+                                    DATA_SOURCE: GET /api/admin/solicitudes?limit=5&order=recent
+                                    FUTURA INTEGRACIÓN CON BASE DE DATOS
+                                -->
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item px-0 py-2 border-0 border-bottom">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-bold small">#EDU-0041</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">Carlos García · 4°
+                                        Primaria</div>
+                                </div>
+                                <span class="badge bg-warning">Revisión</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item px-0 py-2 border-0 border-bottom">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-bold small">#EDU-0040</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">Laura Pérez · 2° Primaria
+                                    </div>
+                                </div>
+                                <span class="badge bg-success">Asignado</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item px-0 py-2 border-0 border-bottom">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-bold small">#EDU-0039</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">Andrés Ruiz · 7°
+                                        Bachillerato</div>
+                                </div>
+                                <span class="badge bg-secondary">Lista espera</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item px-0 py-2 border-0 border-bottom">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-bold small">#EDU-0038</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">Sofía Torres · Transición
+                                    </div>
+                                </div>
+                                <span class="badge bg-danger">Pendiente</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item px-0 py-2 border-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-bold small">#EDU-0037</div>
+                                    <div class="text-muted" style="font-size: 0.7rem;">Juan Morales · 9°
+                                        Bachillerato</div>
+                                </div>
+                                <span class="badge bg-success">Asignado</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <a href="{{ url_for('admin_cases') }}" class="btn btn-outline-primary btn-sm">Ver Todas</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Acciones Rápidas del Admin -->
+        <h6 class="fw-bold text-muted mt-4 mb-3">Acciones Rápidas del Administrador</h6>
+        <div class="row g-3">
+            <div class="col-md-3">
+                <a href="{{ url_for('admin_cases') }}"
+                    class="card border-0 shadow-sm p-3 text-decoration-none h-100 hover-elevate">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle p-2 text-white"
+                            style="background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary-dark));">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <span class="text-dark fw-bold small">Gestionar Solicitudes</span>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="{{ url_for('admin_users') }}"
+                    class="card border-0 shadow-sm p-3 text-decoration-none h-100 hover-elevate">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle p-2 text-white"
+                            style="background: linear-gradient(135deg, var(--color-accent-green), #11998e);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <span class="text-dark fw-bold small">Ver Acudientes</span>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="{{ url_for('admin_history') }}"
+                    class="card border-0 shadow-sm p-3 text-decoration-none h-100 hover-elevate">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle p-2 text-white"
+                            style="background: linear-gradient(135deg, #f6d365, #e67e22);">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <span class="text-dark fw-bold small">Auditoría del Sistema</span>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="{{ url_for('admin_settings') }}"
+                    class="card border-0 shadow-sm p-3 text-decoration-none h-100 hover-elevate">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle p-2 text-white"
+                            style="background: linear-gradient(135deg, #cb2d3e, #ef473a);">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <span class="text-dark fw-bold small">Configuración</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    
+    </main>
+
+
+    <script>
+        // Gráfico de Actividad de Solicitudes
+        // DATA_SOURCE: GET /api/admin/dashboard/activity-chart
+        // FUTURA INTEGRACIÓN CON BASE DE DATOS
+        document.addEventListener('DOMContentLoaded', function () {
+            const ctx = document.getElementById('activityChart').getContext('2d');
+            const activityChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                    datasets: [
+                        {
+                            label: 'Nuevas Solicitudes',
+                            data: [5, 12, 8, 15, 7, 3, 1],
+                            backgroundColor: 'rgba(44, 83, 100, 0.8)',
+                            borderRadius: 6,
+                        },
+                        {
+                            label: 'Cupos Asignados',
+                            data: [3, 8, 5, 10, 4, 2, 0],
+                            backgroundColor: 'rgba(17, 153, 142, 0.7)',
+                            borderRadius: 6,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        });
+    </script>
+
+{% endblock %}

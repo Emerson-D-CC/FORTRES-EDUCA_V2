@@ -1,0 +1,267 @@
+<!-- #Llamar a layout_public.html -->
+{% extends 'layout_public.html' %}
+
+{% block meta_description %} Plataforma institucional para la asignación de cupos educativos en Engativá. {% endblock %}
+
+{% block titulo %} Fortress Educa - Registro de Acudiente {% endblock %}
+
+<!-- invocar el bloque -->
+{% block Contenido_Pagina %}
+
+    <!-- Sección navbar -->
+    <section id="navbar">
+        <!-- Llamar narvar.html -->
+        {% include 'components/home_navbar_1.html' %}
+    </section>
+
+    <!--
+        FORTRESS EDUCA - PLATAFORMA DE CUPOS EDUCATIVOS
+        Archivo: registro.html
+        Función: Formulario de registro de Acudientes / Representantes Legales
+    -->
+
+    <!-- Registration Section -->
+    <section class="section-padding fade-in">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header p-4"
+                            style="background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary-light));">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                                    style="width:55px; height:55px; background:rgba(255,255,255,0.15);">
+                                    <i class="fas fa-user-plus fa-lg text-white"></i>
+                                </div>
+                                <div>
+                                    <h3 class="mb-0 text-white fw-bold">Registro de Acudiente / Representante Legal</h3>
+                                    <p class="mb-0 text-white opacity-75 small">Plataforma de Cupos Educativos ·
+                                        Engativá, Bogotá D.C.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body p-4 p-md-5">
+                            <div class="alert alert-info mb-4">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Los campos marcados con asterisco (<strong>*</strong>) son obligatorios.
+                                Esta información será utilizada para el proceso de asignación de cupo educativo.
+                            </div>
+
+                            <!--
+                                AQUÍ SE ENVIARÁ EL REGISTRO AL BACKEND
+                                FUTURA INTEGRACIÓN CON BASE DE DATOS
+                                ESTOS DATOS SE UTILIZARÁN PARA EL PROCESO DE ASIGNACIÓN DE CUPO
+                            -->
+                            <form id="formRegistroAcudiente" method="POST" action="{{ url_for('home.register') }}">
+
+                                {{ form.hidden_tag() }}
+
+                                <div class="row g-3">
+                                    <!-- 1. DATOS DEL ACUDIENTE -->
+                                    <div class="col-12">
+                                        <h5 class="text-primary mt-2 mb-3 pb-2 border-bottom">
+                                            <i class="fas fa-user me-2"></i>1. Datos del Acudiente / Representante Legal
+                                        </h5>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label for="primerNombre" class="form-label">Primer Nombre *</label>
+                                        <input type="text" class="form-control" name="primer_nombre" id="primerNombre"
+                                            value="{{ request.form.get('primer_nombre', '') }}" required>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label for="segundoNombre" class="form-label">Segundo Nombre</label>
+                                        <input type="text" class="form-control" name="segundo_nombre" id="segundoNombre"
+                                            value="{{ request.form.get('segundo_nombre', '') }}">
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label for="primerApellido" class="form-label">Primer Apellido *</label>
+                                        <input type="text" class="form-control" name="primer_apellido" id="primerApellido"
+                                            value="{{ request.form.get('primer_apellido', '') }}" required>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label for="segundoApellido" class="form-label">Segundo Apellido</label>
+                                        <input type="text" class="form-control" name="segundo_apellido" id="segundoApellido"
+                                            value="{{ request.form.get('segundo_apellido', '') }}">
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="tipoDocumento" class="form-label">Tipo de Documento *</label>
+                                        <!-- tipo_documento ya usa {{ form.tipo_documento() }} — WTForms
+                                            repopula automáticamente el <select>, no requiere cambio -->
+                                        {{ form.tipo_documento(class="form-select", id="tipoDocumento") }}
+                                        {% if form.tipo_documento.errors %}
+                                            {% for error in form.tipo_documento.errors %}
+                                                <div class="invalid-feedback d-block">{{ error }}</div>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="documento" class="form-label">Número de Documento *</label>
+                                        <input type="text" class="form-control" name="documento" id="documento"
+                                            maxlength="10"
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                            value="{{ request.form.get('documento', '') }}" required>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="nacionalidad" class="form-label">Nacionalidad *</label>
+                                        <!-- Campo deshabilitado, valor fijo, no necesita repoblar -->
+                                        <input type="text" class="form-control" id="nacionalidad"
+                                            value="Colombiano" disabled readonly>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="parentesco" class="form-label">Parentesco con el Menor *</label>
+                                        <select class="form-select" name="parentesco" id="parentesco" required>
+                                            <option disabled {{ '' if request.form.get('parentesco') else 'selected' }}>
+                                                Seleccione...
+                                            </option>
+                                            {% set parentesco_val = request.form.get('parentesco', '') %}
+                                            <option value="padre"    {{ 'selected' if parentesco_val == 'padre' }}>Padre</option>
+                                            <option value="madre"    {{ 'selected' if parentesco_val == 'madre' }}>Madre</option>
+                                            <option value="abuelo"   {{ 'selected' if parentesco_val == 'abuelo' }}>Abuelo/a</option>
+                                            <option value="tio"      {{ 'selected' if parentesco_val == 'tio' }}>Tío/a</option>
+                                            <option value="hermano"  {{ 'selected' if parentesco_val == 'hermano' }}>Hermano/a Mayor</option>
+                                            <option value="tutor"    {{ 'selected' if parentesco_val == 'tutor' }}>Tutor Legal</option>
+                                            <option value="otro"     {{ 'selected' if parentesco_val == 'otro' }}>Otro</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="telefono" class="form-label">Teléfono / Celular *</label>
+                                        <input type="tel" class="form-control" name="telefono" id="telefono"
+                                            maxlength="10"
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                            value="{{ request.form.get('telefono', '') }}"
+                                            required placeholder="Ej: 3001234567">
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="email" class="form-label">Correo Electrónico *</label>
+                                        <input type="email" class="form-control" name="email" id="email"
+                                            value="{{ request.form.get('email', '') }}"
+                                            required placeholder="correo@ejemplo.com">
+                                        <div class="form-text">Correo activo.</div>
+                                    </div>
+
+                                    <div class="col-md-8">
+                                        <label for="direccion" class="form-label">Dirección de Residencia *</label>
+                                        <input type="text" class="form-control" name="direccion" id="direccion"
+                                            value="{{ request.form.get('direccion', '') }}"
+                                            required placeholder="Ej: Cra 80 #65-12">
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="localidad" class="form-label">Localidad *</label>
+                                        <!-- localidad ya usa {{ form.localidad() }} — WTForms
+                                            repopula automáticamente, no requiere cambio -->
+                                        {{ form.localidad(class="form-select", id="localidad") }}
+                                        {% if form.localidad.errors %}
+                                            {% for error in form.localidad.errors %}
+                                                <div class="invalid-feedback d-block">{{ error }}</div>
+                                            {% endfor %}
+                                        {% endif %}
+                                        <div class="form-text text-warning">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>
+                                            El servicio aplica principalmente para residentes de Engativá.
+                                        </div>
+                                    </div>
+
+                                    <!-- 2. SEGURIDAD -->
+                                    <div class="col-12">
+                                        <h5 class="text-primary mt-4 mb-3 pb-2 border-bottom">
+                                            <i class="fas fa-lock me-2"></i>2. Seguridad de la Cuenta
+                                        </h5>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="password" class="form-label">Contraseña *</label>
+                                        <!--Las contraseñas NO se repoblan por seguridad.
+                                            El usuario debe reingresarlas si hay error de reCAPTCHA. -->
+                                        <input type="password" class="form-control" name="password" id="password" required>
+                                        <div class="form-text small text-muted">
+                                            <i class="fas fa-info-circle"></i> Requisitos Obligatorios:
+                                            <ul class="mb-0 ps-3">
+                                                <li>NO incluir información personal (nombre, documento).</li>
+                                                <li>Mínimo 12 caracteres (recomendado 14+).</li>
+                                                <li>Combinar mayúsculas, minúsculas, números y símbolos.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label for="confirmPassword" class="form-label">Confirmar Contraseña *</label>
+                                        <input type="password" class="form-control" name="confirm_password"
+                                            id="confirmPassword" required>
+                                    </div>
+
+                                    <!-- 3. TÉRMINOS -->
+                                    <div class="col-12 mt-4">
+                                        <div class="form-check">
+                                            <!-- Repoblar estado del checkbox de términos -->
+                                            <input class="form-check-input" type="checkbox" name="terms" id="terms"
+                                                {{ 'checked' if request.form.get('terms') }} required>
+                                            <label class="form-check-label" for="terms">
+                                                Declaro bajo la gravedad de juramento que la información suministrada es
+                                                veraz y autorizo el tratamiento de mis datos personales y los del menor
+                                                de acuerdo con la Ley 1581 de 2012 (Habeas Data). Acepto los términos
+                                                de uso de la plataforma Fortress Educa.
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- reCAPTCHA -->
+                                    <div class="col-12 mt-3">
+                                        <div class="d-flex justify-content-center">
+                                            <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
+                                        </div>
+                                        {% if recaptcha_error %}
+                                            <div class="text-danger small text-center mt-1">
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ recaptcha_error }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="col-12 mt-4">
+                                        <button type="submit" class="btn btn-success btn-lg w-100 fw-bold" id="btnRegistrar">
+                                            <i class="fas fa-user-plus me-2"></i>Crear Cuenta de Acudiente
+                                        </button>
+                                        <p class="text-center mt-3 text-muted small">
+                                            ¿Ya tiene cuenta?
+                                            <a href="{{ url_for('home.login') }}" class="text-decoration-none">
+                                                Inicie sesión aquí
+                                            </a>
+                                        </p>
+                                    </div>
+
+                                </div>
+                            </form>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay">
+        <div class="loading-box">
+            <div id="spinner" class="loader"></div>
+            <div id="successCheck" class="checkmark-circle">
+                <i class="fas fa-check checkmark"></i>
+            </div>
+            <h5 id="loadingText">Procesando registro...</h5>
+            <p class="text-muted small mb-0 mt-2">Por favor espere mientras validamos su información.</p>
+        </div>
+    </div>
+
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+{% endblock %}

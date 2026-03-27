@@ -1,0 +1,237 @@
+<!-- #Llamar a layout_dashboard.html -->
+{% extends 'layout_dashboard.html' %}
+
+{% block titulo %}Fortress Educa - Perfil{% endblock %}
+
+<!-- Titulo del Header -->
+{% set header_title = "Mi Perfil" %}
+
+<!-- invocar el bloque -->
+{% block Contenido_Pagina %}
+
+    <main class="page-content">
+
+        <div class="alert alert-info mb-4 small">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Nota:</strong> La información de este perfil será utilizada para el proceso de asignación de
+            cupo educativo.
+            Mantenga sus datos siempre actualizados.
+        </div>
+
+        <!-- Tabs de Secciones -->
+        <ul class="nav nav-tabs mb-4" id="profileTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-bold" id="tab-acudiente" data-bs-toggle="tab"
+                    data-bs-target="#datos-acudiente" type="button">
+                    <i class="fas fa-user me-1"></i> Datos del Acudiente
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold" id="tab-menor" data-bs-toggle="tab" data-bs-target="#datos-menor"
+                    type="button">
+                    <i class="fas fa-child me-1"></i> Datos del Menor
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+
+            <!-- DATOS DEL ACUDIENTE -->
+            <div class="tab-pane fade show active" id="datos-acudiente">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card border-0 shadow-sm p-4">
+                            <h5 class="fw-bold mb-4">
+                                <i class="fas fa-user-circle me-2 text-primary"></i>Datos Personales del
+                                Acudiente
+                            </h5>
+
+                            <!--
+                                            ESTOS DATOS SE UTILIZARÁN PARA PROCESO DE ASIGNACIÓN DE CUPO
+                                            DATA_SOURCE: tabla 'acudientes'
+                                            AQUÍ SE IMPLEMENTARÁ LA VALIDACIÓN BACKEND Y ACTUALIZACIÓN EN BASE DE DATOS
+                                        -->
+                            <form id="formAcudiente">
+                                <div class="row g-3">
+                                    <div class="col-md-12">
+                                        <label class="form-label text-muted small fw-bold">Nombre Completo del
+                                            Acudiente</label>
+                                        <input type="text" class="form-control" value="María García Rodríguez" readonly>
+                                        <small class="text-info">Campo no editable. Vinculado a su documento
+                                            oficial.</small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small fw-bold">Tipo de
+                                            Documento</label>
+                                        <input type="text" class="form-control" value="Cédula de Ciudadanía (CC)" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small fw-bold">Número de
+                                            Documento</label>
+                                        <input type="text" class="form-control" value="52.841.309" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small fw-bold">Teléfono /
+                                            Celular</label>
+                                        <input type="tel" class="form-control" value="3012345678" id="telefonoAcudiente">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small fw-bold">Correo
+                                            Electrónico</label>
+                                        <input type="email" class="form-control" value="maria.garcia@email.com"
+                                            id="emailAcudiente">
+                                    </div>
+                                    <div class="col-md-8">
+                                        <label class="form-label text-muted small fw-bold">Dirección de
+                                            Residencia</label>
+                                        <input type="text" class="form-control" value="Cra. 80 #65B-12, Engativá"
+                                            id="direccionAcudiente">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label text-muted small fw-bold">Localidad</label>
+                                        <input type="text" class="form-control" value="Engativá" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small fw-bold">Parentesco con el
+                                            Menor</label>
+                                        <input type="text" class="form-control" value="Madre" readonly>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small fw-bold">Fecha de
+                                            Registro</label>
+                                        <input type="text" class="form-control" value="19 de Febrero de 2026" readonly>
+                                    </div>
+                                </div>
+                                <hr class="my-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button type="button" class="btn btn-light">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        <i class="fas fa-save me-1"></i>Guardar Cambios
+                                    </button>
+                                    <!-- ESTA INFORMACIÓN SERÁ ENVIADA AL BACKEND PARA ACTUALIZACIÓN EN BASE DE DATOS -->
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="card border-0 shadow-sm p-4 text-center mt-4 mt-lg-0">
+                            <div class="user-avatar mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2.5rem;">MG
+                            </div>
+                            <h5 class="fw-bold mb-1">María García</h5>
+                            <p class="text-muted small mb-2">Acudiente Registrado</p>
+                            <span class="badge bg-success mb-3">Cuenta Activa</span>
+                            <p class="text-muted" style="font-size: 0.75rem;">
+                                La información de identidad está vinculada a su documento oficial
+                                y no puede ser modificada manualmente desde este panel.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DATOS DEL MENOR -->
+            <div class="tab-pane fade" id="datos-menor">
+                <div class="card border-0 shadow-sm p-4">
+                    <h5 class="fw-bold mb-4">
+                        <i class="fas fa-child me-2" style="color: var(--color-accent-green);"></i>Datos del
+                        Menor a Cargo
+                    </h5>
+                    <div class="alert alert-light border small py-2">
+                        <i class="fas fa-info-circle text-primary me-1"></i>
+                        <strong>ESTOS DATOS SE UTILIZARÁN PARA EL PROCESO DE ASIGNACIÓN DE CUPO</strong>
+                    </div>
+
+                    <!--
+                                    DATA_SOURCE: tabla 'menores' JOIN 'acudientes'
+                                    FUTURA INTEGRACIÓN CON BASE DE DATOS
+                                -->
+                    <form id="formMenor">
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label text-muted small fw-bold">Nombre Completo del Menor
+                                    *</label>
+                                <input type="text" class="form-control" value="Carlos García Rodríguez" id="nombreMenor">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label text-muted small fw-bold">Documento del Menor (si
+                                    tiene)</label>
+                                <input type="text" class="form-control" placeholder="Tarjeta de identidad u otro"
+                                    id="docMenor">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label text-muted small fw-bold">Fecha de Nacimiento *</label>
+                                <input type="date" class="form-control" value="2015-03-12" id="fechaNacMenor">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label text-muted small fw-bold">Edad</label>
+                                <input type="number" class="form-control" value="10" id="edadMenor" readonly>
+                                <div class="form-text">Se calcula automáticamente.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label text-muted small fw-bold">Sexo *</label>
+                                <select class="form-select" id="sexoMenor">
+                                    <option value="M" selected>Masculino</option>
+                                    <option value="F">Femenino</option>
+                                    <option value="O">Otro</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small fw-bold">Grado a Cursar *</label>
+                                <select class="form-select" id="gradoSolicitar">
+                                    <option value="" disabled>Seleccione...</option>
+                                    <option value="transicion">Transición (Kinder)</option>
+                                    <option value="1">1° Primaria</option>
+                                    <option value="2">2° Primaria</option>
+                                    <option value="3">3° Primaria</option>
+                                    <option value="4" selected>4° Primaria</option>
+                                    <option value="5">5° Primaria</option>
+                                    <option value="6">6° Bachillerato</option>
+                                    <option value="7">7° Bachillerato</option>
+                                    <option value="8">8° Bachillerato</option>
+                                    <option value="9">9° Bachillerato</option>
+                                    <option value="10">10° Bachillerato</option>
+                                    <option value="11">11° Bachillerato</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small fw-bold">Último Grado Aprobado</label>
+                                <select class="form-select" id="ultimoGrado">
+                                    <option value="" disabled>Seleccione...</option>
+                                    <option value="ninguno">Ninguno (primera vez)</option>
+                                    <option value="transicion">Transición</option>
+                                    <option value="1">1° Primaria</option>
+                                    <option value="2">2° Primaria</option>
+                                    <option value="3" selected>3° Primaria</option>
+                                    <option value="4">4° Primaria</option>
+                                    <option value="5">5° Primaria</option>
+                                    <option value="6">6° Bachillerato</option>
+                                    <option value="7">7° Bachillerato</option>
+                                    <option value="8">8° Bachillerato</option>
+                                    <option value="9">9° Bachillerato</option>
+                                    <option value="10">10° Bachillerato</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label text-muted small fw-bold">Última Institución Educativa
+                                    (si aplica)</label>
+                                <input type="text" class="form-control" id="ultimaInstitucion"
+                                    value="IE Rural El Pinar, Florencia (Caquetá)"
+                                    placeholder="Nombre del colegio anterior">
+                            </div>
+                        </div>
+                        <hr class="my-4">
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-light">Cancelar</button>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fas fa-save me-1"></i>Guardar Datos del Menor
+                            </button>
+                            <!-- ESTA INFORMACIÓN SERÁ ENVIADA AL BACKEND Y ALMACENADA EN BASE DE DATOS -->
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+{% endblock %}

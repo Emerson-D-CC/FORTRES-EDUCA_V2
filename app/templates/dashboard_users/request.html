@@ -1,0 +1,554 @@
+<!-- #Llamar a layout_dashboard.html -->
+{% extends 'layout_dashboard.html' %}
+
+{% block titulo %}Fortress Educa - Nueva Solicitud{% endblock %}
+
+<!-- Titulo del Header -->
+{% set header_title = "Nueva Solicitud de Cupo Educativo" %}
+
+<!-- invocar el bloque -->
+{% block Contenido_Pagina %}
+
+    <main class="page-content">
+
+        <div class="alert alert-info small mb-4">
+            <i class="fas fa-info-circle me-2"></i>
+            Complete todos los pasos del formulario para solicitar un cupo en un colegio público de Engativá.
+            <strong>ESTA INFORMACIÓN SE UTILIZARÁ PARA BUSCAR CUPOS DISPONIBLES EN COLEGIOS DE
+                ENGATIVÁ.</strong>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4 mx-auto" style="max-width: 900px;">
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step-item active" id="stepIndicator1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Menor</div>
+                </div>
+                <div class="step-item" id="stepIndicator2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Vulnerabilidad</div>
+                </div>
+                <div class="step-item" id="stepIndicator3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Ubicación</div>
+                </div>
+                <div class="step-item" id="stepIndicator4">
+                    <div class="step-number">4</div>
+                    <div class="step-label">Preferencias</div>
+                </div>
+                <div class="step-item" id="stepIndicator5">
+                    <div class="step-number">5</div>
+                    <div class="step-label">Documentos</div>
+                </div>
+                <div class="step-item" id="stepIndicator6">
+                    <div class="step-number">6</div>
+                    <div class="step-label">Confirmar</div>
+                </div>
+            </div>
+
+            <!--
+                            FORMULARIO PRINCIPAL DE SOLICITUD DE CUPO EDUCATIVO
+                            ESTA INFORMACIÓN SE UTILIZARÁ PARA BUSCAR CUPOS DISPONIBLES EN COLEGIOS DE ENGATIVÁ
+                        -->
+            <form id="requestWizard">
+
+                <!-- PASO 1: Información del Menor -->
+                <div class="wizard-step active" id="step1">
+                    <h5 class="fw-bold mb-4 pb-2 border-bottom">
+                        <i class="fas fa-child me-2 text-primary"></i>Paso 1: Información del Menor
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label small fw-bold">Nombre Completo del Menor *</label>
+                            <input type="text" class="form-control" id="nombreCompleto"
+                                placeholder="Ej: Carlos Andrés García Rodríguez">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Fecha de Nacimiento *</label>
+                            <input type="date" class="form-control" id="fechaNacMenorSol">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Edad (años)</label>
+                            <input type="number" class="form-control" id="edadMenorSol" placeholder="Ej: 10" min="3"
+                                max="18">
+                            <div class="form-text">Se calculará automáticamente con la fecha de nacimiento.
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Sexo *</label>
+                            <select class="form-select" id="sexoMenorSol">
+                                <option value="" disabled selected>Seleccione...</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                                <option value="O">Otro</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Documento del Menor (si tiene)</label>
+                            <input type="text" class="form-control" id="docMenorSol"
+                                placeholder="Tarjeta de identidad u otro">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Grado Solicitado *</label>
+                            <select class="form-select" id="gradoSolicitar">
+                                <option value="" disabled selected>Seleccione el grado...</option>
+                                <option value="transicion">Transición (Kinder)</option>
+                                <option value="1">1° de Primaria</option>
+                                <option value="2">2° de Primaria</option>
+                                <option value="3">3° de Primaria</option>
+                                <option value="4">4° de Primaria</option>
+                                <option value="5">5° de Primaria</option>
+                                <option value="6">6° de Bachillerato</option>
+                                <option value="7">7° de Bachillerato</option>
+                                <option value="8">8° de Bachillerato</option>
+                                <option value="9">9° de Bachillerato</option>
+                                <option value="10">10° de Bachillerato</option>
+                                <option value="11">11° de Bachillerato</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Último Grado Cursado / Aprobado</label>
+                            <select class="form-select" id="ultimoGradoSol">
+                                <option value="" disabled selected>Seleccione...</option>
+                                <option value="ninguno">Ninguno (sin escolarización previa)</option>
+                                <option value="transicion">Transición</option>
+                                <option value="1">1° de Primaria</option>
+                                <option value="2">2° de Primaria</option>
+                                <option value="3">3° de Primaria</option>
+                                <option value="4">4° de Primaria</option>
+                                <option value="5">5° de Primaria</option>
+                                <option value="6">6° de Bachillerato</option>
+                                <option value="7">7° de Bachillerato</option>
+                                <option value="8">8° de Bachillerato</option>
+                                <option value="9">9° de Bachillerato</option>
+                                <option value="10">10° de Bachillerato</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PASO 2: Información de Vulnerabilidad -->
+                <div class="wizard-step" id="step2">
+                    <h5 class="fw-bold mb-4 pb-2 border-bottom">
+                        <i class="fas fa-heart me-2" style="color: var(--color-danger);"></i>Paso 2: Información
+                        de Vulnerabilidad
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label small fw-bold">Tipo de Afectación / Condición de
+                                Vulnerabilidad *</label>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <div class="form-check p-3 border rounded-3 h-100">
+                                        <input class="form-check-input" type="radio" name="tipoAfectacion"
+                                            id="desplazamiento" value="desplazamiento">
+                                        <label class="form-check-label fw-bold" for="desplazamiento">
+                                            <i class="fas fa-route me-1 text-danger"></i> Desplazamiento Forzado
+                                            <p class="text-muted small fw-normal mb-0 mt-1">
+                                                Familia que fue obligada a abandonar su lugar de residencia
+                                                habitual.
+                                            </p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check p-3 border rounded-3 h-100">
+                                        <input class="form-check-input" type="radio" name="tipoAfectacion" id="conflicto"
+                                            value="conflicto">
+                                        <label class="form-check-label fw-bold" for="conflicto">
+                                            <i class="fas fa-dove me-1 text-primary"></i> Víctima del Conflicto
+                                            Armado
+                                            <p class="text-muted small fw-normal mb-0 mt-1">
+                                                El menor es víctima directa o indirecta del conflicto armado
+                                                colombiano.
+                                            </p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check p-3 border rounded-3 h-100">
+                                        <input class="form-check-input" type="radio" name="tipoAfectacion"
+                                            id="vulnerabilidad" value="vulnerabilidad">
+                                        <label class="form-check-label fw-bold" for="vulnerabilidad">
+                                            <i class="fas fa-hand-holding-heart me-1 text-warning"></i>
+                                            Vulnerabilidad Económica
+                                            <p class="text-muted small fw-normal mb-0 mt-1">
+                                                Familia en situación de pobreza o pobreza extrema.
+                                            </p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check p-3 border rounded-3 h-100">
+                                        <input class="form-check-input" type="radio" name="tipoAfectacion"
+                                            id="noEscolarizado" value="no_escolarizado">
+                                        <label class="form-check-label fw-bold" for="noEscolarizado">
+                                            <i class="fas fa-user-graduate me-1 text-secondary"></i> No
+                                            Escolarizado
+                                            <p class="text-muted small fw-normal mb-0 mt-1">
+                                                Menor que nunca ha accedido o está por fuera del sistema
+                                                educativo.
+                                            </p>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-check p-3 border rounded-3">
+                                        <input class="form-check-input" type="radio" name="tipoAfectacion" id="otro"
+                                            value="otro">
+                                        <label class="form-check-label fw-bold" for="otro">
+                                            <i class="fas fa-ellipsis-h me-1 text-muted"></i> Otro
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Descripción del Caso *</label>
+                            <textarea class="form-control" id="descripcionCaso" rows="5"
+                                placeholder="Describa brevemente la situación del menor y las circunstancias que motivaron la solicitud de cupo educativo. Sea lo más detallado posible para una mejor evaluación del caso..."></textarea>
+                            <div class="form-text">Mínimo 50 palabras. Esta información es confidencial y se
+                                usará únicamente para el proceso de asignación.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PASO 3: Ubicación -->
+                <div class="wizard-step" id="step3">
+                    <h5 class="fw-bold mb-4 pb-2 border-bottom">
+                        <i class="fas fa-map-marker-alt me-2 text-danger"></i>Paso 3: Ubicación Actual
+                    </h5>
+                    <div class="alert alert-warning small py-2">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        <strong>Importante:</strong> El servicio de cupos está orientado a residentes de la
+                        Localidad de Engativá, Bogotá D.C.
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Dirección Actual de Residencia *</label>
+                            <input type="text" class="form-control" id="direccionActual" placeholder="Ej: Cra. 80 #65B-12">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Barrio *</label>
+                            <input type="text" class="form-control" id="barrioActual"
+                                placeholder="Ej: Quirigua, Bolivia, Las Ferias...">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Localidad *</label>
+                            <select class="form-select" id="localidadActual">
+                                <option value="engativa" selected>Engativá</option>
+                                <option value="otra">Otra (puede limitar el acceso)</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check form-switch p-3 border rounded-3">
+                                <input class="form-check-input" type="checkbox" id="confirmaEngativa" role="switch">
+                                <label class="form-check-label fw-bold" for="confirmaEngativa">
+                                    <i class="fas fa-check-circle text-success me-1"></i>
+                                    Confirmo que actualmente resido en la Localidad de Engativá, Bogotá D.C.
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Tiempo de Residencia en Engativá</label>
+                            <select class="form-select" id="tiempoResidencia">
+                                <option value="">Seleccione...</option>
+                                <option value="menos1">Menos de 1 mes</option>
+                                <option value="1a6">1 a 6 meses</option>
+                                <option value="6a12">6 meses a 1 año</option>
+                                <option value="mas1">Más de 1 año</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PASO 4: Preferencias Educativas -->
+                <div class="wizard-step" id="step4">
+                    <h5 class="fw-bold mb-4 pb-2 border-bottom">
+                        <i class="fas fa-school me-2" style="color: var(--color-accent-green);"></i>Paso 4:
+                        Preferencias Educativas
+                    </h5>
+                    <div class="alert alert-light border small py-2">
+                        <i class="fas fa-info-circle text-primary me-1"></i>
+                        La asignación de colegio dependerá de la disponibilidad de cupos. Las preferencias
+                        son indicativas y no garantizan la asignación al colegio deseado.
+                        <strong>ESTA INFORMACIÓN SE UTILIZARÁ PARA BUSCAR CUPOS DISPONIBLES EN COLEGIOS DE
+                            ENGATIVÁ.</strong>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Jornada Preferida *</label>
+                            <div class="d-flex flex-column gap-2">
+                                <div class="form-check p-3 border rounded-3">
+                                    <input class="form-check-input" type="radio" name="jornada" id="manana" value="manana">
+                                    <label class="form-check-label fw-bold" for="manana">
+                                        <i class="fas fa-sun me-1 text-warning"></i> Mañana (6:00 AM - 12:00 M)
+                                    </label>
+                                </div>
+                                <div class="form-check p-3 border rounded-3">
+                                    <input class="form-check-input" type="radio" name="jornada" id="tarde" value="tarde">
+                                    <label class="form-check-label fw-bold" for="tarde">
+                                        <i class="fas fa-cloud-sun me-1 text-primary"></i> Tarde (12:00 M - 6:00
+                                        PM)
+                                    </label>
+                                </div>
+                                <div class="form-check p-3 border rounded-3">
+                                    <input class="form-check-input" type="radio" name="jornada" id="nocturna"
+                                        value="nocturna">
+                                    <label class="form-check-label fw-bold" for="nocturna">
+                                        <i class="fas fa-moon me-1 text-secondary"></i> Nocturna (para mayores
+                                        de 13 años)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Tipo de Institución</label>
+                            <div class="form-check p-3 border rounded-3 mb-2" style="background: rgba(17,153,142,0.05);">
+                                <input class="form-check-input" type="checkbox" id="colegioPublico" checked disabled>
+                                <label class="form-check-label fw-bold" for="colegioPublico">
+                                    <i class="fas fa-school me-1 text-success"></i> Colegio Público
+                                    <span class="upload-req-badge">Único disponible</span>
+                                </label>
+                                <p class="text-muted small mb-0 mt-1">
+                                    La plataforma gestiona exclusivamente cupos en colegios públicos de
+                                    Engativá.
+                                </p>
+                            </div>
+                            <div class="mt-3">
+                                <label class="form-label small fw-bold">¿Tiene preferencia por algún colegio
+                                    específico?</label>
+                                <select class="form-select" id="colegioPreferido">
+                                    <option value="">Sin preferencia (sistema asignará)</option>
+                                    <!-- AQUÍ SE CARGARÁN LOS COLEGIOS DISPONIBLES DESDE LA BASE DE DATOS -->
+                                    <option value="mencia">IED La Merced</option>
+                                    <option value="ferias">IED Las Ferias</option>
+                                    <option value="quirigua">IED Quirigua</option>
+                                    <option value="marco">IED Marco Tulio Fernández</option>
+                                    <option value="granja">IED La Granja</option>
+                                    <option value="boyaca">IED Boyacá Real</option>
+                                    <option value="alfredo">IED Alfredo Iriarte</option>
+                                </select>
+                                <div class="form-text">La disponibilidad de cupos es definida por el sistema.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PASO 5: Documentos -->
+                <div class="wizard-step" id="step5">
+                    <h5 class="fw-bold mb-4 pb-2 border-bottom">
+                        <i class="fas fa-paperclip me-2 text-primary"></i>Paso 5: Adjuntar Documentos
+                    </h5>
+                    <p class="text-muted small mb-4">
+                        Adjunte los documentos requeridos. Los documentos marcados con
+                        <span class="badge bg-danger">Obligatorio</span> son indispensables para procesar su
+                        solicitud.
+                    </p>
+
+                    <div class="row g-3">
+                        <!-- Documento Acudiente -->
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">
+                                Documento del Acudiente <span class="badge bg-danger">Obligatorio</span>
+                            </label>
+                            <div class="upload-area" onclick="document.getElementById('fileAcudiente').click()">
+                                <i class="fas fa-id-card fa-2x text-muted mb-2"></i>
+                                <h6 class="mb-1">Cédula del Acudiente</h6>
+                                <p class="small text-muted">PDF, JPG, PNG (Max 5MB)</p>
+                                <input type="file" id="fileAcudiente" class="d-none" accept=".pdf,.jpg,.jpeg,.png">
+                            </div>
+                        </div>
+
+                        <!-- Documento Menor -->
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">
+                                Documento del Menor (si tiene) <span class="badge bg-warning text-dark">Recomendado</span>
+                            </label>
+                            <div class="upload-area" onclick="document.getElementById('fileDocMenor').click()">
+                                <i class="fas fa-child fa-2x text-muted mb-2"></i>
+                                <h6 class="mb-1">Tarjeta de Identidad / Registro Civil</h6>
+                                <p class="small text-muted">PDF, JPG, PNG (Max 5MB)</p>
+                                <input type="file" id="fileDocMenor" class="d-none" accept=".pdf,.jpg,.jpeg,.png">
+                            </div>
+                        </div>
+
+                        <!-- Certificados Académicos -->
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">
+                                Certificados / Boletines Anteriores <span class="badge bg-secondary">Opcional</span>
+                            </label>
+                            <div class="upload-area" onclick="document.getElementById('fileCerts').click()">
+                                <i class="fas fa-file-alt fa-2x text-muted mb-2"></i>
+                                <h6 class="mb-1">Boletines o Carné Escolar</h6>
+                                <p class="small text-muted">PDF, JPG, PNG (Max 10MB)</p>
+                                <input type="file" id="fileCerts" class="d-none" accept=".pdf,.jpg,.jpeg,.png" multiple>
+                            </div>
+                        </div>
+
+                        <!-- Documento de Víctima -->
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">
+                                Documento de Víctima / Declaración <span class="badge bg-info text-dark">Si
+                                    aplica</span>
+                            </label>
+                            <div class="upload-area" onclick="document.getElementById('fileVictima').click()">
+                                <i class="fas fa-file-shield fa-2x text-muted mb-2"></i>
+                                <h6 class="mb-1">Certificado de la Unidad de Víctimas</h6>
+                                <p class="small text-muted">PDF, JPG, PNG (Max 5MB)</p>
+                                <input type="file" id="fileVictima" class="d-none" accept=".pdf,.jpg,.jpeg,.png">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info py-2 mt-3 small">
+                        <i class="fas fa-shield-alt me-1"></i>
+                        Todos sus documentos son almacenados de forma segura y se usan únicamente para el
+                        proceso de asignación de cupo educativo.
+                    </div>
+                </div>
+
+                <!-- PASO 6: Confirmación y Envío -->
+                <div class="wizard-step" id="step6">
+                    <h5 class="fw-bold mb-4 pb-2 border-bottom">
+                        <i class="fas fa-check-circle me-2 text-success"></i>Paso 6: Confirmación y Envío
+                    </h5>
+                    <div class="bg-light p-4 rounded-3 border mb-4"
+                        style="background: linear-gradient(135deg, #f0f9f4, #e8f4fd) !important;">
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-clipboard-list text-primary me-2"></i>Verificación Final de la
+                            Solicitud
+                        </h6>
+                        <p class="small text-muted mb-3">
+                            Al enviar esta solicitud, usted declara que la información proporcionada sobre el
+                            menor
+                            y su condición de vulnerabilidad es verídica y podrá ser verificada por las
+                            autoridades
+                            competentes. El proceso de revisión puede tomar entre 5 a 15 días hábiles.
+                        </p>
+
+                        <div class="row g-2 small">
+                            <div class="col-12">
+                                <div class="d-flex align-items-center gap-2 p-2 bg-white rounded border">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <span>Información del menor completada</span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="d-flex align-items-center gap-2 p-2 bg-white rounded border">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <span>Condición de vulnerabilidad registrada</span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="d-flex align-items-center gap-2 p-2 bg-white rounded border">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <span>Ubicación en Engativá confirmada</span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="d-flex align-items-center gap-2 p-2 bg-white rounded border">
+                                    <i class="fas fa-check-circle text-success"></i>
+                                    <span>Preferencias educativas registradas</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-check mt-4">
+                            <input class="form-check-input" type="checkbox" id="termsCheck">
+                            <label class="form-check-label small" for="termsCheck">
+                                <strong>Acepto y declaro</strong> que la información proporcionada es verídica.
+                                Entiendo que proporcionar información falsa puede resultar en la cancelación
+                                del cupo asignado y acciones legales correspondientes.
+                            </label>
+                        </div>
+                    </div>
+
+                    <!--
+                                    NOTA DE INTEGRACIÓN:
+                                    - AQUÍ SE ENVIARÁ LA SOLICITUD AL BACKEND (POST /api/solicitudes/cupo)
+                                    - ESTA INFORMACIÓN SE UTILIZARÁ PARA BUSCAR CUPOS DISPONIBLES EN COLEGIOS DE ENGATIVÁ
+                                    - FUTURA INTEGRACIÓN CON BASE DE DATOS Y SISTEMA DE ASIGNACIÓN DE CUPOS
+                                    - EL SISTEMA CALCULARÁ AUTOMÁTICAMENTE EL NIVEL DE PRIORIDAD DEL CASO
+                                -->
+                </div>
+
+                <hr class="my-4">
+
+                <div class="d-flex justify-content-between">
+                    <button type="button" class="btn btn-light px-4" id="prevBtn" disabled>
+                        <i class="fas fa-arrow-left me-1"></i> Anterior
+                    </button>
+                    <button type="button" class="btn btn-primary px-4" id="nextBtn">
+                        Siguiente <i class="fas fa-arrow-right ms-1"></i>
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // Wizard de 6 pasos para Solicitud de Cupo Educativo
+        document.addEventListener('DOMContentLoaded', function () {
+            let currentStep = 1;
+            const totalSteps = 6;
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            function updateWizard() {
+                // Ocultar todos los pasos
+                document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+                document.querySelectorAll('.step-item').forEach(s => s.classList.remove('active', 'completed'));
+
+                // Mostrar paso actual
+                document.getElementById('step' + currentStep).classList.add('active');
+
+                // Actualizar indicadores
+                for (let i = 1; i <= totalSteps; i++) {
+                    const indicator = document.getElementById('stepIndicator' + i);
+                    if (i < currentStep) {
+                        indicator.classList.add('completed');
+                        indicator.querySelector('.step-number').innerHTML = '<i class="fas fa-check"></i>';
+                    } else if (i === currentStep) {
+                        indicator.classList.add('active');
+                    }
+                }
+
+                // Actualizar botones
+                prevBtn.disabled = (currentStep === 1);
+                if (currentStep === totalSteps) {
+                    nextBtn.innerHTML = '<i class="fas fa-paper-plane me-1"></i> Enviar Solicitud de Cupo';
+                    nextBtn.classList.replace('btn-primary', 'btn-success');
+                } else {
+                    nextBtn.innerHTML = 'Siguiente <i class="fas fa-arrow-right ms-1"></i>';
+                    nextBtn.classList.replace('btn-success', 'btn-primary');
+                }
+
+                // Scroll top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            nextBtn.addEventListener('click', function () {
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    updateWizard();
+                } else {
+                    // AQUÍ SE ENVIARÁ LA SOLICITUD AL BACKEND (POST /api/solicitudes/cupo)
+                    // FUTURA INTEGRACIÓN CON BASE DE DATOS Y SISTEMA DE ASIGNACIÓN DE CUPOS
+                    alert('✅ ¡Solicitud de cupo enviada con éxito!\n\nSu solicitud está siendo revisada. Recibirá una notificación cuando haya una actualización. Redirigiendo al seguimiento...');
+                    window.location.href = 'status.html';
+                }
+            });
+
+            prevBtn.addEventListener('click', function () {
+                if (currentStep > 1) {
+                    currentStep--;
+                    updateWizard();
+                }
+            });
+        });
+    </script>
+{% endblock %}

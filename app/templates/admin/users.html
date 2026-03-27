@@ -1,0 +1,235 @@
+<!-- #Llamar a layout_admin.html -->
+{% extends 'layout_admin.html' %}
+
+{% block titulo %}Fortress Educa - Acudientes / Usuarios{% endblock %}
+
+<!-- Titulo del Header -->
+{% set admin_header_title = "Acudientes y Usuarios del Sistema" %}
+
+<!-- invocar el bloque -->
+{% block Contenido_Pagina %}
+
+    <main class="page-content">
+    
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm p-4 d-flex flex-row align-items-center gap-3">
+                    <div class="rounded-circle p-3 text-white"
+                        style="background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary-dark));">
+                        <i class="fas fa-user-friends fa-lg"></i>
+                    </div>
+                    <div>
+                        <!-- DATA_SOURCE: total_acudientes -->
+                        <div class="fs-3 fw-bold text-primary">234</div>
+                        <div class="text-muted small">Acudientes Registrados</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm p-4 d-flex flex-row align-items-center gap-3">
+                    <div class="rounded-circle p-3 text-white"
+                        style="background: linear-gradient(135deg, var(--color-accent-green), #0f8a7e);">
+                        <i class="fas fa-chalkboard-teacher fa-lg"></i>
+                    </div>
+                    <div>
+                        <!-- DATA_SOURCE: total_funcionarios -->
+                        <div class="fs-3 fw-bold text-success">12</div>
+                        <div class="text-muted small">Funcionarios Educativos</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm p-4 d-flex flex-row align-items-center gap-3">
+                    <div class="rounded-circle p-3 text-white"
+                        style="background: linear-gradient(135deg, #cb2d3e, #ef473a);">
+                        <i class="fas fa-user-shield fa-lg"></i>
+                    </div>
+                    <div>
+                        <!-- DATA_SOURCE: total_admins -->
+                        <div class="fs-3 fw-bold text-danger">4</div>
+                        <div class="text-muted small">Administradores</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Pestañas por Tipo de Usuario -->
+        <ul class="nav nav-tabs mb-4" id="userTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-bold" id="tab-acudientes" data-bs-toggle="tab"
+                    data-bs-target="#acudientes" type="button">
+                    <i class="fas fa-user-friends me-1"></i> Acudientes
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold" id="tab-funcionarios" data-bs-toggle="tab" data-bs-target="#funcionarios"
+                    type="button">
+                    <i class="fas fa-chalkboard-teacher me-1"></i> Funcionarios Educativos
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold" id="tab-admins" data-bs-toggle="tab" data-bs-target="#admins"
+                    type="button">
+                    <i class="fas fa-user-shield me-1"></i> Administradores
+                </button>
+            </li>
+        </ul>
+    
+        <div class="tab-content">
+    
+            <!-- Tabla de Acudientes -->
+            <div class="tab-pane fade show active" id="acudientes">
+                <div class="card border-0 shadow-sm p-4">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5 class="fw-bold mb-0">Acudientes Registrados</h5>
+                        <input type="text" class="form-control form-control-sm" placeholder="Buscar acudiente..."
+                            style="width: 220px;">
+                    </div>
+                    <!--
+                                    DATA_SOURCE: GET /api/admin/usuarios?rol=acudiente
+                                    FUTURA INTEGRACIÓN CON BASE DE DATOS
+                                -->
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Documento</th>
+                                    <th>Teléfono</th>
+                                    <th>Correo</th>
+                                    <th>Solicitudes</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>María García Rodríguez</strong></td>
+                                    <td>CC 52.841.309</td>
+                                    <td>3012345678</td>
+                                    <td>maria.garcia@email.com</td>
+                                    <td><span class="badge bg-primary">2</span></td>
+                                    <td><span class="badge bg-success">Activa</span></td>
+                                    <td>
+                                        <button class="btn btn-outline-primary btn-sm me-1" title="Ver Detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm" title="Deshabilitar">
+                                            <i class="fas fa-ban"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Carmen Torres Vega</strong></td>
+                                    <td>CC 41.023.551</td>
+                                    <td>3156789012</td>
+                                    <td>carmen.torres@gmail.com</td>
+                                    <td><span class="badge bg-primary">1</span></td>
+                                    <td><span class="badge bg-success">Activa</span></td>
+                                    <td>
+                                        <button class="btn btn-outline-primary btn-sm me-1" title="Ver Detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm" title="Deshabilitar">
+                                            <i class="fas fa-ban"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Jorge Torres Florez</strong></td>
+                                    <td>CC 79.455.132</td>
+                                    <td>3004567890</td>
+                                    <td>jorge.torres@hotmail.com</td>
+                                    <td><span class="badge bg-primary">1</span></td>
+                                    <td><span class="badge bg-warning text-dark">Pendiente Verificar</span></td>
+                                    <td>
+                                        <button class="btn btn-outline-primary btn-sm me-1" title="Ver Detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-success btn-sm" title="Verificar">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Tabla de Funcionarios -->
+            <div class="tab-pane fade" id="funcionarios">
+                <div class="card border-0 shadow-sm p-4">
+                    <h5 class="fw-bold mb-3">Funcionarios Educativos</h5>
+                    <!-- DATA_SOURCE: GET /api/admin/usuarios?rol=funcionario -->
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Cargo</th>
+                                    <th>Credencial Institucional</th>
+                                    <th>Casos Asignados</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Ana Lucía Bejarano</strong></td>
+                                    <td>Gestora de Cupos</td>
+                                    <td>FUNC-0023</td>
+                                    <td><span class="badge bg-primary">18</span></td>
+                                    <td><span class="badge bg-success">Activa</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Pedro Suárez Ríos</strong></td>
+                                    <td>Orientador Escolar</td>
+                                    <td>FUNC-0017</td>
+                                    <td><span class="badge bg-primary">11</span></td>
+                                    <td><span class="badge bg-success">Activo</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Tabla de Administradores -->
+            <div class="tab-pane fade" id="admins">
+                <div class="card border-0 shadow-sm p-4">
+                    <h5 class="fw-bold mb-3">Administradores del Sistema</h5>
+                    <!-- DATA_SOURCE: GET /api/admin/usuarios?rol=admin -->
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Credencial</th>
+                                    <th>Último Acceso</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Luis Narváez</strong></td>
+                                    <td>ADM-0001</td>
+                                    <td>19 Feb 2026, 08:45 AM</td>
+                                    <td><span class="badge bg-success">Activo</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Claudia Vargas</strong></td>
+                                    <td>ADM-0002</td>
+                                    <td>18 Feb 2026, 03:20 PM</td>
+                                    <td><span class="badge bg-success">Activa</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+    
+        </div>
+    
+    </main>
+
+{% endblock %}
