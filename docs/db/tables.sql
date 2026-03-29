@@ -43,6 +43,20 @@ CREATE TABLE TBL_GENERO (
 
 -- --------------------------------------------------------
 --
+-- Estructura de tabla para la tabla TBL_PARENTESCO
+--
+
+DROP TABLE IF EXISTS TBL_PARENTESCO;
+
+CREATE TABLE TBL_PARENTESCO (
+    ID_Parentesco INT AUTO_INCREMENT PRIMARY KEY,
+    Nombre_Parentesco VARCHAR(30) UNIQUE NOT NULL,
+    Tipo_Usuario ENUM('ACUDIENTE','ESTUDIANTE') NOT NULL,
+    Estado_Parentesco ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE'
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+--
 -- Estructura de tabla para la tabla TBL_GRUPO_PREFERENCIAL
 --
 
@@ -107,6 +121,7 @@ DROP TABLE IF EXISTS TBL_TIPO_IDENTIFICACION;
 CREATE TABLE TBL_TIPO_IDENTIFICACION (
     ID_Tipo_Iden INT AUTO_INCREMENT PRIMARY KEY,
     Nombre_Tipo_Iden VARCHAR(30) NOT NULL,
+    Tipo_Usuario ENUM('ACUDIENTE','ESTUDIANTE') NOT NULL,
     Estado_Identificacion ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE'
 ) ENGINE=InnoDB;
 
@@ -158,23 +173,6 @@ CREATE TABLE TBL_PERSONA (
 
 -- --------------------------------------------------------
 --
--- Estructura de tabla para la tabla TBL_COLEGIO
---
-
-DROP TABLE IF EXISTS TBL_COLEGIO;
-
-CREATE TABLE TBL_COLEGIO (
-    ID_Colegio INT AUTO_INCREMENT PRIMARY KEY,
-    Nombre_Colegio VARCHAR(100) UNIQUE NOT NULL,
-    Direccion_Colegio VARCHAR(100) UNIQUE NOT NULL,
-    FK_ID_Localidad INT NOT NULL,
-    Estado_Colegio ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE',
-
-    CONSTRAINT FK_Colegio_Localidad FOREIGN KEY (FK_ID_Localidad) REFERENCES TBL_LOCALIDAD(ID_Localidad) ON DELETE NO ACTION ON UPDATE CASCADE
-) ENGINE=InnoDB;
-
--- --------------------------------------------------------
---
 -- Estructura de tabla para la tabla TBL_BARRIO
 --
 
@@ -188,6 +186,25 @@ CREATE TABLE TBL_BARRIO (
 
     CONSTRAINT FK_Barrio_Localidad FOREIGN KEY (FK_ID_Localidad) REFERENCES TBL_LOCALIDAD(ID_Localidad) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB;
+
+
+-- --------------------------------------------------------
+--
+-- Estructura de tabla para la tabla TBL_COLEGIO
+--
+
+DROP TABLE IF EXISTS TBL_COLEGIO;
+
+CREATE TABLE TBL_COLEGIO (
+    ID_Colegio INT AUTO_INCREMENT PRIMARY KEY,
+    Nombre_Colegio VARCHAR(100) UNIQUE NOT NULL,
+    Direccion_Colegio VARCHAR(100) UNIQUE NOT NULL,
+    FK_ID_Barrio INT NOT NULL,
+    Estado_Colegio ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE',
+
+    CONSTRAINT FK_Colegio_Barrio FOREIGN KEY (FK_ID_Barrio) REFERENCES TBL_BARRIO(ID_Barrio) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
 
 -- --------------------------------------------------------
 --
@@ -219,29 +236,70 @@ CREATE TABLE TBL_DATOS_ADICIONALES (
     ID_Datos_Adicionales VARCHAR(16) PRIMARY KEY,
     Email VARCHAR(255) UNIQUE NOT NULL,
     Telefono VARCHAR(20) UNIQUE NOT NULL,
-    Parentesco VARCHAR(20) NOT NULL,
 
+    FK_ID_Parentesco INT NOT NULL,
     FK_ID_Tipo_Iden INT NOT NULL,
     FK_ID_Persona VARCHAR(15) NOT NULL,
     FK_ID_Genero INT NOT NULL,
     FK_ID_Grupo_Preferencial INT NOT NULL,
     FK_ID_Estrato INT NOT NULL,
-    FK_ID_Localidad INT NOT NULL,
+    FK_ID_Barrio INT NOT NULL,
 
     Estado_Datos_Adicionales ENUM('ACTIVE','BLOCKED','INACTIVE') DEFAULT 'ACTIVE',
 
+    CONSTRAINT FK_DatosAd_Parentesco FOREIGN KEY (FK_ID_Parentesco) REFERENCES TBL_PARENTESCO(ID_Parentesco) ON DELETE NO ACTION ON UPDATE CASCADE,
     CONSTRAINT FK_DatosAd_Identificacion FOREIGN KEY (FK_ID_Tipo_Iden) REFERENCES TBL_TIPO_IDENTIFICACION(ID_Tipo_Iden) ON DELETE NO ACTION ON UPDATE CASCADE,
     CONSTRAINT FK_DatosAd_Persona FOREIGN KEY (FK_ID_Persona) REFERENCES TBL_PERSONA(ID_Persona) ON DELETE NO ACTION ON UPDATE CASCADE,
     CONSTRAINT FK_DatosAd_Genero FOREIGN KEY (FK_ID_Genero) REFERENCES TBL_GENERO(ID_Genero) ON DELETE NO ACTION ON UPDATE CASCADE,
     CONSTRAINT FK_DatosAd_GP FOREIGN KEY (FK_ID_Grupo_Preferencial) REFERENCES TBL_GRUPO_PREFERENCIAL(ID_Grupo_Preferencial) ON DELETE NO ACTION ON UPDATE CASCADE,
     CONSTRAINT FK_DatosAd_Estrato FOREIGN KEY (FK_ID_Estrato) REFERENCES TBL_ESTRATO(ID_Estrato) ON DELETE NO ACTION ON UPDATE CASCADE,
-    CONSTRAINT FK_DatosAd_Localidad FOREIGN KEY (FK_ID_Localidad) REFERENCES TBL_LOCALIDAD(ID_Localidad) ON DELETE NO ACTION ON UPDATE CASCADE
+    CONSTRAINT FK_DatosAd_Barrio FOREIGN KEY (FK_ID_Barrio) REFERENCES TBL_BARRIO(ID_Barrio) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+--
+-- Estructura de tabla para la tabla TBL_ESTUDIANTE
+--
+
+DROP TABLE IF EXISTS TBL_ESTUDIANTE;
+
+CREATE TABLE TBL_ESTUDIANTE (
+    ID_Usuario VARCHAR(16) PRIMARY KEY,
+    FK_ID_Tipo_Iden INT NOT NULL,
+
+    FK_ID_Persona VARCHAR(15) NOT NULL,
+    FK_ID_Grado_Actual INT NOT NULL,
+    FK_ID_Gardo_Proximo INT NOT NULL,
+    FK_ID_Colegio_Anterior INT NOT NULL,
+
+    FK_ID_Genero INT NOT NULL,
+    FK_ID_Grupo_Preferencial INT NOT NULL,
+
+    FK_ID_Acudiente VARCHAR(16) NOT NULL,
+    FK_ID_Parentesco_Es INT NOT NULL,
+    
+    Estado_Estudiante ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE',
+
+    CONSTRAINT FK_Estudiante_Identificacion FOREIGN KEY (FK_ID_Tipo_Iden) REFERENCES TBL_TIPO_IDENTIFICACION(ID_Tipo_Iden) ON DELETE NO ACTION ON UPDATE CASCADE,
+
+    CONSTRAINT FK_Estudiante_Persona FOREIGN KEY (FK_ID_Persona) REFERENCES TBL_PERSONA(ID_Persona) ON DELETE NO ACTION ON UPDATE CASCADE,
+    CONSTRAINT FK_Estudiante_Grado_Actual FOREIGN KEY (FK_ID_Grado_Actual) REFERENCES TBL_GRADO(ID_Grado) ON DELETE NO ACTION ON UPDATE CASCADE,
+    CONSTRAINT FK_Estudiante_Grado_Proximo FOREIGN KEY (FK_ID_Gardo_Proximo) REFERENCES TBL_GRADO(ID_Grado) ON DELETE NO ACTION ON UPDATE CASCADE,
+    CONSTRAINT FK_Estudiante_Colegio_Anterior FOREIGN KEY (FK_ID_Colegio_Anterior) REFERENCES TBL_COLEGIO(ID_Colegio) ON DELETE NO ACTION ON UPDATE CASCADE,
+
+    CONSTRAINT FK_Estudiante_Genero FOREIGN KEY (FK_ID_Genero) REFERENCES TBL_GENERO(ID_Genero) ON DELETE NO ACTION ON UPDATE CASCADE,
+    CONSTRAINT FK_Estudiante_GP FOREIGN KEY (FK_ID_Grupo_Preferencial) REFERENCES TBL_GRUPO_PREFERENCIAL(ID_Grupo_Preferencial) ON DELETE NO ACTION ON UPDATE CASCADE,
+
+    CONSTRAINT FK_Estudiante_Acudiente FOREIGN KEY (FK_ID_Acudiente) REFERENCES TBL_USUARIO(ID_Usuario) ON DELETE NO ACTION ON UPDATE CASCADE,
+    CONSTRAINT FK_Estudiente_Parentesco FOREIGN KEY (FK_ID_Parentesco_Es) REFERENCES TBL_PARENTESCO(ID_Parentesco) ON DELETE NO ACTION ON UPDATE CASCADE
+
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 --
 -- Estructura de tabla para la tabla TBL_USUARIO
 --
+
 DROP TABLE IF EXISTS TBL_USUARIO;
 
 CREATE TABLE TBL_USUARIO (
@@ -271,6 +329,7 @@ CREATE TABLE TBL_USUARIO (
 --
 -- Estructura de tabla para la tabla TBL_TICKET
 --
+
 DROP TABLE IF EXISTS TBL_TICKET;
 
 CREATE TABLE TBL_TICKET (
@@ -349,28 +408,7 @@ CREATE TABLE TBL_DOCUMENTO_TICKET (
 
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
---
--- Estructura de tabla para la tabla TBL_ESTUDIANTE
---
 
-DROP TABLE IF EXISTS TBL_ESTUDIANTE;
-
-CREATE TABLE TBL_ESTUDIANTE (
-    ID_Estudiante INT AUTO_INCREMENT PRIMARY KEY,
-
-    FK_ID_Persona VARCHAR(15) NOT NULL,
-    FK_ID_Grado INT NOT NULL,
-    FK_ID_Acudiente VARCHAR(15) NOT NULL,
-
-    Parentesco VARCHAR(10),
-    Estado_Colegio ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE',
-
-    CONSTRAINT FK_Estudiante_Persona FOREIGN KEY (FK_ID_Persona) REFERENCES TBL_PERSONA(ID_Persona) ON DELETE NO ACTION ON UPDATE CASCADE,
-    CONSTRAINT FK_Estudiante_Grado FOREIGN KEY (FK_ID_Grado) REFERENCES TBL_GRADO(ID_Grado) ON DELETE NO ACTION ON UPDATE CASCADE,
-    CONSTRAINT FK_Estudiante_Acudiente FOREIGN KEY (FK_ID_Acudiente) REFERENCES TBL_PERSONA(ID_Persona) ON DELETE NO ACTION ON UPDATE CASCADE
-
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
@@ -430,12 +468,12 @@ DROP TABLE IF EXISTS TBL_AUDITORIA_SESION;
 CREATE TABLE TBL_AUDITORIA_SESION (
     ID_Auditoria BIGINT AUTO_INCREMENT PRIMARY KEY,
 
-    FK_ID_Usuario VARCHAR(16) NULL;
-    IP_Usuario VARCHAR(45),
+    FK_ID_Usuario VARCHAR(16) NULL,
+    IP_Usuario VARCHAR(45) NOT NULL,
     Tipo_Evento ENUM('LOGIN','LOGOUT','FAILED_LOGIN'),
     Fecha_Evento DATETIME DEFAULT CURRENT_TIMESTAMP,
-    User_Agent VARCHAR(255),
+    User_Agent VARCHAR(255) NOT NULL,
 
-    Estado ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE',
+    Estado ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE'
 
 ) ENGINE=InnoDB;

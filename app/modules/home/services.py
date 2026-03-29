@@ -8,6 +8,7 @@ from flask_mail import Message
 # Configuraciones locales
 from .forms import *
 from .models import * # Archivo intermediario de BD y Services
+from app.database.connection_db_v2 import db
 
 # Configuraciones globales
 from app.settings import Config
@@ -209,13 +210,17 @@ class Register:
         """Maneja GET y POST del formulario de registro."""
 
         # Obtener datos de la BD para los select del formulario
-        localidades     = sp_obtener_localidades()
+        barrio = sp_obtener_barrios()
         tipos_documento = sp_obtener_tipos_documento()
-
+        parentesco = sp_obtener_parentesco_acu()
+        
         form = RegisterForm()
 
-        form.localidad.choices = [
-            (loc["ID_Localidad"], loc["Nombre_Localidad"]) for loc in localidades
+        form.barrio.choices = [
+            (bar["ID_Barrio"], bar["Nombre_Barrio"]) for bar in barrio
+        ]
+        form.parentesco.choices = [
+            (par["ID_Parentesco"], par["Nombre_Parentesco"]) for par in parentesco
         ]
         form.tipo_documento.choices = [
             (doc["ID_Tipo_Iden"], doc["Nombre_Tipo_Iden"]) for doc in tipos_documento
@@ -310,7 +315,7 @@ class Register:
                     form.tipo_documento.data,
                     persona_id,
                     1, 1, 1,
-                    form.localidad.data
+                    form.barrio.data
                 ))
 
                 # Insertar USUARIO
@@ -324,13 +329,18 @@ class Register:
                     persona_id,
                     2
                 ))
-
+                
+                db.commit() # confirmar cambios
+                
                 flash("Cuenta creada correctamente. Ya puede iniciar sesión.", "success")
                 return redirect(url_for("home.login"))
 
             except Exception as e:
                 print(f"[ERROR] Registro fallido: {e}")
                 flash("Ocurrió un error al registrar. Intente nuevamente.", "danger")
+                
+                db.rollback() # revetir todo si hay un error
+                
                 return render_template(
                     "home/registro.html",
                     form=form,

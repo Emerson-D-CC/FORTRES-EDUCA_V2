@@ -90,14 +90,7 @@
 
                                     <div class="col-md-4">
                                         <label for="tipoDocumento" class="form-label">Tipo de Documento *</label>
-                                        <!-- tipo_documento ya usa {{ form.tipo_documento() }} — WTForms
-                                            repopula automáticamente el <select>, no requiere cambio -->
                                         {{ form.tipo_documento(class="form-select", id="tipoDocumento") }}
-                                        {% if form.tipo_documento.errors %}
-                                            {% for error in form.tipo_documento.errors %}
-                                                <div class="invalid-feedback d-block">{{ error }}</div>
-                                            {% endfor %}
-                                        {% endif %}
                                     </div>
 
                                     <div class="col-md-4">
@@ -116,22 +109,10 @@
                                     </div>
 
                                     <div class="col-md-4">
-                                        <label for="parentesco" class="form-label">Parentesco con el Menor *</label>
-                                        <select class="form-select" name="parentesco" id="parentesco" required>
-                                            <option disabled {{ '' if request.form.get('parentesco') else 'selected' }}>
-                                                Seleccione...
-                                            </option>
-                                            {% set parentesco_val = request.form.get('parentesco', '') %}
-                                            <option value="padre"    {{ 'selected' if parentesco_val == 'padre' }}>Padre</option>
-                                            <option value="madre"    {{ 'selected' if parentesco_val == 'madre' }}>Madre</option>
-                                            <option value="abuelo"   {{ 'selected' if parentesco_val == 'abuelo' }}>Abuelo/a</option>
-                                            <option value="tio"      {{ 'selected' if parentesco_val == 'tio' }}>Tío/a</option>
-                                            <option value="hermano"  {{ 'selected' if parentesco_val == 'hermano' }}>Hermano/a Mayor</option>
-                                            <option value="tutor"    {{ 'selected' if parentesco_val == 'tutor' }}>Tutor Legal</option>
-                                            <option value="otro"     {{ 'selected' if parentesco_val == 'otro' }}>Otro</option>
-                                        </select>
+                                        <label for="tipoParentesco" class="form-label">Parentesco con el Menor *</label>
+                                        {{ form.parentesco(class="form-select", id="tipoParentesco") }}
                                     </div>
-
+                                    
                                     <div class="col-md-4">
                                         <label for="telefono" class="form-label">Teléfono / Celular *</label>
                                         <input type="tel" class="form-control" name="telefono" id="telefono"
@@ -157,15 +138,8 @@
                                     </div>
 
                                     <div class="col-md-4">
-                                        <label for="localidad" class="form-label">Localidad *</label>
-                                        <!-- localidad ya usa {{ form.localidad() }} — WTForms
-                                            repopula automáticamente, no requiere cambio -->
-                                        {{ form.localidad(class="form-select", id="localidad") }}
-                                        {% if form.localidad.errors %}
-                                            {% for error in form.localidad.errors %}
-                                                <div class="invalid-feedback d-block">{{ error }}</div>
-                                            {% endfor %}
-                                        {% endif %}
+                                        <label for="barrio" class="form-label">Barrio *</label>
+                                        {{ form.barrio(class="form-select", id="barrio") }}
                                         <div class="form-text text-warning">
                                             <i class="fas fa-exclamation-triangle me-1"></i>
                                             El servicio aplica principalmente para residentes de Engativá.
@@ -209,8 +183,7 @@
                                             <label class="form-check-label" for="terms">
                                                 Declaro bajo la gravedad de juramento que la información suministrada es
                                                 veraz y autorizo el tratamiento de mis datos personales y los del menor
-                                                de acuerdo con la Ley 1581 de 2012 (Habeas Data). Acepto los términos
-                                                de uso de la plataforma Fortress Educa.
+                                                de acuerdo con la Ley 1581 de 2012 (Habeas Data). Acepto los <a href="{{ url_for('home.terms_of_use') }}" class="text-decoration-none">Terminos de Uso y Condiciones</a> y la <a href="{{ url_for('home.privacy_policy') }}" class="text-decoration-none">Politica de Privacidad</a> de la plataforma Fortress Educa.
                                             </label>
                                         </div>
                                     </div>

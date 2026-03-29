@@ -76,7 +76,7 @@ with app.app_context():
         print("\n=== TEST PROCEDIMIENTO SELECT ===")
 
         resultado = db.call_procedure(
-            "sp_tbl_barrio_consultar"
+            "sp_tbl_parentesco_consultar_acu"
         )
 
         if resultado:
@@ -88,8 +88,8 @@ with app.app_context():
 
 if __name__ == "__main__":
     test_connection()
-    test_insert_persona()
-   # test_select_persona()
+    # test_insert_persona()
+    test_select_persona()
     db.close()
     
-# Llamar test: python -m tests.test_procedure
+# Llamar test: python -m tests.test_procedures

@@ -1,4 +1,4 @@
-from app.database.connection_db import db
+from app.database.connection_db_v2 import db
 
 # =========================
 # DECORADORES
@@ -47,16 +47,23 @@ def sp_auditoria_sesion(id_usuario, ip, evento, navegador):
 # REGISTER
 # =========================
 
-def sp_obtener_localidades():
+def sp_obtener_barrios():
     return db.call_procedure(
-        "sp_tbl_localidad_consultar", 
+        "sp_tbl_barrio_consultar", 
         ()
     ) or []
 
 
+def sp_obtener_parentesco_acu():
+    return db.call_procedure(
+        "sp_tbl_parentesco_consultar_acu", 
+        ()
+    ) or []
+    
+    
 def sp_obtener_tipos_documento():
     return db.call_procedure(
-        "sp_tbl_tipo_identificacion_consultar", 
+        "sp_tbl_tipo_identificacion_consultar_acu", 
         ()
     ) or []
 
@@ -72,7 +79,7 @@ def sp_insertar_persona(data):
     return db.call_procedure(
         "sp_tbl_persona_insertar",
         data,
-        commit=True
+        commit=False
     )
 
 
@@ -80,7 +87,7 @@ def sp_insertar_datos_adicionales(data):
     return db.call_procedure(
         "sp_tbl_datos_adicionales_insertar",
         data,
-        commit=True
+        commit=False
     )
 
 
@@ -88,7 +95,7 @@ def sp_insertar_usuario(data):
     return db.call_procedure(
         "sp_tbl_usuario_insertar",
         data,
-        commit=True
+        commit=False
     )
     
 # =========================
@@ -110,5 +117,5 @@ def sp_actualizar_contrasena(username, nuevo_hash, nuevo_salt):
     return db.call_procedure(
         "sp_usuario_actualizar_contrasena",
         (username, nuevo_hash, nuevo_salt),
-        commit=True
+        commit=False
     )

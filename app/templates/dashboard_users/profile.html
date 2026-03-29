@@ -46,11 +46,6 @@
                                 Acudiente
                             </h5>
 
-                            <!--
-                                            ESTOS DATOS SE UTILIZARÁN PARA PROCESO DE ASIGNACIÓN DE CUPO
-                                            DATA_SOURCE: tabla 'acudientes'
-                                            AQUÍ SE IMPLEMENTARÁ LA VALIDACIÓN BACKEND Y ACTUALIZACIÓN EN BASE DE DATOS
-                                        -->
                             <form id="formAcudiente">
                                 <div class="row g-3">
                                     <div class="col-md-12">
@@ -108,7 +103,6 @@
                                     <button type="submit" class="btn btn-primary px-4">
                                         <i class="fas fa-save me-1"></i>Guardar Cambios
                                     </button>
-                                    <!-- ESTA INFORMACIÓN SERÁ ENVIADA AL BACKEND PARA ACTUALIZACIÓN EN BASE DE DATOS -->
                                 </div>
                             </form>
                         </div>
@@ -116,9 +110,10 @@
 
                     <div class="col-lg-4">
                         <div class="card border-0 shadow-sm p-4 text-center mt-4 mt-lg-0">
-                            <div class="user-avatar mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2.5rem;">MG
+                            <div class="user-avatar mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                                {{ user.iniciales }}
                             </div>
-                            <h5 class="fw-bold mb-1">María García</h5>
+                            <h5 class="fw-bold mb-1">{{ user.nombre_acudiente }}</h5>
                             <p class="text-muted small mb-2">Acudiente Registrado</p>
                             <span class="badge bg-success mb-3">Cuenta Activa</span>
                             <p class="text-muted" style="font-size: 0.75rem;">
@@ -142,10 +137,6 @@
                         <strong>ESTOS DATOS SE UTILIZARÁN PARA EL PROCESO DE ASIGNACIÓN DE CUPO</strong>
                     </div>
 
-                    <!--
-                                    DATA_SOURCE: tabla 'menores' JOIN 'acudientes'
-                                    FUTURA INTEGRACIÓN CON BASE DE DATOS
-                                -->
                     <form id="formMenor">
                         <div class="row g-3">
                             <div class="col-md-8">

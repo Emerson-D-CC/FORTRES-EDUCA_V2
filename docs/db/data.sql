@@ -5,11 +5,20 @@ USE FORTRESS_EDUCA_DB;
 -- -----------------------------------------------------
 
 INSERT INTO TBL_GRADO (Nombre_Grado, Nivel_Educativo) VALUES
+('Pre jardín','Preescolar'),
+('Transición','Preescolar'),
 ('Primero','Primaria'),
 ('Segundo','Primaria'),
 ('Tercero','Primaria'),
-('Sexto','Secundaria'),
-('Decimo','Media');
+('Cuarto','Primaria'),
+('Quinto','Primaria'),
+('Sexto', 'Secundaria'),
+('Septimo', 'Secundaria'), 
+('Octavo', 'Secundaria'), 
+('Noveno', 'Secundaria'), 
+('Decimo', 'Bachiller'), 
+('Once', 'Bachiller');
+
 
 -- -----------------------------------------------------
 -- TBL_LOCALIDAD
@@ -17,6 +26,7 @@ INSERT INTO TBL_GRADO (Nombre_Grado, Nivel_Educativo) VALUES
 
 INSERT INTO TBL_LOCALIDAD (Nombre_Localidad) VALUES
 ('Engativá'),
+('Otra');
 
 -- -----------------------------------------------------
 -- TBL_GENERO
@@ -25,29 +35,30 @@ INSERT INTO TBL_LOCALIDAD (Nombre_Localidad) VALUES
 INSERT INTO TBL_GENERO (Nombre_Genero) VALUES
 ('Masculino'),
 ('Femenino'),
-('No Binario');
+('No Binario'),
+('Otro');
 
 -- -----------------------------------------------------
 -- TBL_GRUPO_PREFERENCIAL
 -- -----------------------------------------------------
 
 INSERT INTO TBL_GRUPO_PREFERENCIAL (Nombre_Grupo_Preferencial, Nivel_Prioridad_GP) VALUES
-('Victima del conflicto',1),
-('Discapacidad',2),
-('Desplazado',3),
-('Ninguno',5);
+('Victima del conflicto',5),
+('Discapacidad',4),
+('Desplazado',4),
+('Ninguno',0);
 
 -- -----------------------------------------------------
 -- TBL_ESTRATO
 -- -----------------------------------------------------
 
 INSERT INTO TBL_ESTRATO (Numero_Estrato, Nivel_Prioridad_E) VALUES
-(1,1),
-(2,2),
-(3,3),
-(4,4),
-(5,5),
-(6,6);
+(1,6),
+(2,5),
+(3,4),
+(4,3),
+(5,2),
+(6,1);
 
 -- -----------------------------------------------------
 -- TBL_ROL
@@ -58,15 +69,38 @@ INSERT INTO TBL_ROL (Nombre_Rol, Descripcion_Rol) VALUES
 ('Acudiente', 'Persona encargada de registrar estudiantes y la creación de sus respectivos ticktes'), 
 ('Tecnico', 'Resolvera tickets'), 
 ('Admin', 'Encargado de la pagina');
+
+
+-- -----------------------------------------------------
+-- TBL_PARENTESCO
+-- -----------------------------------------------------
+
+INSERT INTO TBL_PARENTESCO (Nombre_Parentesco, Tipo_Usuario) VALUES
+('Hijo','ESTUDIANTE'),
+('Hija','ESTUDIANTE'),
+('Sobrino/a','ESTUDIANTE'),
+('Hermano/a','ESTUDIANTE'),
+('Nieto/a','ESTUDIANTE'),
+('Hijo Adoptivo','ESTUDIANTE'),
+('Hija Adoptivo','ESTUDIANTE'),
+('Otro ','ESTUDIANTE'),
+('Padre','ACUDIENTE'),
+('Madre','ACUDIENTE'),
+('Tío/a','ACUDIENTE'),
+('Abuelo/a','ACUDIENTE'),
+('Hermano/a Mayor','ACUDIENTE'),
+('Tutor Legal','ACUDIENTE'),
+('Otro','ACUDIENTE');
+
 -- -----------------------------------------------------
 -- TBL_TIPO_DOCUMENTO
 -- -----------------------------------------------------
 
-INSERT INTO TBL_TIPO_IDENTIFICACION (Nombre_Tipo_Iden) VALUES
-('Cedula de Ciudadania'),
-('Cedula de Extranjeria'),
-('Tarjeta de Identidad'),
-('Registro Civil');
+INSERT INTO TBL_TIPO_IDENTIFICACION (Nombre_Tipo_Iden, Tipo_Usuario) VALUES
+('Cedula de Ciudadania','ACUDIENTE'),
+('Cedula de Extranjeria','ACUDIENTE'),
+('Tarjeta de Identidad','ESTUDIANTE'),
+('Registro Civil','ESTUDIANTE');
 
 -- -----------------------------------------------------
 -- TBL_TIPO_AFECTACION
@@ -87,35 +121,6 @@ INSERT INTO TBL_ESTADO_TICKET (Nombre_Estado, Estado_Final) VALUES
 ('En Proceso',0),
 ('Resuelto',1),
 ('Cerrado',1);
-
--- -----------------------------------------------------
--- TBL_COLEGIO
--- -----------------------------------------------------
-
-INSERT INTO TBL_COLEGIO (Nombre_Colegio, Direccion_Colegio, FK_ID_Localidad) VALUES
--- Distritales (IED)
-('Colegio Rodolfo Llinás IED','Barrio Bolivia',1),
-('Colegio Juan del Corral IED','Barrio Las Ferias',1),
-('Colegio Magdalena Ortega de Nariño IED','Engativá',1),
-('Colegio República de Colombia IED','Engativá',1),
-('Colegio Garcés Navas IED','Garcés Navas',1),
-('Colegio Minuto de Dios Siglo XXI IED','Minuto de Dios',1),
-('Colegio Villas de Granada IED','Villas de Granada',1),
-('Colegio La Estrada IED','La Estrada',1),
-('Colegio Boyacá Real IED','Boyacá Real',1),
-('Colegio Álamos IED','Álamos',1),
-('Colegio Santa María del Lago IED','Santa María del Lago',1),
-('Colegio Tabora IED','Tabora',1),
-('Colegio Florencia IED','Florencia',1),
-('Colegio Bolivia IED','Bolivia',1),
-('Colegio Las Ferias IED','Las Ferias',1),
-
--- Privados (representativos)
-('Liceo Moderno Engativá','Engativá Centro',1),
-('Colegio San José Norte','Engativá',1),
-('Colegio Psicopedagógico Villa Luz','Villa Luz',1),
-('Colegio Bilingüe Nueva Alejandría','Normandía',1),
-('Colegio Empresarial de los Andes','Álamos',1);
 
 -- -----------------------------------------------------
 -- TBL_BARRIO
@@ -152,6 +157,30 @@ INSERT INTO TBL_BARRIO (Nombre_Barrio, FK_ID_Localidad) VALUES
 ('Villa Teresita',1),
 ('Villa Clavel',1),
 ('Santa Rosita',1);
+
+
+-- -----------------------------------------------------
+-- TBL_COLEGIO
+-- -----------------------------------------------------
+
+INSERT INTO TBL_COLEGIO (Nombre_Colegio, Direccion_Colegio, FK_ID_Barrio) VALUES
+-- Distritales (IED)
+('Colegio Rodolfo Llinás IED','Kr. 1',1),
+('Colegio Juan del Corral IED','Kr. 2',1),
+('Colegio Magdalena Ortega de Nariño IED','Kr. 3',1),
+('Colegio República de Colombia IED','Kr. 4',1),
+('Colegio Garcés Navas IED','Kr. 5',1),
+('Colegio Minuto de Dios Siglo XXI IED','Kr. 6',1),
+('Colegio Villas de Granada IED','Kr. 7',1),
+('Colegio La Estrada IED','Kr. 8',1),
+('Colegio Boyacá Real IED','Kr. 9',1),
+('Colegio Álamos IED','Kr. 10',1),
+('Colegio Santa María del Lago IED','Kr. 11',1),
+('Colegio Tabora IED','Kr. 12',1),
+('Colegio Florencia IED','Kr. 13',1),
+('Colegio Bolivia IED','Kr. 14',1),
+('Colegio Las Ferias IED','Kr. 15',1);
+
 
 -- -----------------------------------------------------
 -- TBL_CUPOS

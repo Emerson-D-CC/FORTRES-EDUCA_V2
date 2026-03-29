@@ -54,18 +54,10 @@ class RegisterForm(FlaskForm):
     )
 
     parentesco = SelectField(
-        "Parentesco",
+        "Parentesco con el Menor",
         validators=[DataRequired()],
         coerce=str,
-        choices=[
-            ("padre",    "Padre"),
-            ("madre",    "Madre"),
-            ("abuelo",   "Abuelo/a"),
-            ("tio",      "Tío/a"),
-            ("hermano",  "Hermano/a Mayor"),
-            ("tutor",    "Tutor Legal"),
-            ("otro",     "Otro"),
-        ]
+        choices=[]
     )
 
     telefono = StringField(
@@ -83,8 +75,8 @@ class RegisterForm(FlaskForm):
         validators=[DataRequired(), Length(max=255)]
     )
 
-    localidad = SelectField(
-        "Localidad",
+    barrio = SelectField(
+        "Barrio",
         validators=[DataRequired()],
         coerce=int,
         choices=[]

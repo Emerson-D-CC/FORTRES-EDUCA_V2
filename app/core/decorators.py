@@ -1,6 +1,9 @@
 from functools import wraps, lru_cache
 from flask import session, abort, redirect, url_for, flash
+
+# Conexión con BD
 from app.modules.home.models import sp_obtener_roles
+from app.modules.dashboard_user.models import sp_verificar_estudiante_acudiente
 
 
 @lru_cache(maxsize=None)
@@ -14,7 +17,7 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:
-            # [FIX #4] — Redirigir al login con mensaje en lugar de abort(401) crudo
+            
             flash("Debe iniciar sesión para continuar", "warning")
             return redirect(url_for("home.login"))
         return f(*args, **kwargs)
@@ -29,7 +32,6 @@ def admin_required(f):
             flash("Debe iniciar sesión para continuar", "warning")
             return redirect(url_for("home.login"))
 
-        # [FIX #1 #2 #3] — Usar caché; admin_id ahora es un entero comparable
         admin_id = _get_role_id("Admin")
 
         if admin_id is None:
@@ -50,8 +52,6 @@ def acudiente_required(f):
             flash("Debe iniciar sesión para continuar", "warning")
             return redirect(url_for("home.login"))
 
-        # [FIX #1 #2 #3] — Usar caché; acudiente_id ahora es un entero comparable
-        # [FIX] Corregido también el typo: "acuidiente" → "acudiente"
         acudiente_id = _get_role_id("Acudiente")
 
         if acudiente_id is None:
@@ -73,7 +73,6 @@ def role_required(*role_names):
                 flash("Debe iniciar sesión para continuar", "warning")
                 return redirect(url_for("home.login"))
 
-            # [FIX #1 #2 #3] — IDs cacheados y como enteros comparables
             role_ids = [_get_role_id(name) for name in role_names]
 
             if None in role_ids:
@@ -85,3 +84,37 @@ def role_required(*role_names):
             return f(*args, **kwargs)
         return decorated_function
     return decorator
+
+
+def estudiante_requerido(f):
+    """Bloquea el acceso a rutas del dashboard si el acudienteno tiene un estudiante registrado"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+
+        # Ya verificado en esta sesión — acceso directo sin consultar BD
+        if session.get("estudiante_verificado"):
+            return f(*args, **kwargs)
+
+        id_acudiente = session.get("user_id")
+
+        try:
+            resultado = sp_verificar_estudiante_acudiente(id_acudiente)
+            tiene_estudiante = (
+                resultado
+                and resultado[0].get("tiene_estudiante", 0) > 0
+            )
+        except Exception as e:
+            print(f"[ERROR] Decorador estudiante_requerido: {e}")
+            # Ante error técnico se permite el paso para no bloquear al usuario
+            tiene_estudiante = True
+
+        if tiene_estudiante:
+            # Guardar en sesión para no repetir la consulta
+            session["estudiante_verificado"] = True
+            return f(*args, **kwargs)
+
+        # Sin estudiante: redirigir a registro
+        flash("Debe registrar al estudiante a su cargo para continuar.", "warning")
+        return redirect(url_for("dashboard.dashboard_register_student"))
+
+    return decorated_function

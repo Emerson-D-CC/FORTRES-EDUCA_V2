@@ -246,3 +246,21 @@
     </main>
     
 {% endblock %}
+
+{% block modal_global %}
+    {% if mostrar_modal_estudiante %}
+        {% with
+            modal_id         = "modalEstudiante",
+            modal_title      = "Registro de Estudiante Requerido",
+            modal_icon       = "fas fa-user-graduate",
+            modal_icon_color = "warning",
+            modal_btn_color  = "warning",
+            modal_redirect   = url_for('dashboard.dashboard_register_student'),
+            modal_btn_label  = "Registrar Estudiante",
+            modal_body       = "Para continuar debe registrar los datos del estudiante a su cargo.",
+            modal_show       = true
+        %}
+            {% include "components/modal_mandatory.html" %}
+        {% endwith %}
+    {% endif %}
+{% endblock %}
