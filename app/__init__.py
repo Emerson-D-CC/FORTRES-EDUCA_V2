@@ -1,5 +1,5 @@
 from flask import Flask, redirect, url_for
-from app.core.extensions import mail
+from flask_wtf.csrf import CSRFProtect
 
 from app.settings import DevelopmentConfig
 
@@ -9,7 +9,7 @@ from app.modules.admin.routes import admin_bp
 from app.modules.dashboard_user.routes import dashboard_bp
 # Importar controladores de errores
 from app.core.error_handlers import register_error_handlers
-from app.core.extensions import register_context_processors
+from app.core.extensions import register_context_processors, mail
 
 def create_app():
 
@@ -20,7 +20,10 @@ def create_app():
 
     # Inicializar extensiones
     mail.init_app(app)
-
+    
+    csrf = CSRFProtect()    
+    csrf.init_app(app)
+    
     # Registrar blueprints
     app.register_blueprint(home_bp)
     app.register_blueprint(admin_bp)

@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template
+from flask_wtf.csrf import CSRFProtect, CSRFError
 from .services import *
 
 home_bp = Blueprint("home", __name__, url_prefix="/home")
@@ -15,9 +16,14 @@ def login():
 def login_admin():
     return render_template('home/login_admin.html')
 
-@home_bp.route("/logout")
+@home_bp.route('/logout', methods=['POST'])
 def logout():
-    return Login().logout()
+    return Logout().logout()
+
+# Manejo de error si el token es inválido o expiró
+@home_bp.errorhandler(CSRFError)
+def handle_csrf_error(e):
+    return redirect(url_for('home.login'))
 
 @home_bp.route("/registro", methods=["GET", "POST"])
 def register():

@@ -2,7 +2,7 @@ from app.database.connection_db_v2 import db
 
 
 # =========================
-# OBSIONES GENERALES
+# OPSIONES GENERALES
 # =========================
 
 def sp_obtener_generos():
@@ -45,11 +45,32 @@ def sp_obtener_estratos():
         "sp_tbl_estrato_consultar",
         ()
     ) or []
-
-
+    
+    
 def sp_obtener_localidades():
     return db.call_procedure(
-        "sp_tbl_localidad_consultar",
+        "sp_tbl_localidad_consultar", 
+        ()
+    ) or []
+
+
+def sp_obtener_barrios():
+    return db.call_procedure(
+        "sp_tbl_barrio_consultar", 
+        ()
+    ) or []
+
+
+def sp_obtener_parentesco_est():
+    return db.call_procedure(
+        "sp_tbl_parentesco_consultar_est",
+        ()
+    ) or []
+
+
+def sp_obtener_parentesco_acu():
+    return db.call_procedure(
+        "sp_tbl_parentesco_consultar_acu",
         ()
     ) or []
 
@@ -60,6 +81,19 @@ def sp_verificar_estudiante_acudiente(id_acudiente):
         "sp_tbl_estudiante_verificar_por_acudiente",
         (id_acudiente,)
     )
+
+# =========================
+# PERFIL — Carga de datos
+# =========================
+
+def sp_obtener_perfil_acudiente(id_usuario):
+    resultado = db.call_procedure("sp_perfil_acudiente_consultar", (id_usuario,))
+    return resultado[0] if resultado else None
+
+
+def sp_obtener_perfil_estudiante(id_usuario):
+    resultado = db.call_procedure("sp_perfil_estudiante_consultar", (id_usuario,))
+    return resultado[0] if resultado else None
 
 # =========================
 # TBL_PERSONA
@@ -105,16 +139,17 @@ def sp_actualizar_datos_adicionales(data):
 # TBL_ESTUDIANTE
 # =========================
 
-def sp_estudiante_existe(id_estudiante):
+def sp_estudiante_existe(id_estudiante, id_usuario):
     return db.call_procedure(
         "sp_tbl_estudiante_verificar_existente",
-        (id_estudiante,)
+        (id_estudiante, id_usuario)
     )
 
 
 def sp_insertar_estudiante(data):
     return db.call_procedure(
         "sp_tbl_estudiante_insertar",
+
         data,
         commit=False
     )

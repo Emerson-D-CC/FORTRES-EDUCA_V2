@@ -12,34 +12,34 @@ dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/sistema_cupos")
 def dashboard_home():
     return DashboardHome().index()  
 
-@dashboard_bp.route("/dashboard_register_student")
+@dashboard_bp.route("/dashboard_register_student", methods=["GET", "POST"])
 @login_required
 @acudiente_required
 def dashboard_register_student():
     return RegisterEstudiante().registrar()
 
-@dashboard_bp.route("/profile")
+@dashboard_bp.route("/profile", methods=["GET", "POST"])
 @login_required
 @acudiente_required
 @estudiante_requerido
 def dashboard_profile():
-    return render_template("dashboard_users/profile.html", active_page="profile")
+    return Profile().cargar_perfil()
 
-@dashboard_bp.route("/request")
+@dashboard_bp.route("/request", methods=["GET", "POST"])
 @login_required
 @acudiente_required
 @estudiante_requerido
 def dashboard_request():
     return render_template("dashboard_users/request.html", active_page="request")
 
-@dashboard_bp.route("/security")
+@dashboard_bp.route("/security", methods=["GET", "POST"])
 @login_required
 @acudiente_required
 @estudiante_requerido
 def dashboard_security():
     return render_template("dashboard_users/security.html", active_page="security")
 
-@dashboard_bp.route("/settings")
+@dashboard_bp.route("/settings", methods=["GET", "POST"])
 @login_required
 @acudiente_required
 @estudiante_requerido

@@ -1,3 +1,4 @@
+DROP DATABASE FORTRESS_EDUCA_DB;
 CREATE DATABASE FORTRESS_EDUCA_DB;
 
 USE FORTRESS_EDUCA_DB;
@@ -43,7 +44,7 @@ CREATE TABLE TBL_GENERO (
 
 -- --------------------------------------------------------
 --
--- Estructura de tabla para la tabla TBL_PARENTESCO
+-- Estructura de tabla para la tabla TBL_GENERO
 --
 
 DROP TABLE IF EXISTS TBL_PARENTESCO;
@@ -256,6 +257,39 @@ CREATE TABLE TBL_DATOS_ADICIONALES (
     CONSTRAINT FK_DatosAd_Barrio FOREIGN KEY (FK_ID_Barrio) REFERENCES TBL_BARRIO(ID_Barrio) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
+
+-- --------------------------------------------------------
+--
+-- Estructura de tabla para la tabla TBL_USUARIO
+--
+
+DROP TABLE IF EXISTS TBL_USUARIO;
+
+CREATE TABLE TBL_USUARIO (
+    ID_Usuario VARCHAR(16) PRIMARY KEY,
+    Nombre_Usuario VARCHAR(50) UNIQUE NOT NULL,
+
+    Password_Salt VARBINARY(16) NOT NULL,
+    Contraseña_Hash VARBINARY(32) NOT NULL,
+    Ultimo_Cambio_Contraseña DATETIME NULL DEFAULT NULL,
+
+    Ultimo_Login DATETIME NULL DEFAULT NULL,
+    Intentos_Fallidos INT NULL,
+    Fecha_Creacion DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+    Doble_Factor_Activo ENUM('ACTIVE','INACTIVE') DEFAULT 'INACTIVE',
+    Aceptacion_Terminos ENUM('ACCEPTED','REJECTED') DEFAULT 'REJECTED',
+
+    FK_ID_Persona VARCHAR(15) NOT NULL,
+    FK_ID_Rol INT NOT NULL,
+
+    Estado_Usuario ENUM('ACTIVE','BLOCK','INACTIVE') DEFAULT 'ACTIVE',
+
+    CONSTRAINT FK_Usuario_Persona FOREIGN KEY (FK_ID_Persona) REFERENCES TBL_PERSONA(ID_Persona) ON DELETE NO ACTION ON UPDATE CASCADE,
+    CONSTRAINT FK_Usuario_Rol FOREIGN KEY (FK_ID_Rol) REFERENCES TBL_ROL(ID_Rol) ON DELETE NO ACTION ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+
 -- --------------------------------------------------------
 --
 -- Estructura de tabla para la tabla TBL_ESTUDIANTE
@@ -264,12 +298,12 @@ CREATE TABLE TBL_DATOS_ADICIONALES (
 DROP TABLE IF EXISTS TBL_ESTUDIANTE;
 
 CREATE TABLE TBL_ESTUDIANTE (
-    ID_Usuario VARCHAR(16) PRIMARY KEY,
+    ID_Estudiante VARCHAR(16) PRIMARY KEY,
     FK_ID_Tipo_Iden INT NOT NULL,
 
     FK_ID_Persona VARCHAR(15) NOT NULL,
     FK_ID_Grado_Actual INT NOT NULL,
-    FK_ID_Gardo_Proximo INT NOT NULL,
+    FK_ID_Gardo_Proximo INT NULL,
     FK_ID_Colegio_Anterior INT NOT NULL,
 
     FK_ID_Genero INT NOT NULL,
@@ -291,39 +325,10 @@ CREATE TABLE TBL_ESTUDIANTE (
     CONSTRAINT FK_Estudiante_GP FOREIGN KEY (FK_ID_Grupo_Preferencial) REFERENCES TBL_GRUPO_PREFERENCIAL(ID_Grupo_Preferencial) ON DELETE NO ACTION ON UPDATE CASCADE,
 
     CONSTRAINT FK_Estudiante_Acudiente FOREIGN KEY (FK_ID_Acudiente) REFERENCES TBL_USUARIO(ID_Usuario) ON DELETE NO ACTION ON UPDATE CASCADE,
-    CONSTRAINT FK_Estudiente_Parentesco FOREIGN KEY (FK_ID_Parentesco_Es) REFERENCES TBL_PARENTESCO(ID_Parentesco) ON DELETE NO ACTION ON UPDATE CASCADE
+    CONSTRAINT FK_Estudiante_Parentesco FOREIGN KEY (FK_ID_Parentesco_Es) REFERENCES TBL_PARENTESCO(ID_Parentesco) ON DELETE NO ACTION ON UPDATE CASCADE
 
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
---
--- Estructura de tabla para la tabla TBL_USUARIO
---
-
-DROP TABLE IF EXISTS TBL_USUARIO;
-
-CREATE TABLE TBL_USUARIO (
-    ID_Usuario VARCHAR(16) PRIMARY KEY,
-    Nombre_Usuario VARCHAR(50) UNIQUE NOT NULL,
-
-    Password_Salt VARBINARY(16) NOT NULL,
-    Contraseña_Hash VARBINARY(32) NOT NULL,
-
-    Ultimo_Login DATETIME NULL DEFAULT NULL,
-    Intentos_Fallidos INT NULL,
-    Fecha_Creacion DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-
-    Doble_Factor_Activo ENUM('ACTIVE','INACTIVE') DEFAULT 'INACTIVE',
-    Aceptacion_Terminos TINYINT(2) NULL,
-
-    FK_ID_Persona VARCHAR(15) NOT NULL,
-    FK_ID_Rol INT NOT NULL,
-
-    Estado_Usuario ENUM('ACTIVE','BLOCK','INACTIVE') DEFAULT 'ACTIVE',
-
-    CONSTRAINT FK_Usuario_Persona FOREIGN KEY (FK_ID_Persona) REFERENCES TBL_PERSONA(ID_Persona) ON DELETE NO ACTION ON UPDATE CASCADE,
-    CONSTRAINT FK_Usuario_Rol FOREIGN KEY (FK_ID_Rol) REFERENCES TBL_ROL(ID_Rol) ON DELETE NO ACTION ON UPDATE CASCADE
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 --

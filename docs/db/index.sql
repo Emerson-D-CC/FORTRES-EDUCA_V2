@@ -2,7 +2,7 @@
 -- PREPARACIÓN
 -- --------------------------------------------------------
 
-USE fortress_db;
+USE FORTRESS_EDUCA_DB;
 
 SELECT VERSION();
 
@@ -144,7 +144,7 @@ SHOW GRANTS FOR 'report_user'@'%';
 -- VALIDACION POST-RESTORE
 -- --------------------------------------------------------
 
-USE fortress_db_restore;
+USE FORTRESS_EDUCA_DB_RESTORE;
 
 SHOW TABLES;
 
@@ -159,7 +159,7 @@ SELECT COUNT(*) AS documentos_ticket FROM TBL_DOCUMENTO_TICKET;
 -- SIMULACIÓN DE "DESASTRE"
 -- --------------------------------------------------------
 
-DROP DATABASE fortress_db;
+DROP DATABASE FORTRESS_EDUCA_DB;
 
 USE fortress_db;
 

@@ -14,7 +14,11 @@
             </div>
             <div class="modal-footer border-0 d-flex justify-content-center pb-4">
                 <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancelar</button>
-                <a href="{{ url_for('home.login') }}" class="btn btn-danger px-4">Sí, Cerrar Sesión</a>
+                
+                <form action="{{ url_for('home.logout') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"> <!-- si usas Flask-WTF -->
+                    <button type="submit" class="btn btn-danger px-4">Sí, Cerrar Sesión</button>
+                </form>
             </div>
         </div>
     </div>

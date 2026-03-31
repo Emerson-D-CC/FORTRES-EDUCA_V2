@@ -1,3 +1,26 @@
+VERSIÓN 4.0
+1. Implementación de modals globales: Modal Obligatorio y Modal Informativo
+
+2. Reestructuración de la base de datos:
+    - Creación de TBL_PARENTESCO
+    - Modificación de TBL_USUARIO, TBL_DATOS_ADICIONALES, TBL_COLEGIO a nivel de FK
+    - Modificación de todos los SP de las tablas mensionadas.
+
+3. Creación de los siguientes templates:
+    - terms_of_use.html
+    - register_student.html
+
+4. Creación de todo el sistema para el registro del estudiante del acudiente. Paso obligatorio para el usuario para  continuar con el programa
+
+5. Creación de SP y decoradores para validar si el usuario cuenta con un estudiante registrado
+
+6. Modificación del registro del usuario. Ahora en vez de registrar la localidad, se registra el barrio del usuario. Además, de moficación a la logica de todas las casillas de las listas tomadas de la DB.
+
+7. Creación de cádigo para la conexión de la base de datos experimental.  Funciones de commit y rollback independientes para mayor control (sin novedades de mal funcionamiento por el momento)
+
+8. Creación de la lógica del archivo profile.html para la actualización de datos del acudiente y el estudiante. Nota: No se valido funcionamiento.
+
+---------------------------------------------------------------------
 VERSIÓN 3.7
 1. Implementación de Sistema de recuperación de contraseña con uso de Flask-Mail.
     

@@ -123,10 +123,10 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label text-muted small fw-bold">
+                                <label id="estudianteParentesco" class="form-label text-muted small fw-bold">
                                     Parentesco con el Acudiente <span class="text-danger">*</span>
                                 </label>
-                                {{ form.parentesco(class="form-control", placeholder="Ej: Hijo, Sobrino...") }}
+                                {{ form.parentesco(class="form-control", id="estudianteParentesco") }}
                             </div>
 
                         </div>
@@ -141,23 +141,26 @@
 
                             <div class="col-md-6">
                                 <label class="form-label text-muted small fw-bold">
-                                    Grado a Cursar <span class="text-danger">*</span>
+                                    Último Grado Aprobado <span class="text-danger">*</span>
                                 </label>
-                                {{ form.grado_proximo(class="form-select") }}
+                                {{ form.grado_actual(class="form-select", id="gradoActual") }}
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label text-muted small fw-bold">
-                                    Último Grado Aprobado <span class="text-danger">*</span>
+                                    Grado a Cursar <span class="text-danger">*</span>
                                 </label>
-                                {{ form.grado_actual(class="form-select") }}
+                                {{ form.grado_proximo(class="form-select", id="gradoProximo", disabled=True) }}
+                                <input type="hidden" name="grado_proximo" id="gradoProximoHidden">
+                                <div id="gradoProximoMsg" class="form-text text-muted" style="display:none;"></div>
+                                <div class="form-text">Se calcula automáticamente.</div>
                             </div>
 
                             <div class="col-md-12">
-                                <label class="form-label text-muted small fw-bold">
+                                <label id="antiguoColegio" class="form-label text-muted small fw-bold">
                                     Última Institución Educativa <span class="text-danger">*</span>
                                 </label>
-                                {{ form.colegio_anterior(class="form-select") }}
+                                {{ form.colegio_anterior(class="form-select", id="antiguoColegio") }}
                             </div>
 
                         </div>

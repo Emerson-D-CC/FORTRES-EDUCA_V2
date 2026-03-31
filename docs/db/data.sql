@@ -28,6 +28,7 @@ INSERT INTO TBL_LOCALIDAD (Nombre_Localidad) VALUES
 ('Engativá'),
 ('Otra');
 
+
 -- -----------------------------------------------------
 -- TBL_GENERO
 -- -----------------------------------------------------
@@ -38,6 +39,7 @@ INSERT INTO TBL_GENERO (Nombre_Genero) VALUES
 ('No Binario'),
 ('Otro');
 
+
 -- -----------------------------------------------------
 -- TBL_GRUPO_PREFERENCIAL
 -- -----------------------------------------------------
@@ -47,6 +49,7 @@ INSERT INTO TBL_GRUPO_PREFERENCIAL (Nombre_Grupo_Preferencial, Nivel_Prioridad_G
 ('Discapacidad',4),
 ('Desplazado',4),
 ('Ninguno',0);
+
 
 -- -----------------------------------------------------
 -- TBL_ESTRATO
@@ -59,6 +62,7 @@ INSERT INTO TBL_ESTRATO (Numero_Estrato, Nivel_Prioridad_E) VALUES
 (4,3),
 (5,2),
 (6,1);
+
 
 -- -----------------------------------------------------
 -- TBL_ROL
@@ -92,6 +96,7 @@ INSERT INTO TBL_PARENTESCO (Nombre_Parentesco, Tipo_Usuario) VALUES
 ('Tutor Legal','ACUDIENTE'),
 ('Otro','ACUDIENTE');
 
+
 -- -----------------------------------------------------
 -- TBL_TIPO_DOCUMENTO
 -- -----------------------------------------------------
@@ -101,6 +106,7 @@ INSERT INTO TBL_TIPO_IDENTIFICACION (Nombre_Tipo_Iden, Tipo_Usuario) VALUES
 ('Cedula de Extranjeria','ACUDIENTE'),
 ('Tarjeta de Identidad','ESTUDIANTE'),
 ('Registro Civil','ESTUDIANTE');
+
 
 -- -----------------------------------------------------
 -- TBL_TIPO_AFECTACION
@@ -112,6 +118,7 @@ INSERT INTO TBL_TIPO_AFECTACION (Afectacion, Nivel_Prioridad_TC) VALUES
 ('Error en sistema',3),
 ('Consulta general',5);
 
+
 -- -----------------------------------------------------
 -- TBL_ESTADO_TICKET
 -- -----------------------------------------------------
@@ -121,6 +128,7 @@ INSERT INTO TBL_ESTADO_TICKET (Nombre_Estado, Estado_Final) VALUES
 ('En Proceso',0),
 ('Resuelto',1),
 ('Cerrado',1);
+
 
 -- -----------------------------------------------------
 -- TBL_BARRIO
@@ -179,6 +187,7 @@ INSERT INTO TBL_COLEGIO (Nombre_Colegio, Direccion_Colegio, FK_ID_Barrio) VALUES
 ('Colegio Tabora IED','Kr. 12',1),
 ('Colegio Florencia IED','Kr. 13',1),
 ('Colegio Bolivia IED','Kr. 14',1),
+('Colegio Robert F Kennedy IED','Av. Boyaca',1),
 ('Colegio Las Ferias IED','Kr. 15',1);
 
 
@@ -201,3 +210,28 @@ INSERT INTO TBL_CUPOS (FK_ID_Grado, FK_ID_Colegio, Jornada, Cupos_Disponibles) V
 (3,10,'Mañana',34),
 (4,11,'Tarde',26),
 (5,12,'Mañana',31);
+
+
+-- -----------------------------------------------------
+-- USUARIO PRUEBA: USUARIO NORMAL
+-- -----------------------------------------------------
+
+INSERT INTO TBL_PERSONA (ID_Persona, Primer_Nombre, Segundo_Nombre, Primer_Apellido, Segundo_Apellido, Fecha_Nacimiento, Estado_Persona) VALUES 
+('1019762928', 'Emerson', 'Daniel', 'Caicedo', 'Cobos', '2000-01-01', 'ACTIVE');
+
+INSERT INTO TBL_DATOS_ADICIONALES (ID_Datos_Adicionales, Email, Telefono, FK_ID_Parentesco, FK_ID_Tipo_Iden, FK_ID_Persona, FK_ID_Genero, FK_ID_Grupo_Preferencial, FK_ID_Estrato, FK_ID_Barrio, Estado_Datos_Adicionales) VALUES 
+('D1019762928', 'edcaicedoc@sanmateo.edu.co', '3213397584', '13', '1', '1019762928', '1', '4', '3', '12', 'ACTIVE');
+
+INSERT INTO TBL_USUARIO (ID_Usuario, Nombre_Usuario, Password_Salt, Contraseña_Hash, Ultimo_Cambio_Contraseña, Ultimo_Login, Intentos_Fallidos, Fecha_Creacion, Doble_Factor_Activo, Aceptacion_Terminos, FK_ID_Persona, FK_ID_Rol, Estado_Usuario) VALUES 
+('U1019762928', 'edcaicedoc@sanmateo.edu.co', 0xae4756612d1de55c3e5bd5bb29fd1e4e, 0xe2a93a325afc47f1f5688c135055040c8db14d6c22808bc2cb1e4135ee66ca3e, NULL, '2026-03-31 02:21:06', '0', '2026-03-30 23:07:59', 'INACTIVE', 'ACCEPTED', '1019762928', '2', 'ACTIVE');
+
+
+-- -----------------------------------------------------
+-- ESTUDIANTE PRUEBA
+-- -----------------------------------------------------
+
+INSERT INTO TBL_PERSONA (ID_Persona, Primer_Nombre, Segundo_Nombre, Primer_Apellido, Segundo_Apellido, Fecha_Nacimiento, Estado_Persona) VALUES 
+('1524524213', 'Luis', 'Alejandro', 'Narvaez', 'Talavera', '2015-11-19', 'ACTIVE');
+
+INSERT INTO TBL_ESTUDIANTE (ID_Estudiante, FK_ID_Tipo_Iden, FK_ID_Persona, FK_ID_Grado_Actual, FK_ID_Gardo_Proximo, FK_ID_Colegio_Anterior, FK_ID_Genero, FK_ID_Grupo_Preferencial, FK_ID_Acudiente, FK_ID_Parentesco_Es, Estado_Estudiante) VALUES 
+('E1524524213', '3', '1524524213', '6', '7', '9', '1', '4', 'U1019762928', '6', 'ACTIVE');

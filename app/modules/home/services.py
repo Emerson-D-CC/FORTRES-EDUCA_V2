@@ -19,6 +19,16 @@ from app.security.hash import generar_salt, hashear_contrasena
 from app.core.extensions import mail
 
 
+# Funciones Globales
+def auditoria(usuario, ip, evento, agent):
+    """Registra eventos de sesión. Falla silenciosamente."""
+    try:
+        sp_auditoria_sesion(usuario, ip, evento, agent)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"[ERROR] Auditoría fallida: {e}")
+        
 # Intentos fallidos antes de exigir reCAPTCHA
 INTENTOS_PARA_RECAPTCHA = 3
 
@@ -84,7 +94,7 @@ class Login:
 
                 if not data_user:
                     # Se pasa None como ID si no existe en la BD. 
-                    self._auditoria(None, ip, "FAILED_LOGIN", user_agent)
+                    auditoria(None, ip, "FAILED_LOGIN", user_agent)
 
                     # Incrementar contador de intentos fallidos
                     session["login_intentos"] = intentos_fallidos + 1
@@ -105,7 +115,7 @@ class Login:
 
                 if not login_validate:
                     # Auditar intento fallido con usuario existente
-                    self._auditoria(data_user["ID_Usuario"], ip, "FAILED_LOGIN", user_agent)
+                    auditoria(data_user["ID_Usuario"], ip, "FAILED_LOGIN", user_agent)
 
                     # Incrementar contador de intentos fallidos
                     session["login_intentos"] = intentos_fallidos + 1
@@ -144,7 +154,7 @@ class Login:
                 session["iniciales"] = iniciales
 
                 # Auditar login exitoso
-                self._auditoria(data_user["ID_Usuario"], ip, "LOGIN", user_agent)
+                auditoria(data_user["ID_Usuario"], ip, "LOGIN", user_agent)
 
                 return redirect(url_for("dashboard.dashboard_home"))
 
@@ -167,19 +177,6 @@ class Login:
         )
 
 
-    def logout(self):
-        """Cierra la sesión del usuario activo."""
-        ip = request.remote_addr
-        user_agent = request.headers.get("User-Agent")
-        id_usuario = session.get("user_id")
-
-        if id_usuario:
-            self._auditoria(id_usuario, ip, "LOGOUT", user_agent)
-
-        session.clear()
-        return redirect(url_for("home.login"))
-
-
     def _validar_usuario(self, username, password, salt):
         try:
             hash_password = hashear_contrasena(password, salt)
@@ -194,28 +191,33 @@ class Login:
             return False
 
 
-    def _auditoria(self, usuario, ip, evento, agent):
-        """Registra eventos de sesión. Falla silenciosamente."""
+class Logout:
+    def logout(self):
         try:
-            sp_auditoria_sesion(usuario, ip, evento, agent)
-        except Exception as e:
-            print(f"[ERROR] Auditoría fallida: {e}")
+            """Cierra la sesión del usuario activo."""
+            ip = request.remote_addr
+            user_agent = request.headers.get("User-Agent")
+            id_usuario = session.get("user_id")
 
+            if id_usuario:
+                auditoria(id_usuario, ip, "LOGOUT", user_agent)
+            
+            session.clear()
+            return redirect(url_for("home.login"))
+        
+        except Exception as e:
+            print(f"[ERROR] Registrar Auditoria: {e}")
+            return False
 
 class Register:
 
     PEPPER = Config.PEPPER
 
-    def register(self):
-        """Maneja GET y POST del formulario de registro."""
-
-        # Obtener datos de la BD para los select del formulario
+    def _form_registro_acudiente(self, form):
         barrio = sp_obtener_barrios()
         tipos_documento = sp_obtener_tipos_documento()
         parentesco = sp_obtener_parentesco_acu()
         
-        form = RegisterForm()
-
         form.barrio.choices = [
             (bar["ID_Barrio"], bar["Nombre_Barrio"]) for bar in barrio
         ]
@@ -226,6 +228,12 @@ class Register:
             (doc["ID_Tipo_Iden"], doc["Nombre_Tipo_Iden"]) for doc in tipos_documento
         ]
 
+    def register(self):
+        """Maneja GET y POST del formulario de registro."""
+        
+        form = RegisterForm()
+        self._form_registro_acudiente(form)
+        
         if request.method == "GET":
             # Pasar la site key para renderizar el widget reCAPTCHA
             return render_template(
@@ -314,7 +322,9 @@ class Register:
                     form.parentesco.data,
                     form.tipo_documento.data,
                     persona_id,
-                    1, 1, 1,
+                    1, 
+                    1, 
+                    1,
                     form.barrio.data
                 ))
 
@@ -325,7 +335,7 @@ class Register:
                     salt,
                     hash_password,
                     "INACTIVE",
-                    1,
+                    'ACCEPTED',
                     persona_id,
                     2
                 ))

@@ -9,7 +9,7 @@ class LoginForm(FlaskForm):
 
     username = StringField(
         "Usuario",
-        validators=[DataRequired(), Length(min=3, max=50)]
+        validators=[DataRequired(), Length(min=3, max=100), Email()]
     )
     
     password = PasswordField(
@@ -118,7 +118,7 @@ class RegisterForm(FlaskForm):
 class RecuperarContrasenaForm(FlaskForm):
     username = StringField(
         "Correo Electrónico",
-        validators=[DataRequired(), Length(min=3, max=100)]
+        validators=[DataRequired(), Length(min=3, max=100), Email()]
     )
 
 class VerificarCodigoForm(FlaskForm):
