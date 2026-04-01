@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -14,6 +15,19 @@ class Config:
     # Seguridad
     SECRET_KEY = os.getenv("SECRET_KEY")
     PEPPER = os.getenv("PASSWORD_PEPPER")
+
+    # JWT
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=1)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=1)
+    JWT_TOKEN_LOCATION = ["cookies"]
+    JWT_COOKIE_SECURE = False  # Cambiar a True en producción (HTTPS)
+    JWT_ACCESS_COOKIE_NAME = "access_token"
+    JWT_REFRESH_COOKIE_NAME = "refresh_token"
+    JWT_COOKIE_CSRF_PROTECT = False
+    
+    # Tiempo de Sesión
+    PERMANENT_SESSION_LIFETIME = timedelta(minutes=15)
 
     # Configuración de correo
     MAIL_SERVER = os.getenv("MAIL_SERVER")

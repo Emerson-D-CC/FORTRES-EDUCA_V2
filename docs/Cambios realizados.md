@@ -1,3 +1,19 @@
+VERSIÓN 4.1
+1. Reestructuración de la base de datos:
+    - Modificaciones menores de TBL_USUARIO, TBL_ESTUDIANTE
+    - Creación de Script para inserción de usuario y estudiante de prueba.
+    - Creación de todos los SP utilizados en dashboard_user/models.py
+    - Modificación de SP de las tablas modificas mensionadas.
+
+2. Corrección de la lógica del archivo profile.html y su backend dashboard_user/services.py para la actualización de datos del acudiente y el estudiante. Funcionamiento validado.
+
+3. Creación de clase Logout para que sea un proceso independiente de la clase Login
+
+4. Creación de función global auditoria para todos los procesos de login y/o logout.
+
+5. Correcciones ortográficas de algunos HTML.  
+
+---------------------------------------------------------------------
 VERSIÓN 4.0
 1. Implementación de modals globales: Modal Obligatorio y Modal Informativo
 

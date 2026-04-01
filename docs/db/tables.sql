@@ -44,7 +44,7 @@ CREATE TABLE TBL_GENERO (
 
 -- --------------------------------------------------------
 --
--- Estructura de tabla para la tabla TBL_GENERO
+-- Estructura de tabla para la tabla TBL_PARENTESCO
 --
 
 DROP TABLE IF EXISTS TBL_PARENTESCO;
@@ -380,7 +380,7 @@ CREATE TABLE TBL_TICKET_COMENTARIO (
     Estado_Comentario_Ticket ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE',
 
     CONSTRAINT FK_TicketComentario_Usuario FOREIGN KEY (FK_ID_Usuario) REFERENCES TBL_USUARIO(ID_Usuario) ON DELETE NO ACTION ON UPDATE CASCADE,
-    CONSTRAINT FK_TicketComentario_Ticket FOREIGN KEY (FK_ID_Ticket) REFERENCES TBL_TICKET(ID_Ticket)ON DELETE NO ACTION ON UPDATE CASCADE
+    CONSTRAINT FK_TicketComentario_Ticket FOREIGN KEY (FK_ID_Ticket) REFERENCES TBL_TICKET(ID_Ticket) ON DELETE NO ACTION ON UPDATE CASCADE
 
 ) ENGINE=InnoDB;
 
@@ -426,18 +426,21 @@ CREATE TABLE TBL_AUDITORIA (
     ID_Auditoria BIGINT AUTO_INCREMENT PRIMARY KEY,
 
     Tabla_Afectada VARCHAR(100) NOT NULL,
-    Tipo_Evento VARCHAR(15) NOT NULL,
+    Tipo_Evento ENUM('CREATE','READ','UPDATE','DELETE','LOGIN','PASSWORD_CHANGE'),
+
     ID_Registro_Afectado VARCHAR(50) NOT NULL,
 
+    Datos_Antiguo JSON NULL,
+    Datos_Nuevos JSON NULL,
+
     Fecha_Auditoria DATETIME DEFAULT CURRENT_TIMESTAMP,
+
     IP_Usuario VARCHAR(50) NOT NULL,
+    User_Agent VARCHAR(255) NULL,
 
     FK_ID_Usuario VARCHAR(16) NOT NULL,
 
-    Estado_Auditoria ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE',
-
     CONSTRAINT FK_Auditoria_Usuario FOREIGN KEY (FK_ID_Usuario) REFERENCES TBL_USUARIO(ID_Usuario) ON DELETE NO ACTION ON UPDATE CASCADE
-
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------

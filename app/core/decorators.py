@@ -1,10 +1,10 @@
 from functools import wraps, lru_cache
-from flask import session, abort, redirect, url_for, flash
+from flask import session, request, abort, redirect, url_for, flash
 
 # Conexión con BD
 from app.modules.home.models import sp_obtener_roles
 from app.modules.dashboard_user.models import sp_verificar_estudiante_acudiente
-
+from flask_jwt_extended import verify_jwt_in_request
 
 @lru_cache(maxsize=None)
 def _get_role_id(nombre_rol):
@@ -13,15 +13,12 @@ def _get_role_id(nombre_rol):
 
 
 def login_required(f):
-    """Verifica que el usuario tenga sesión activa."""
     @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_id' not in session:
-            
-            flash("Debe iniciar sesión para continuar", "warning")
-            return redirect(url_for("home.login"))
+    def decorated(*args, **kwargs):
+        # Verifica que el JWT sea válido (usa las funciones de error de __init__.py si falla)
+        verify_jwt_in_request()
         return f(*args, **kwargs)
-    return decorated_function
+    return decorated
 
 
 def admin_required(f):
@@ -62,6 +59,7 @@ def acudiente_required(f):
 
         return f(*args, **kwargs)
     return decorated_function
+
 
 # Decorador para elegir N roles son admitidos para la ruta
 def role_required(*role_names):

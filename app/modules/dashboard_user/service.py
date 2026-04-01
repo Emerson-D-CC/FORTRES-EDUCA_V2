@@ -189,6 +189,10 @@ class Profile:
             return False
          
         datos_id = datos_acu.get("ID_Datos_Adicionales") or f"D{persona_id}"
+        usuario_id = session["user_id"]
+        # Datos para auditoria
+        ip = request.remote_addr
+        user_agent = request.headers.get("User-Agent")
         
         try:
             sp_actualizar_datos_adicionales((
@@ -199,6 +203,9 @@ class Profile:
                 form.grupo_preferencial.data,
                 form.estrato.data,  
                 form.barrio.data,
+                usuario_id,
+                ip,
+                user_agent
             ))
                         
             db.commit()
@@ -232,16 +239,10 @@ class Profile:
             return False
 
         id_persona_est = datos_est["ID_Persona"]
-        
-        print(
-            form.primer_nombre.data,
-            form.segundo_nombre.data or None,
-            form.primer_apellido.data,
-            form.segundo_apellido.data or None,
-            form.fecha_nacimiento.data,
-            id_persona_est,
-        )
-        
+        # Datos para auditoria
+        ip = request.remote_addr
+        user_agent = request.headers.get("User-Agent")    
+            
         try:
             # 1. Actualizar TBL_PERSONA del menor
             sp_actualizar_persona((
@@ -251,6 +252,9 @@ class Profile:
                 form.primer_apellido.data,
                 form.segundo_apellido.data or None,
                 form.fecha_nacimiento.data,
+                user_id,
+                ip,
+                user_agent
             ))
 
             # 2. Actualizar TBL_ESTUDIANTE
@@ -261,6 +265,9 @@ class Profile:
                 form.genero.data,
                 form.grupo_preferencial.data,
                 id_persona_est,
+                user_id,
+                ip,
+                user_agent                
             ))
 
             db.commit()
@@ -350,6 +357,9 @@ class RegisterEstudiante:
         id_estudiante = f"E{id_persona_estudiante}"
 
         id_persona = session["user_id"]
+        # Datos para auditoria
+        ip = request.remote_addr
+        user_agent = request.headers.get("User-Agent")
         
         try:
             # Verificar que el estudiante no esté ya registrado
@@ -362,17 +372,13 @@ class RegisterEstudiante:
                 )
 
             # 1. Insertar TBL_PERSONA del menor
-            sp_insertar_persona((
+            sp_registrar_estudiante((
                 id_persona_estudiante,
                 form.primer_nombre.data,
                 form.segundo_nombre.data or None,
                 form.primer_apellido.data,
                 form.segundo_apellido.data or None,
                 form.fecha_nacimiento.data,
-            ))
-
-            # 2. Insertar TBL_ESTUDIANTE
-            sp_insertar_estudiante((
                 id_estudiante,              # ID compuesto: E + ID_Persona
                 form.tipo_identificacion.data,
                 id_persona_estudiante,
@@ -383,6 +389,8 @@ class RegisterEstudiante:
                 form.grupo_preferencial.data,
                 id_persona,            # FK_ID_Acudiente: persona del usuario en sesión
                 form.parentesco.data,
+                ip,
+                user_agent,
             ))
 
             db.commit()

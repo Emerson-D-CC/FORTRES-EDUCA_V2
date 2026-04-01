@@ -120,6 +120,4 @@ helpdesk_flask/
 │
 ├── run.py  
 │
-├── requirements.txt  
-│
-└── README.md*
+└── requirements.txt  

@@ -102,7 +102,7 @@ def sp_obtener_perfil_estudiante(id_usuario):
 def sp_insertar_persona(data):
     return db.call_procedure(
         "sp_tbl_persona_insertar",
-        data,
+    data,
         commit=False
     )
 
@@ -177,6 +177,16 @@ def sp_usuario_existe(email, persona_id):
 def sp_insertar_usuario(data):
     return db.call_procedure(
         "sp_tbl_usuario_insertar",
+        data,
+        commit=False
+    )
+
+# =========================
+# REGISTER (Acudiente)
+# =========================
+def sp_registrar_estudiante(data):
+    return db.call_procedure(
+        "sp_registrar_estudiante_completo",
         data,
         commit=False
     )

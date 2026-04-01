@@ -2,8 +2,9 @@ import random
 
 from datetime import datetime, timedelta
 
-from flask import render_template, request, redirect, url_for, flash, session, current_app
+from flask import render_template, request, redirect, url_for, flash, session, current_app, make_response
 from flask_mail import Message
+from flask_jwt_extended import set_access_cookies, set_refresh_cookies, unset_jwt_cookies, get_jwt, verify_jwt_in_request
 
 # Configuraciones locales
 from .forms import *
@@ -12,12 +13,12 @@ from app.database.connection_db_v2 import db
 
 # Configuraciones globales
 from app.settings import Config
+from app.core.extensions import mail
 
 # Seguridad
 from app.security.recaptcha import validar_recaptcha
 from app.security.hash import generar_salt, hashear_contrasena
-from app.core.extensions import mail
-
+from app.security.jwt_handler import generar_access_token, generar_refresh_token
 
 # Funciones Globales
 def auditoria(usuario, ip, evento, agent):
@@ -130,33 +131,48 @@ class Login:
                     )
 
                 # --- LOGIN EXITOSO ---
-
-                # Resetear contador de intentos al ingresar correctamente
                 session.pop("login_intentos", None)
 
-                # Construir nombre e iniciales para el header.
                 primer_nombre   = data_user.get("Primer_Nombre", "")
                 primer_apellido = data_user.get("Primer_Apellido", "")
                 nombre_completo = data_user.get("Nombre_Completo", "")
 
-                # Iniciales
                 iniciales = (
                     (primer_nombre[0] if primer_nombre else "") +
                     (primer_apellido[0] if primer_apellido else "")
                 ).upper()
 
-                # Guardar sesión incluyendo datos para el header
+                
+                # Guardar datos importantes para la sesión
+                session.permanent = True
                 session["user_id"] = data_user["ID_Usuario"]
                 session["username"] = nombre_completo
                 session["role_id"] = data_user["FK_ID_Rol"]
                 session["double_factor"] = data_user["Doble_Factor_Activo"]
                 session["nombre_acudiente"] = nombre_completo
                 session["iniciales"] = iniciales
+                session["ultima_actividad"] = datetime.utcnow().isoformat()
+                
+                # GENERAR TOKENS
+                access_token = generar_access_token(
+                    data_user["ID_Usuario"],
+                    data_user["FK_ID_Rol"]
+                )
 
-                # Auditar login exitoso
+                refresh_token = generar_refresh_token(
+                    data_user["ID_Usuario"]
+                )
+
+                # RESPUESTA
+                response = make_response(redirect(url_for("dashboard.dashboard_home")))
+
+                set_access_cookies(response, access_token)
+                set_refresh_cookies(response, refresh_token)
+
+                # Auditoría
                 auditoria(data_user["ID_Usuario"], ip, "LOGIN", user_agent)
 
-                return redirect(url_for("dashboard.dashboard_home"))
+                return response
 
             except Exception as e:
                 print(f"[ERROR] Error en login: {e}")
@@ -176,7 +192,6 @@ class Login:
             recaptcha_site_key=current_app.config.get("RECAPTCHA_SITE_KEY", "")
         )
 
-
     def _validar_usuario(self, username, password, salt):
         try:
             hash_password = hashear_contrasena(password, salt)
@@ -193,21 +208,36 @@ class Login:
 
 class Logout:
     def logout(self):
+        """Cierra la sesión del usuario activo usando Flask-JWT-Extended."""        
         try:
-            """Cierra la sesión del usuario activo."""
-            ip = request.remote_addr
-            user_agent = request.headers.get("User-Agent")
-            id_usuario = session.get("user_id")
-
-            if id_usuario:
-                auditoria(id_usuario, ip, "LOGOUT", user_agent)
+            # Se verifica el token para la auditoría (opcional)
+            verify_jwt_in_request(optional=True)
             
+            # Se obtienen los datos para auditoría desde el token actual
+            claims = get_jwt()
+            if claims:
+                user_id = claims.get("sub")
+                ip = request.remote_addr
+                user_agent = request.headers.get("User-Agent")
+                auditoria(user_id, ip, "LOGOUT", user_agent)
+
+            # Se preparar la respuesta de redirección
+            response = make_response(redirect(url_for("home.login")))
+
+            # Elimina todas las cookies de JWT
+            unset_jwt_cookies(response)
+            
+            # Limpia la sesión de Flask
             session.clear()
-            return redirect(url_for("home.login"))
-        
+
+            return response
+
         except Exception as e:
-            print(f"[ERROR] Registrar Auditoria: {e}")
-            return False
+            print(f"[ERROR] Logout: {e}")
+            response = make_response(redirect(url_for("home.login")))
+            unset_jwt_cookies(response)
+            return response
+
 
 class Register:
 
@@ -303,41 +333,41 @@ class Register:
                 # Hash de contraseña
                 salt = generar_salt()
                 hash_password = hashear_contrasena(form.password.data, salt)
+                # Datos para auditoria
+                ip = request.remote_addr
+                user_agent = request.headers.get("User-Agent")
 
-                # Insertar PERSONA
-                sp_insertar_persona((
+                sp_registrar_usuario((
+
+                    # PERSONA
                     persona_id,
                     form.primer_nombre.data,
                     form.segundo_nombre.data or None,
                     form.primer_apellido.data,
                     form.segundo_apellido.data or None,
                     "2000-01-01",
-                ))
 
-                # Insertar DATOS ADICIONALES
-                sp_insertar_datos_adicionales((
+                    # DATOS
                     datos_id,
                     form.email.data,
                     form.telefono.data,
                     form.parentesco.data,
                     form.tipo_documento.data,
-                    persona_id,
-                    1, 
-                    1, 
                     1,
-                    form.barrio.data
-                ))
+                    1,
+                    1,
+                    form.barrio.data,
 
-                # Insertar USUARIO
-                sp_insertar_usuario((
+                    # USUARIO
                     usuario_id,
                     form.email.data,
                     salt,
                     hash_password,
-                    "INACTIVE",
-                    'ACCEPTED',
-                    persona_id,
-                    2
+                    2,
+
+                    # AUDITORÍA
+                    ip,
+                    user_agent
                 ))
                 
                 db.commit() # confirmar cambios
@@ -468,9 +498,12 @@ class RecuperarContrasena:
         # Generar nuevo salt y hash con pepper
         nuevo_salt = generar_salt()
         nuevo_hash = hashear_contrasena(form.password.data, nuevo_salt)
-
+        # Datos para auditoria
+        ip = request.remote_addr
+        user_agent = request.headers.get("User-Agent")
+        
         try:
-            sp_actualizar_contrasena(username, nuevo_hash, nuevo_salt)
+            sp_actualizar_contrasena(username, nuevo_hash, nuevo_salt, ip, user_agent)
         except Exception as e:
             current_app.logger.error(f"Error actualizando contraseña: {e}")
             flash("Error al actualizar la contraseña. Intente más tarde.", "danger")

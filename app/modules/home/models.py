@@ -75,25 +75,33 @@ def sp_usuario_existe(email, persona_id):
     )
 
 
-def sp_insertar_persona(data):
+# def sp_insertar_persona(data):
+#     return db.call_procedure(
+#         "sp_tbl_persona_insertar",
+#         data,
+#         commit=False
+#     )
+
+
+# def sp_insertar_datos_adicionales(data):
+#     return db.call_procedure(
+#         "sp_tbl_datos_adicionales_insertar",
+#         data,
+#         commit=False
+#     )
+
+
+# def sp_insertar_usuario(data):
+#     return db.call_procedure(
+#         "sp_tbl_usuario_insertar",
+#         data,
+#         commit=False
+#     )
+    
+# SP para registrar todos los datos
+def sp_registrar_usuario(data):
     return db.call_procedure(
-        "sp_tbl_persona_insertar",
-        data,
-        commit=False
-    )
-
-
-def sp_insertar_datos_adicionales(data):
-    return db.call_procedure(
-        "sp_tbl_datos_adicionales_insertar",
-        data,
-        commit=False
-    )
-
-
-def sp_insertar_usuario(data):
-    return db.call_procedure(
-        "sp_tbl_usuario_insertar",
+        "sp_registrar_usuario_completo",
         data,
         commit=False
     )
@@ -115,7 +123,7 @@ def sp_obtener_email_por_username(username):
 def sp_actualizar_contrasena(username, nuevo_hash, nuevo_salt):
     """Actualiza el hash y salt de la contraseña del usuario."""
     return db.call_procedure(
-        "sp_usuario_actualizar_contrasena",
+        "sp_usuario_recuperar_contrasena",
         (username, nuevo_hash, nuevo_salt),
         commit=False
     )

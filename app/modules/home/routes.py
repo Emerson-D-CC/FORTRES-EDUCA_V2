@@ -16,7 +16,7 @@ def login():
 def login_admin():
     return render_template('home/login_admin.html')
 
-@home_bp.route('/logout', methods=['POST'])
+@home_bp.route('/logout', methods=['GET', 'POST'])
 def logout():
     return Logout().logout()
 

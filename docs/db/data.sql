@@ -69,11 +69,10 @@ INSERT INTO TBL_ESTRATO (Numero_Estrato, Nivel_Prioridad_E) VALUES
 -- -----------------------------------------------------
 
 INSERT INTO TBL_ROL (Nombre_Rol, Descripcion_Rol) VALUES
-('Estudiante', 'Persona por la cual se creara el ticket'), 
+('Sistema', 'Usuario generico del sistema');
 ('Acudiente', 'Persona encargada de registrar estudiantes y la creación de sus respectivos ticktes'), 
 ('Tecnico', 'Resolvera tickets'), 
-('Admin', 'Encargado de la pagina');
-
+('Admin', 'Encargado de la pagina'),
 
 -- -----------------------------------------------------
 -- TBL_PARENTESCO
@@ -235,3 +234,13 @@ INSERT INTO TBL_PERSONA (ID_Persona, Primer_Nombre, Segundo_Nombre, Primer_Apell
 
 INSERT INTO TBL_ESTUDIANTE (ID_Estudiante, FK_ID_Tipo_Iden, FK_ID_Persona, FK_ID_Grado_Actual, FK_ID_Gardo_Proximo, FK_ID_Colegio_Anterior, FK_ID_Genero, FK_ID_Grupo_Preferencial, FK_ID_Acudiente, FK_ID_Parentesco_Es, Estado_Estudiante) VALUES 
 ('E1524524213', '3', '1524524213', '6', '7', '9', '1', '4', 'U1019762928', '6', 'ACTIVE');
+
+
+-- -----------------------------------------------------
+-- ESTUDIANTE PRUEBA
+-- -----------------------------------------------------
+INSERT INTO TBL_PERSONA (ID_Persona, Primer_Nombre, Segundo_Nombre, Primer_Apellido, Segundo_Apellido, Fecha_Nacimiento, Estado_Persona) VALUES 
+('000000010000000', 'System', '-', 'User', '-', '2000-01-01', 'ACTIVE');
+
+INSERT INTO TBL_USUARIO (ID_Usuario, Nombre_Usuario, Password_Salt, Contraseña_Hash, FK_ID_Persona, FK_ID_Rol) VALUES 
+('SYSTEM','system@audit', UNHEX('00'), UNHEX('00'), '000000010000000', 1);
