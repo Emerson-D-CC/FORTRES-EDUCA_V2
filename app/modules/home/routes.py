@@ -12,6 +12,10 @@ def public_home():
 def login():
     return Login().login()
 
+@home_bp.route("/verify-mfa", methods=["GET", "POST"])
+def verificar_mfa():
+    return VerificarMFA().verificar()
+
 @home_bp.route("/login_administradores", methods=["GET", "POST"])
 def login_admin():
     return render_template('home/login_admin.html')

@@ -1,0 +1,58 @@
+/* Estilos personalizados para el Modal de Salida */
+
+/* Modifica el ancho del modal */
+#logoutModal .modal-dialog {
+    max-width: 500px; /* Ajusta este valor a tu gusto */
+    width: 90%;       /* Asegura que sea responsivo en móviles */
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.logout-modal-content {
+    border-radius: 15px !important;
+    border: none !important;
+}
+
+.logout-icon-wrapper {
+    width: 100px;
+    height: 100px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa; /* bg-light */
+    border-radius: 50%;
+}
+
+.logout-icon-color {
+    color: #2563eb; /* Azul institucional */
+}
+
+.logout-title {
+    color: #334155;
+}
+
+.logout-btn-cancel {
+    border-radius: 8px !important;
+    color: #334155 !important;
+    font-weight: 600;
+}
+
+.logout-btn-confirm {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    border: none !important;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.logout-btn-confirm:hover {
+    background-color: #1d4ed8 !important;
+}
+
+
+
+#logoutModal .modal-dialog, #loginErrorModal .modal-dialog {
+    max-width: 500px;
+    max-height: 300px;
+}

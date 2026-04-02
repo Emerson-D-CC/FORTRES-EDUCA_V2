@@ -1,4 +1,38 @@
-VERSIÓN 4.1
+VERSIÓN 4.5 - 01/04/2026
+1. Reestructuración de la base de datos:
+    Modificaciones:
+
+    - Modificación total de la TBL_AUDITORIA. Ahora esta tabla se encarga del registro de modificación de datos en todas las tablas.
+    - Unificación en un solo SP de los SPs utilizados en el proceso de registro y actualización de datos (SPs de TBL_PERSONA, TBL_USUARIO, TBL_DATOS ADICIONALES y TBL_ESTUDIANTE). SP obtenidos: 
+        - sp_registrar_usuario_completo
+        - sp_registrar_estudiante_completo
+        - sp_tbl_estudiante_actualizar
+        - sp_tbl_datos_adicionales_actualizar
+    - Modificación de todos los SP con funciones CREATE, UPDATE y DELETE para convertirlo en aun trassapción SQL y poder registrar en TBL_AUDITORIA
+
+2. Implementación de JWT usando flask_jwt_extended.
+    Modificaciones:
+
+    - Nuevo archivo para la logica \security\jwt_handler.py
+    - Modificación de Login
+    - Modificación del decorador @login_required
+    - Nuevas variables criticas en .env
+    - Implementación de cookies
+
+3. Se adapto la clase de Logout para funcionar con JWT. Se limpie la sesión y se eliminan las cookies JWT
+
+4. Implementación de sistema de limite de tiempo de sesión por innactividad. Se limito la duración total de la sesión a 24 horas, previniendo sesiones eternas.
+    Modificaciones:
+    - Nuevo archivo para la logica \security\session.py
+    - Modificación de Login
+    - Modificación de jwt_handler.py para que se limpie la sesión y se invalidan las cookies JWT
+
+5. Instalación de nuevas librerias para implementación de JWT:
+    - Flask-JWT-Extended==4.7.1
+    - PyJWT==2.12.1
+
+---------------------------------------------------------------------
+VERSIÓN 4.1 - 01/04/2026
 1. Reestructuración de la base de datos:
     - Modificaciones menores de TBL_USUARIO, TBL_ESTUDIANTE
     - Creación de Script para inserción de usuario y estudiante de prueba.
@@ -14,7 +48,7 @@ VERSIÓN 4.1
 5. Correcciones ortográficas de algunos HTML.  
 
 ---------------------------------------------------------------------
-VERSIÓN 4.0
+VERSIÓN 4.0 - 29/03/2026
 1. Implementación de modals globales: Modal Obligatorio y Modal Informativo
 
 2. Reestructuración de la base de datos:
@@ -37,7 +71,7 @@ VERSIÓN 4.0
 8. Creación de la lógica del archivo profile.html para la actualización de datos del acudiente y el estudiante. Nota: No se valido funcionamiento.
 
 ---------------------------------------------------------------------
-VERSIÓN 3.7
+VERSIÓN 3.7 - 25/03/2026
 1. Implementación de Sistema de recuperación de contraseña con uso de Flask-Mail.
     
     1.1. Creación de nuevos procedures para la función de recuperación de contraseña. Se encuentran en docs/db/procedures.sql
@@ -51,7 +85,7 @@ NOTA: Validar si crear más modales para diferentes contexto o intentar adaptar 
 4. Se creo pagina para las Politicas de Privacidad. Acceso desde el fotter de home.
 
 ---------------------------------------------------------------------
-VERSIÓN 3.6.2
+VERSIÓN 3.6.2 - 24/03/2026
 1. Corrección e implementación de reCAPTCHA en login y registro. Funcionamiento validado.
 Error: La implementación de reCAPTCHA en registro esta causando fallas en los campos de contraseña y confirmación_contraseña respecto a sus efectos dados por home.js.
 
@@ -61,7 +95,7 @@ Error: La implementación de reCAPTCHA en registro esta causando fallas en los c
 NOTA: Si el error_handler no funciona es porque comentarie su instancia en __init__.py para saber de forma más directa si habia un error en el programa.
 
 ---------------------------------------------------------------------
-VERSIÓN 3.6
+VERSIÓN 3.6 - 23/03/2026
 1. Todo el sistema de rutas corregido y funcional.
 
 2. Creación e implementación de decoradores en las rutas de dashboard_Admin y dashboard_users.
@@ -81,7 +115,7 @@ VERSIÓN 3.6
 9. Implementación del archivo models.py para llamados a la DB con los Procedures (SP) para mayor orden. Ahora services solo maneja datos y logica, todos los llamados a la DB deben estar en models.py.
 
 ---------------------------------------------------------------------
-VERSIÓN 3.5
+VERSIÓN 3.5 - 22/03/2026
 1. Toda la organización de \modules y \templates reestructurada. Ahora los archivos en vez de estar dividido por función, esta dividido por apartado en la aplicación web (no es la estructura original por módulos de Flask pero es más fácil de manejar, por lo menos al momento de crear las rutas).
 
 2. Implementación de jinja en todos los HTML para reducir código. Creación de layout y componentes HTML reutilizables.
@@ -91,4 +125,27 @@ VERSIÓN 3.5
 4. Sistema de rutas completo (rutas básicas con render_template para las paginas que no tienen controlador en backend).
 
 5. Implementación de sistema de errores de HTML y SERVIDOR con errorhandler (Sin funcionamiento conprobado, tenia sueño)
+
+---------------------------------------------------------------------
+VERSIÓN 3.4 - 2.0
+
+Reestructuración total del proyecto, todo el coentenido ya creado fue adaptado para funcionar con el framework Flask.
+
+CONTENIDO ADAPTADO:
+- Rutas 
+- Logica
+- Conexión a la BD
+- Estructura utilizada en DJANGO
+
+CONTENIDO DESECHADO
+- Modelos de las tablas de la BD
+- Configuración para la nueva versión de MariaDB
+
+Luego de la restructuración se ralizaron multiples cambios al programa entre Luis G, Luis T y Emerson C. Se cuentan con el control de versiones de dichas modificaciones pero no se registraron de forma escrita los cambios.
+
+---------------------------------------------------------------------
+VERSIONES INFERIORES A LA 2.0
+
+La aplicación web en su edad temprada se habia planteado realizarla usando el framework DJANGO. Además, no se tienen registro de contro de versiones de todo el codigo en esas versiones.
+
 ---------------------------------------------------------------------

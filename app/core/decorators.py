@@ -1,10 +1,12 @@
 from functools import wraps, lru_cache
-from flask import session, request, abort, redirect, url_for, flash
+from flask import session, abort, redirect, url_for, flash, make_response
 
 # Conexión con BD
 from app.modules.home.models import sp_obtener_roles
 from app.modules.dashboard_user.models import sp_verificar_estudiante_acudiente
-from flask_jwt_extended import verify_jwt_in_request
+from app.security.models import sp_verificar_jti
+
+from flask_jwt_extended import verify_jwt_in_request, get_jwt, unset_jwt_cookies
 
 @lru_cache(maxsize=None)
 def _get_role_id(nombre_rol):
@@ -15,11 +17,25 @@ def _get_role_id(nombre_rol):
 def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        # Verifica que el JWT sea válido (usa las funciones de error de __init__.py si falla)
+        # 1. Valida firma y expiración del JWT (igual que antes) 
         verify_jwt_in_request()
+        
+        # 2. Verifica que la sesión siga activa en BD
+        claims = get_jwt()
+        jti = claims.get("jti", "")
+        
+        if jti:
+            resultado = sp_verificar_jti(jti)
+            # sp_verificar_jti retorna [{"activo": 0}] si fue cerrada manualmente
+            if not resultado or resultado[0].get("activo", 0) == 0:
+                response = make_response(redirect(url_for("home.login")))
+                unset_jwt_cookies(response)
+                session.clear()
+                flash("Su sesión actual ha sido cerrada. Si no ha sido usted, realice cambio de contraseña.", "danger")
+                return response
+        
         return f(*args, **kwargs)
     return decorated
-
 
 def admin_required(f):
     """Verifica que el usuario sea ADMIN."""

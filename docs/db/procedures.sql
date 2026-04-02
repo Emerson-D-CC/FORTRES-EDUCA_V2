@@ -76,6 +76,9 @@ DELIMITER ;
 -- --------------------------------------------------------
 
 
+DROP PROCEDURE IF EXISTS sp_insertar_auditoria;
+
+
 DELIMITER $$
 
 CREATE PROCEDURE sp_insertar_auditoria(
@@ -109,7 +112,7 @@ BEGIN
         p_user_agent,
         p_id_usuario
     );
-END$$
+END $$
 
 DELIMITER ;
 
@@ -1153,7 +1156,7 @@ DELIMITER ;
 --         FK_ID_Genero = p_genero,
 --         FK_ID_Grupo_Preferencial = p_grupo_pref
 --     WHERE FK_ID_Persona = p_id_persona;
--- END$$
+-- END $$
 -- DELIMITER ;
 
 -- --------------------------------------------------------
@@ -1266,7 +1269,7 @@ BEGIN
 
     COMMIT;
 
-END$$
+END $$
 
 DELIMITER ;
 
@@ -1443,7 +1446,7 @@ BEGIN
 
     COMMIT;
 
-END$$
+END $$
 
 DELIMITER ;
 
@@ -1484,7 +1487,7 @@ BEGIN
     WHERE e.FK_ID_Acudiente = p_id_acudiente
     AND e.Estado_Estudiante = 'ACTIVE'
     LIMIT 1;
-END$$
+END $$
 
 DELIMITER ;
 
@@ -1504,7 +1507,7 @@ BEGIN
     WHERE FK_ID_Acudiente = p_id_acudiente
     AND Estado_Estudiante = 'ACTIVE'
     LIMIT 1;
-END$$
+END $$
 
 DELIMITER ;
 
@@ -2836,7 +2839,7 @@ BEGIN
         p_evento,
         p_user_agent
     );
-END$$
+END $$
 DELIMITER ;
 
 -- --------------------------------------------------------
@@ -2851,7 +2854,7 @@ BEGIN
     UPDATE TBL_USUARIO
     SET Estado_Usuario = 'BLOCK'
     WHERE Nombre_Usuario = p_usuario;
-END$$
+END $$
 DELIMITER ;
 
 -- --------------------------------------------------------
@@ -2884,25 +2887,6 @@ DELIMITER ;
 -- --------------------------------------------------------
 -- RECUPERACIÓN DE CONTRASEÑA
 -- --------------------------------------------------------
-
-
--- DROP PROCEDURE IF EXISTS sp_usuario_recuperar_contrasena;
-
--- DELIMITER $$
-
--- CREATE PROCEDURE sp_usuario_recuperar_contrasena(
---     IN p_username     VARCHAR(100),
---     IN p_nuevo_hash   VARBINARY(32),
---     IN p_nuevo_salt   VARBINARY(16)
--- )
--- BEGIN
---     UPDATE TBL_USUARIO
---     SET Contraseña_Hash = p_nuevo_hash,
---         Password_Salt   = p_nuevo_salt
---     WHERE Nombre_Usuario = p_username;
--- END$$
-
--- DELIMITER ;
 
 DROP PROCEDURE IF EXISTS sp_usuario_recuperar_contrasena;
 
@@ -2944,7 +2928,7 @@ BEGIN
 
     COMMIT;
 
-END$$
+END $$
 
 DELIMITER ;
 
@@ -3059,7 +3043,7 @@ DELIMITER ;
 
 
 
--- -------------------------------------------------------- 
+-- ====================================================================================================================================================
 -- Procedures Para registro
 
 DROP PROCEDURE IF EXISTS sp_registrar_usuario_completo;
@@ -3188,6 +3172,212 @@ BEGIN
 
     COMMIT;
 
-END$$
+END $$
 
+DELIMITER ;
+
+
+-- ====================================================================================================================================================
+-- SP PARA EL SISTEMA DE SEGURIDAD
+-- ====================================================================================================================================================
+
+-- --------------------------------------------------------
+-- SP: Cambio de contraseña desde perfil
+DROP PROCEDURE IF EXISTS sp_tbl_usuario_cambiar_contrasena_perfil;
+DELIMITER $$
+CREATE PROCEDURE sp_tbl_usuario_cambiar_contrasena_perfil(
+    IN p_id_usuario VARCHAR(16),
+    IN p_hash_actual VARBINARY(32),
+    IN p_nuevo_hash VARBINARY(32),
+    IN p_nuevo_salt VARBINARY(16),
+    IN p_ip VARCHAR(50),
+    IN p_user_agent VARCHAR(255)
+)
+BEGIN
+    DECLARE v_match INT DEFAULT 0;
+
+    SELECT COUNT(*) INTO v_match
+    FROM TBL_USUARIO
+    WHERE ID_Usuario = p_id_usuario
+      AND Contraseña_Hash = p_hash_actual;
+
+    IF v_match = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'INVALID_CURRENT_PASSWORD';
+    END IF;
+
+    START TRANSACTION;
+        UPDATE TBL_USUARIO
+        SET Contraseña_Hash = p_nuevo_hash,
+            Password_Salt = p_nuevo_salt,
+            Ultimo_Cambio_Contraseña = CURRENT_TIMESTAMP
+        WHERE ID_Usuario = p_id_usuario;
+
+        CALL sp_insertar_auditoria(
+            'TBL_USUARIO', 'PASSWORD_CHANGE', p_id_usuario,
+            JSON_OBJECT('evento','cambio_password_perfil'),
+            JSON_OBJECT('resultado','password_actualizado'),
+            p_ip, p_user_agent, 'USER'
+        );
+    COMMIT;
+END $$
+DELIMITER ;
+
+-- --------------------------------------------------------
+-- SP: Guardar secret MFA temporal
+DROP PROCEDURE IF EXISTS sp_tbl_usuario_guardar_mfa_secret_temp;
+DELIMITER $$
+CREATE PROCEDURE sp_tbl_usuario_guardar_mfa_secret_temp(
+    IN p_id_usuario VARCHAR(16),
+    IN p_secret VARCHAR(64)
+)
+BEGIN
+    UPDATE TBL_USUARIO
+    SET MFA_Secret_Temp = p_secret
+    WHERE ID_Usuario = p_id_usuario;
+END $$
+DELIMITER ;
+
+-- --------------------------------------------------------
+-- SP: Confirmar y activar MFA
+DROP PROCEDURE IF EXISTS sp_tbl_usuario_activar_mfa;
+
+DELIMITER $$
+CREATE PROCEDURE sp_tbl_usuario_activar_mfa(
+    IN p_id_usuario VARCHAR(16)
+)
+BEGIN
+    UPDATE TBL_USUARIO
+    SET MFA_Secret = MFA_Secret_Temp,
+        MFA_Secret_Temp = NULL,
+        Doble_Factor_Activo = 'ACTIVE'
+    WHERE ID_Usuario = p_id_usuario;
+END $$
+DELIMITER ;
+
+
+-- --------------------------------------------------------
+-- SP: Desactivar MFA
+
+DROP PROCEDURE IF EXISTS sp_tbl_usuario_desactivar_mfa;
+
+DELIMITER $$
+CREATE PROCEDURE sp_tbl_usuario_desactivar_mfa(
+    IN p_id_usuario VARCHAR(16)
+)
+BEGIN
+    UPDATE TBL_USUARIO
+    SET MFA_Secret = NULL,
+        MFA_Secret_Temp = NULL,
+        Doble_Factor_Activo = 'INACTIVE'
+    WHERE ID_Usuario = p_id_usuario;
+END $$
+DELIMITER ;
+
+
+-- --------------------------------------------------------
+-- SP: Obtener secret MFA activo
+
+DROP PROCEDURE IF EXISTS sp_tbl_usuario_obtener_mfa_secret;
+
+DELIMITER $$
+CREATE PROCEDURE sp_tbl_usuario_obtener_mfa_secret(
+    IN p_id_usuario VARCHAR(16)
+)
+BEGIN
+    SELECT MFA_Secret, MFA_Secret_Temp, Doble_Factor_Activo
+    FROM TBL_USUARIO
+    WHERE ID_Usuario = p_id_usuario;
+END $$
+DELIMITER ;
+
+
+-- --------------------------------------------------------
+-- SP: Registrar sesión activa
+
+DROP PROCEDURE IF EXISTS sp_tbl_sesion_activa_registrar_sesion;
+
+DELIMITER $$
+CREATE PROCEDURE sp_tbl_sesion_activa_registrar_sesion(
+    IN p_id_usuario VARCHAR(16),
+    IN p_jti VARCHAR(64),
+    IN p_dispositivo VARCHAR(255),
+    IN p_ip VARCHAR(50)
+)
+BEGIN
+    INSERT INTO TBL_SESION_ACTIVA (FK_ID_Usuario, JTI, Dispositivo, IP)
+    VALUES (p_id_usuario, p_jti, p_dispositivo, p_ip)
+    ON DUPLICATE KEY UPDATE Ultimo_Acceso = CURRENT_TIMESTAMP;
+END $$
+DELIMITER ;
+
+
+-- --------------------------------------------------------
+-- SP: Listar sesiones activas de un usuario
+
+DROP PROCEDURE IF EXISTS sp_tbl_sesion_activa_listar_sesiones;
+
+DELIMITER $$
+CREATE PROCEDURE sp_tbl_sesion_activa_listar_sesiones(
+    IN p_id_usuario VARCHAR(16)
+)
+BEGIN
+    SELECT ID_Sesion, JTI, Dispositivo, IP, Fecha_Inicio, Ultimo_Acceso
+    FROM TBL_SESION_ACTIVA
+    WHERE FK_ID_Usuario = p_id_usuario
+      AND Activa = 1
+    ORDER BY Ultimo_Acceso DESC;
+END $$
+DELIMITER ;
+
+
+-- --------------------------------------------------------
+-- SP: Cerrar sesión específica (por JTI)
+
+DROP PROCEDURE IF EXISTS sp_tbl_sesion_activa_cerrar_sesion;
+
+DELIMITER $$
+CREATE PROCEDURE sp_tbl_sesion_activa_cerrar_sesion(
+    IN p_jti VARCHAR(64)
+)
+BEGIN
+    UPDATE TBL_SESION_ACTIVA
+    SET Activa = 0
+    WHERE JTI = p_jti;
+END $$
+DELIMITER ;
+
+
+-- --------------------------------------------------------
+-- SP: Cerrar todas las sesiones de un usuario
+
+DROP PROCEDURE IF EXISTS sp_tbl_sesion_activa_cerrar_todas_sesiones;
+
+DELIMITER $$
+CREATE PROCEDURE sp_tbl_sesion_activa_cerrar_todas_sesiones(
+    IN p_id_usuario VARCHAR(16),
+    IN p_jti_actual VARCHAR(64)   -- excluir la sesión actual
+)
+BEGIN
+    UPDATE TBL_SESION_ACTIVA
+    SET Activa = 0
+    WHERE FK_ID_Usuario = p_id_usuario
+      AND JTI <> p_jti_actual;
+END $$
+DELIMITER ;
+
+
+-- --------------------------------------------------------
+-- SP: Verificar si un JTI está activo (para blacklist)
+
+DROP PROCEDURE IF EXISTS sp_tbl_sesion_activa_verificar_jti;
+
+DELIMITER $$
+CREATE PROCEDURE sp_tbl_sesion_activa_verificar_jti(
+    IN p_jti VARCHAR(64)
+)
+BEGIN
+    SELECT COUNT(*) AS activo
+    FROM TBL_SESION_ACTIVA
+    WHERE JTI = p_jti AND Activa = 1;
+END $$
 DELIMITER ;

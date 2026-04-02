@@ -16,6 +16,21 @@ class LoginForm(FlaskForm):
         "Contraseña",
         validators=[DataRequired(), Length(min=6, max=255)]
     )
+    
+    
+class FormVerificarMFA(FlaskForm):
+
+    codigo_mfa = StringField(
+        "Código de verificación",
+        validators=[
+            DataRequired(message="Ingrese el código de 6 dígitos."),
+            Length(min=6, max=6, message="El código debe tener exactamente 6 dígitos.")
+        ]
+    )
+    
+    def validate_codigo_mfa(self, field):
+        if not regex.codigo_mfa(field.data):
+            raise ValidationError("El código debe ser exactamente 6 dígitos numéricos.")
 
 
 class RegisterForm(FlaskForm):
@@ -99,7 +114,13 @@ class RegisterForm(FlaskForm):
     terms = BooleanField(
         "Aceptación de términos",
         validators=[DataRequired()])
-
+    
+    def validate_password(self, field):
+        errores = regex.contraseña_segura(field.data)
+        if errores:
+            mensaje = "La contraseña debe cumplir con: " + ", ".join(errores)
+            raise ValidationError(mensaje)
+        
     def validate_documento(self, field):
         if not regex.numero_identificacion(field.data):
             raise ValidationError("El documento debe contener solo números (5-10 dígitos).")
@@ -107,12 +128,6 @@ class RegisterForm(FlaskForm):
     def validate_telefono(self, field):
         if not regex.telefono_sin_prefijo_celular(field.data):
             raise ValidationError("El teléfono debe ser un número de celular válido (10 dígitos, comienza con 3).")
-
-    def validate_password(self, field):
-        errores = regex.contraseña_segura(field.data)
-        if errores:
-            mensaje = "La contraseña debe cumplir con: " + ", ".join(errores)
-            raise ValidationError(mensaje)
         
 
 class RecuperarContrasenaForm(FlaskForm):
@@ -126,6 +141,7 @@ class VerificarCodigoForm(FlaskForm):
         "Código de Verificación",
         validators=[DataRequired(), Length(min=6, max=6)]
     )
+
 
 class NuevaContrasenaForm(FlaskForm):
     password = PasswordField(

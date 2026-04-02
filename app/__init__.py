@@ -13,6 +13,8 @@ from app.core.extensions import register_context_processors, mail
 # Utilidades de seguridad
 from flask_jwt_extended import JWTManager
 from app.security.jwt_handler import handle_unauthorized_error, handle_expired_error, handle_invalid_error
+from app.security.session import controlar_sesion
+
 
 def create_app():
 
@@ -20,6 +22,9 @@ def create_app():
 
     # Cargar configuración
     app.config.from_object(DevelopmentConfig)
+
+    # Controlador de sesiones
+    controlar_sesion(app)
 
     # Inicializar extensiones
     mail.init_app(app)

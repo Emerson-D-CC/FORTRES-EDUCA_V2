@@ -278,6 +278,9 @@ CREATE TABLE TBL_USUARIO (
     Fecha_Creacion DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
 
     Doble_Factor_Activo ENUM('ACTIVE','INACTIVE') DEFAULT 'INACTIVE',
+    MFA_Secret VARCHAR(64) NULL DEFAULT NULL,
+    MFA_Secret_Temp VARCHAR(64) NULL DEFAULT NULL,
+
     Aceptacion_Terminos ENUM('ACCEPTED','REJECTED') DEFAULT 'REJECTED',
 
     FK_ID_Persona VARCHAR(15) NOT NULL,
@@ -413,10 +416,11 @@ CREATE TABLE TBL_DOCUMENTO_TICKET (
 
 ) ENGINE=InnoDB;
 
-
+-- -----------------------------------------------------------------------------------------------------------
+-- ------------------- TABLAS PARA AUDITORIA DEL PROGRAMA
 
 -- --------------------------------------------------------
-
+-- 
 -- Estructura de tabla para la tabla TBL_AUDITORIA
 --
 
@@ -440,31 +444,34 @@ CREATE TABLE TBL_AUDITORIA (
 
     FK_ID_Usuario VARCHAR(16) NOT NULL,
 
+    Estado_Auditoria ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE',
+
     CONSTRAINT FK_Auditoria_Usuario FOREIGN KEY (FK_ID_Usuario) REFERENCES TBL_USUARIO(ID_Usuario) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 --
--- Estructura de tabla para la tabla TBL_SESIONES ** borrar
+-- Estructura de tabla para la tabla TBL_SESION_ACTIVA
 --
+DROP TABLE IF EXISTS TBL_SESION_ACTIVA;
 
-DROP TABLE IF EXISTS TBL_SESIONES;
-
-CREATE TABLE TBL_SESIONES (
-    ID_Sesion BIGINT AUTO_INCREMENT PRIMARY KEY,
-
-    IP_Usuario VARCHAR(50) NOT NULL,
-    Tiempo_Acceso DATETIME DEFAULT CURRENT_TIMESTAMP,
-    Tiempo_Cierre DATETIME NOT NULL,
-
+CREATE TABLE TBL_SESION_ACTIVA (
+    ID_Sesion INT AUTO_INCREMENT PRIMARY KEY,
     FK_ID_Usuario VARCHAR(16) NOT NULL,
+    JTI VARCHAR(64) NOT NULL UNIQUE,
+    Dispositivo VARCHAR(255) NULL,
+    IP VARCHAR(50) NULL,
+    Fecha_Inicio DATETIME DEFAULT CURRENT_TIMESTAMP,
+    Ultimo_Acceso DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    Activa TINYINT(1) DEFAULT 1,
 
-    Estado_Sesiones ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE',
+    Estado_Sesion_Activa ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE',
 
-    CONSTRAINT FK_Sesiones_Usuario FOREIGN KEY (FK_ID_Usuario) REFERENCES TBL_USUARIO(ID_Usuario) ON DELETE NO ACTION ON UPDATE CASCADE
+    CONSTRAINT FK_Sesion_Usuario FOREIGN KEY (FK_ID_Usuario) REFERENCES TBL_USUARIO(ID_Usuario) ON DELETE CASCADE ON UPDATE CASCADE
 
 ) ENGINE=InnoDB;
 
+ALTER TABLE TBL_SESION_ACTIVA ADD INDEX idx_jti (JTI);
 
 -- --------------------------------------------------------
 --
@@ -482,6 +489,6 @@ CREATE TABLE TBL_AUDITORIA_SESION (
     Fecha_Evento DATETIME DEFAULT CURRENT_TIMESTAMP,
     User_Agent VARCHAR(255) NOT NULL,
 
-    Estado ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE'
+    Estado_Auditoria_Sesion ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE'
 
 ) ENGINE=InnoDB;

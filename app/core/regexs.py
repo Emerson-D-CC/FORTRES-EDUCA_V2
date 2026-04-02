@@ -89,7 +89,9 @@ class regex:
     def usuario(valor: str) -> bool:
         return bool(re.fullmatch(r"[A-Za-z0-9_-]{3,15}", valor.strip()))
 
+    # ===========================
     # CONTRASEÑAS
+    # ===========================
     @staticmethod
     def contraseña_segura(contraseña: str) -> list:
         errores = []
@@ -106,3 +108,10 @@ class regex:
         if ' ' in contraseña:
             errores.append("No debe contener espacios en blanco.")
         return errores
+
+    # ===========================
+    # MFA
+    # ===========================
+    @staticmethod
+    def codigo_mfa(valor: str) -> bool:
+        return bool(re.fullmatch(r"^\d{6}$", valor.strip()))

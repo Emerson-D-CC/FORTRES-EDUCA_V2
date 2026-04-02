@@ -69,10 +69,10 @@ INSERT INTO TBL_ESTRATO (Numero_Estrato, Nivel_Prioridad_E) VALUES
 -- -----------------------------------------------------
 
 INSERT INTO TBL_ROL (Nombre_Rol, Descripcion_Rol) VALUES
-('Sistema', 'Usuario generico del sistema');
+('Sistema', 'Usuario generico del sistema'),
 ('Acudiente', 'Persona encargada de registrar estudiantes y la creación de sus respectivos ticktes'), 
 ('Tecnico', 'Resolvera tickets'), 
-('Admin', 'Encargado de la pagina'),
+('Admin', 'Encargado de la pagina');
 
 -- -----------------------------------------------------
 -- TBL_PARENTESCO

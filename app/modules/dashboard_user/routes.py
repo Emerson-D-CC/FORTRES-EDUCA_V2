@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template
 from app.core.decorators import acudiente_required, login_required, estudiante_requerido
 
-from .service import *
+from .services import *
+from .forms import FormCambiarContrasena, FormVerificarMFA
 
 dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/sistema_cupos")
 
@@ -37,7 +38,60 @@ def dashboard_request():
 @acudiente_required
 @estudiante_requerido
 def dashboard_security():
-    return render_template("dashboard_users/security.html", active_page="security")
+    form_password = FormCambiarContrasena()
+    form_mfa_activar = FormVerificarMFA()
+    form_mfa_desactivar = FormVerificarMFA()
+    sesiones = GestionSesiones().cargar_vista()
+    return render_template(
+        "dashboard_users/security.html",
+        form_password=form_password,
+        form_mfa_activar=form_mfa_activar,
+        form_mfa_desactivar=form_mfa_desactivar,
+        sesiones=sesiones,
+        active_page="security"
+    )
+
+@dashboard_bp.route("/security/password", methods=["POST"])
+@login_required
+@acudiente_required
+@estudiante_requerido
+def security_cambiar_contrasena():
+    return CambiarContrasena().cambiar()
+
+@dashboard_bp.route("/security/mfa/iniciar", methods=["POST"])
+@login_required
+@acudiente_required
+@estudiante_requerido
+def security_mfa_iniciar():
+    return GestionMFA().iniciar_activacion()
+
+@dashboard_bp.route("/security/mfa/confirmar", methods=["POST"])
+@login_required
+@acudiente_required
+@estudiante_requerido
+def security_mfa_confirmar():
+    return GestionMFA().confirmar_activacion()
+
+@dashboard_bp.route("/security/mfa/desactivar", methods=["POST"])
+@login_required
+@acudiente_required
+@estudiante_requerido
+def security_mfa_desactivar():
+    return GestionMFA().desactivar()
+
+@dashboard_bp.route("/security/sessions/cerrar-otras", methods=["POST"])
+@login_required
+@acudiente_required
+@estudiante_requerido
+def security_cerrar_otras_sesiones():
+    return GestionSesiones().cerrar_otras()
+
+@dashboard_bp.route("/security/sessions/<string:jti_sesion>/cerrar", methods=["POST"])
+@login_required
+@acudiente_required
+@estudiante_requerido
+def security_cerrar_sesion(jti_sesion):
+    return GestionSesiones().cerrar_una(jti_sesion)
 
 @dashboard_bp.route("/settings", methods=["GET", "POST"])
 @login_required

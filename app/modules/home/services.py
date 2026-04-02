@@ -1,10 +1,10 @@
 import random
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from flask import render_template, request, redirect, url_for, flash, session, current_app, make_response
 from flask_mail import Message
-from flask_jwt_extended import set_access_cookies, set_refresh_cookies, unset_jwt_cookies, get_jwt, verify_jwt_in_request
+from flask_jwt_extended import set_access_cookies, set_refresh_cookies, unset_jwt_cookies, get_jwt, verify_jwt_in_request, decode_token
 
 # Configuraciones locales
 from .forms import *
@@ -19,6 +19,7 @@ from app.core.extensions import mail
 from app.security.recaptcha import validar_recaptcha
 from app.security.hash import generar_salt, hashear_contrasena
 from app.security.jwt_handler import generar_access_token, generar_refresh_token
+from app.security.mfa_handler import MFAHandler
 
 # Funciones Globales
 def auditoria(usuario, ip, evento, agent):
@@ -29,7 +30,12 @@ def auditoria(usuario, ip, evento, agent):
     except Exception as e:
         db.rollback()
         print(f"[ERROR] Auditoría fallida: {e}")
-        
+
+
+# ====================================================================================================================================================
+#                                           PAGINA LOGIN.HTML
+# ====================================================================================================================================================
+
 # Intentos fallidos antes de exigir reCAPTCHA
 INTENTOS_PARA_RECAPTCHA = 3
 
@@ -147,11 +153,13 @@ class Login:
                 session.permanent = True
                 session["user_id"] = data_user["ID_Usuario"]
                 session["username"] = nombre_completo
+                session["username_login"] = username
                 session["role_id"] = data_user["FK_ID_Rol"]
                 session["double_factor"] = data_user["Doble_Factor_Activo"]
                 session["nombre_acudiente"] = nombre_completo
                 session["iniciales"] = iniciales
-                session["ultima_actividad"] = datetime.utcnow().isoformat()
+                session["session_start"] = datetime.now(timezone.utc).isoformat()
+                session["ultima_actividad"] = datetime.now(timezone.utc).isoformat()
                 
                 # GENERAR TOKENS
                 access_token = generar_access_token(
@@ -168,10 +176,48 @@ class Login:
 
                 set_access_cookies(response, access_token)
                 set_refresh_cookies(response, refresh_token)
-
+                
+                try:
+                    decoded = decode_token(access_token)
+                    jti = decoded.get("jti", "")
+                    sp_registrar_sesion(
+                        data_user["ID_Usuario"],
+                        jti,
+                        user_agent[:255] if user_agent else "Desconocido",
+                        ip
+                    )
+                    db.commit()
+                except Exception as e:
+                    print(f"[WARN] No se pudo registrar sesión: {e}")
+                    
                 # Auditoría
                 auditoria(data_user["ID_Usuario"], ip, "LOGIN", user_agent)
+                
+                if data_user.get("Doble_Factor_Activo") == "ACTIVE":
+                    # Marcar que el usuario autenticó credenciales pero aún falta MFA
+                    session["mfa_pendiente"] = True
+                    session["mfa_user_autenticado"] = True  # bandera para /verify-mfa
 
+                    # Generar tokens igual (para registrar sesión), pero redirigir a MFA
+                    response = make_response(redirect(url_for("home.verificar_mfa")))
+                    set_access_cookies(response, access_token)
+                    set_refresh_cookies(response, refresh_token)
+
+                    try:
+                        decoded = decode_token(access_token)
+                        jti = decoded.get("jti", "")
+                        sp_registrar_sesion(
+                            data_user["ID_Usuario"],
+                            jti,
+                            user_agent[:255] if user_agent else "Desconocido",
+                            ip
+                        )
+                        db.commit()
+                    except Exception as e:
+                        print(f"[WARN] No se pudo registrar sesión: {e}")
+
+                    auditoria(data_user["ID_Usuario"], ip, "LOGIN_PENDING_MFA", user_agent)
+                    
                 return response
 
             except Exception as e:
@@ -208,36 +254,94 @@ class Login:
 
 class Logout:
     def logout(self):
-        """Cierra la sesión del usuario activo usando Flask-JWT-Extended."""        
+        """Cierra la sesión del usuario activo usando Flask-JWT-Extended."""
         try:
-            # Se verifica el token para la auditoría (opcional)
             verify_jwt_in_request(optional=True)
-            
-            # Se obtienen los datos para auditoría desde el token actual
             claims = get_jwt()
+
             if claims:
                 user_id = claims.get("sub")
-                ip = request.remote_addr
+                jti     = claims.get("jti", "")
+                ip      = request.remote_addr
                 user_agent = request.headers.get("User-Agent")
+
+                # Marcar sesión como inactiva en BD
+                if jti:
+                    try:
+                        sp_cerrar_sesion(jti)
+                        db.commit()
+                    except Exception as e:
+                        print(f"[WARN] No se pudo cerrar sesión en BD: {e}")
+
                 auditoria(user_id, ip, "LOGOUT", user_agent)
 
-            # Se preparar la respuesta de redirección
             response = make_response(redirect(url_for("home.login")))
-
-            # Elimina todas las cookies de JWT
             unset_jwt_cookies(response)
-            
-            # Limpia la sesión de Flask
             session.clear()
-
             return response
 
         except Exception as e:
             print(f"[ERROR] Logout: {e}")
             response = make_response(redirect(url_for("home.login")))
             unset_jwt_cookies(response)
+            session.clear()
             return response
 
+
+
+
+# ====================================================================================================================================================
+#                                           PAGINA VERIFY_MFA.HTML
+# ====================================================================================================================================================
+
+class VerificarMFA:
+    """Valida el código TOTP durante el login para usuarios con 2FA activo."""
+
+    def verificar(self):
+        # Solo accesible si viene de un login exitoso con MFA pendiente
+        if not session.get("mfa_pendiente") or not session.get("mfa_user_autenticado"):
+            return redirect(url_for("home.login"))
+
+        form = FormVerificarMFA()
+
+        if request.method == "POST" and form.validate_on_submit():
+            id_usuario = session.get("user_id")
+            ip = request.remote_addr
+            user_agent = request.headers.get("User-Agent", "")
+
+            try:
+                data = sp_obtener_mfa_secret(id_usuario)
+                if not data:
+                    flash("Error de sesión. Inicie sesión nuevamente.", "danger")
+                    return redirect(url_for("home.login"))
+
+                row = data[0]
+                secret = row.get("MFA_Secret") or row.get("mfa_secret")
+                if isinstance(secret, (bytes, bytearray)):
+                    secret = secret.decode("utf-8")
+
+                if not secret or not MFAHandler.verificar_codigo(secret, form.codigo_mfa.data.strip()):
+                    auditoria(id_usuario, ip, "FAILED_MFA", user_agent)
+                    flash("Código incorrecto. Intente de nuevo.", "danger")
+                    return render_template("home/verify_mfa.html", form=form)
+
+                # MFA válido: limpiar banderas y permitir acceso
+                session.pop("mfa_pendiente", None)
+                session.pop("mfa_user_autenticado", None)
+                auditoria(id_usuario, ip, "LOGIN_MFA_OK", user_agent)
+                return redirect(url_for("dashboard.dashboard_home"))
+
+            except Exception as e:
+                print(f"[ERROR] VerificarMFA.verificar: {e}")
+                flash("Error interno. Intente nuevamente.", "danger")
+
+        return render_template("home/verify_mfa.html", form=form)
+    
+    
+
+# ====================================================================================================================================================
+#                                           PAGINA REGISTER.HTML
+# ====================================================================================================================================================
 
 class Register:
 
@@ -388,6 +492,11 @@ class Register:
                     recaptcha_error=None
                 )
 
+
+
+# ====================================================================================================================================================
+#                                           PAGINA RECOVER_PASSWORD.HTML
+# ====================================================================================================================================================
 
 class RecuperarContrasena:
 
