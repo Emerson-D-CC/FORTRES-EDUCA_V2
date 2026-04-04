@@ -9,7 +9,7 @@ def generar_salt() -> bytes:
     return secrets.token_bytes(16)
 
 
-def hashear_contrasena(password: str, salt: bytes) -> bytes:
+def hashear_contraseña(password: str, salt: bytes) -> bytes:
     """ Genera el hash SHA-256 de una contraseña usando salt + password + pepper. """
     
     pepper: str | bytes = Config.PEPPER

@@ -2,7 +2,7 @@ from flask import render_template, request, redirect, url_for, flash, session
 from flask_jwt_extended import get_jwt
 
 from app.database.connection_db_v2 import db
-from app.security.hash import generar_salt, hashear_contrasena
+from app.security.hash import generar_salt, hashear_contraseña
 from app.security.mfa_handler import MFAHandler
 
 from .models import *
@@ -27,7 +27,7 @@ class DashboardHome:
 
 
 # ====================================================================================================================================================
-#                                           PAGINA REGISTER_STUDENT.HTML
+#                                           PAGINA PROFILE.HTML
 # ====================================================================================================================================================
 
 #  HELPERS INTERNOS
@@ -194,19 +194,13 @@ class Profile:
         if not datos_acu:
             flash("No se encontró el perfil del acudiente.", "danger")
             return False
-                
-        persona_id = datos_acu.get("Numero_Documento") or datos_acu.get("ID_Persona")
-        if not persona_id:
-            flash("No se pudo obtener el ID de persona del acudiente.", "danger")
-            return False
-         
-        datos_id = datos_acu.get("ID_Datos_Adicionales") or f"D{persona_id}"
-        usuario_id = session["user_id"]
-        # Datos para auditoria
-        ip = request.remote_addr
-        user_agent = request.headers.get("User-Agent")
-        
+            
+        # Extraemos los IDs autoincrementales obtenidos por el SP de consulta
+        persona_id = datos_acu.get("ID_Persona")
+        datos_id = datos_acu.get("ID_Datos_Adicionales")
+
         try:
+            # Enviamos los IDs enteros a la base de datos
             sp_actualizar_datos_adicionales((
                 datos_id,
                 form.telefono.data,
@@ -215,22 +209,21 @@ class Profile:
                 form.grupo_preferencial.data,
                 form.estrato.data,  
                 form.barrio.data,
-                usuario_id,
-                ip,
-                user_agent
+                user_id,
+                request.remote_addr,
+                request.headers.get("User-Agent")
             ))
-                        
-            db.commit()
             
-            flash("Datos del acudiente actualizados correctamente.", "success")
+            db.commit()
+            flash("Datos actualizados correctamente.", "success")
             return True
 
         except Exception as e:
             db.rollback()
-            print(f"[ERROR] Actualización acudiente fallida: {e}")
-            flash("Ocurrió un error al guardar los cambios.", "danger")
+            flash("Error al guardar los cambios.", "danger")
             return False
-
+    
+    
     # Guardar estudiante 
     def actualizar_estudiante(self):
         form = FormEstudianteDatosEditables()
@@ -378,34 +371,38 @@ class RegisterEstudiante:
         
         try:
             # Verificar que el estudiante no esté ya registrado
-            ya_existe = sp_estudiante_existe(id_estudiante, id_persona)
-            if ya_existe:
+            estudiante_existente = sp_estudiante_existe(id_estudiante, id_persona)
+            if estudiante_existente:
                 flash("Este estudiante ya se encuentra registrado.", "warning")
                 return render_template(
                     "dashboard_user/register_student.html",
                     form=form,
                 )
 
-            # 1. Insertar TBL_PERSONA del menor
+            # Registrar estudiante
             sp_registrar_estudiante((
+                # Datos TBL_PERSONA
                 id_persona_estudiante,
                 form.primer_nombre.data,
                 form.segundo_nombre.data or None,
                 form.primer_apellido.data,
                 form.segundo_apellido.data or None,
                 form.fecha_nacimiento.data,
-                id_estudiante,              # ID compuesto: E + ID_Persona
+                
+                # Datos TBL_ESTUDIANTE
+                id_estudiante,
                 form.tipo_identificacion.data,
-                id_persona_estudiante,
                 form.grado_actual.data,
                 form.grado_proximo.data,
                 form.colegio_anterior.data,
                 form.genero.data,
                 form.grupo_preferencial.data,
-                id_persona,            # FK_ID_Acudiente: persona del usuario en sesión
+                id_persona,
                 form.parentesco.data,
+                
+                # Datos TBL_AUDITORIA
                 ip,
-                user_agent,
+                user_agent
             ))
 
             db.commit()
@@ -417,6 +414,7 @@ class RegisterEstudiante:
         except Exception as e:
             db.rollback()
             print(f"[ERROR] Registro de estudiante fallido: {e}")
+            session["estudiante_verificado"] = False
             flash("Ocurrió un error al registrar al estudiante. Intente nuevamente.", "danger")
             return render_template(
                 "dashboard_user/register_student.html",
@@ -428,11 +426,11 @@ class RegisterEstudiante:
 # ====================================================================================================================================================
 
 
-class CambiarContrasena:
+class Cambiarcontraseña:
     """Gestiona el cambio de contraseña desde el perfil del usuario."""
 
     def cambiar(self):
-        form = FormCambiarContrasena()
+        form = FormCambiarcontraseña()
         
         ip = request.remote_addr
         user_agent = request.headers.get("User-Agent", "")
@@ -447,8 +445,8 @@ class CambiarContrasena:
                 flash(f"Errores en el formulario: {errores}", "danger")
                 return redirect(url_for("dashboard.dashboard_security"))
 
-            contrasena_actual = form.contrasena_actual.data
-            nueva_contrasena = form.nueva_contrasena.data
+            contraseña_actual = form.contraseña_actual.data
+            nueva_contraseña = form.nueva_contraseña.data
 
             try:
                 # Obtener datos del usuario actual para validar contraseña
@@ -460,16 +458,19 @@ class CambiarContrasena:
                 data_user = data_user[0]
                 
                 salt_actual = data_user["Password_Salt"]
-                hash_actual = hashear_contrasena(contrasena_actual, salt_actual)
+
+                validar_contraseña = self._validar_usuario(username, contraseña_actual, salt_actual)
+                
+                if not validar_contraseña:
+                    flash("La contraseña actual no es correcta.", "danger")
+                    return redirect(url_for("dashboard.dashboard_security"))
 
                 # Generar nuevo salt + hash
                 nuevo_salt = generar_salt()
-                nuevo_hash = hashear_contrasena(nueva_contrasena, nuevo_salt)
+                nuevo_hash = hashear_contraseña(nueva_contraseña, nuevo_salt)
 
                 # Llamar SP para cambiar contraseña
-                sp_cambiar_contrasena_perfil(
-                    id_usuario, hash_actual, nuevo_hash, nuevo_salt, ip, user_agent
-                )
+                sp_cambiar_contraseña_perfil(id_usuario, nuevo_hash, nuevo_salt, ip, user_agent)
                 
                 db.commit()
                 flash("Contraseña actualizada correctamente.", "success")
@@ -477,12 +478,8 @@ class CambiarContrasena:
 
             except Exception as e:
                 db.rollback()
-                msg = str(e)
-                if "INVALID_CURRENT_PASSWORD" in msg or "contraseña" in msg.lower():
-                    flash("La contraseña actual no es correcta.", "danger")
-                else:
-                    print(f"[ERROR] CambiarContrasena: {e}")
-                    flash("Error interno. Intente nuevamente.", "danger")
+                print(f"[ERROR] Cambiarcontraseña: {e}")
+                flash("Error interno. Intente nuevamente.", "danger")
                 return redirect(url_for("dashboard.dashboard_security"))
 
         # GET — Renderizar página de seguridad con formulario
@@ -490,7 +487,20 @@ class CambiarContrasena:
             "dashboard_users/security.html",
             form_password=form,
             active_page="security"
-        )
+        ) 
+        
+    def _validar_usuario(self, username, password, salt):
+        try:
+            hash_password = hashear_contraseña(password, salt)
+            result = sp_validar_login(username, hash_password)
+
+            if not result:
+                return False
+            return result[0].get("Resultado") == "SUCCESS"
+
+        except Exception as e:
+            print(f"[ERROR] _validar_usuario: {e}")
+            return False
 
 
 #  GESTIÓN DE MFA (Microsoft Authenticator / TOTP)
@@ -560,9 +570,6 @@ class GestionMFA:
             if not data:
                 flash("Sesión expirada. Inicie el proceso nuevamente.", "danger")
                 return redirect(url_for("dashboard.dashboard_security"))
-
-            verificacion = sp_obtener_mfa_secret(id_usuario)
-            print(f"[DEBUG] Secret guardado en BD: {verificacion}")
             
             row = data[0]
 
@@ -582,19 +589,22 @@ class GestionMFA:
             codigo_ingresado = form.codigo_mfa.data.strip()
 
             # LOGS DE DIAGNÓSTICO
-            totp = pyotp.TOTP(secret_temp)
-            ahora = time.time()
+            # totp = pyotp.TOTP(secret_temp)
+            # ahora = time.time()
 
-            print(f"[DEBUG] secret_temp   : {secret_temp}")
-            print(f"[DEBUG] codigo ingresado : {codigo_ingresado}")
-            print(f"[DEBUG] codigo esperado  : {totp.now()}")
-            print(f"[DEBUG] verify window=0  : {totp.verify(codigo_ingresado, valid_window=0)}")
-            print(f"[DEBUG] verify window=1  : {totp.verify(codigo_ingresado, valid_window=1)}")
-            print(f"[DEBUG] verify window=4  : {totp.verify(codigo_ingresado, valid_window=4)}")
+            # verificacion = sp_obtener_mfa_secret(id_usuario)
+            # print(f"[DEBUG] Secret guardado en BD: {verificacion}")
+
+            # print(f"[DEBUG] secret_temp   : {secret_temp}")
+            # print(f"[DEBUG] codigo ingresado : {codigo_ingresado}")
+            # print(f"[DEBUG] codigo esperado  : {totp.now()}")
+            # print(f"[DEBUG] verify window=0  : {totp.verify(codigo_ingresado, valid_window=0)}")
+            # print(f"[DEBUG] verify window=1  : {totp.verify(codigo_ingresado, valid_window=1)}")
+            # print(f"[DEBUG] verify window=4  : {totp.verify(codigo_ingresado, valid_window=4)}")
             
-            codigos_validos = [totp.at(ahora + (i * 30)) for i in range(-5, 6)]
-            print(f"[DEBUG] codigos ventana : {codigos_validos}")
-            print(f"[DEBUG] ingresado en ventana: {codigo_ingresado in codigos_validos}")
+            # codigos_validos = [totp.at(ahora + (i * 30)) for i in range(-5, 6)]
+            # print(f"[DEBUG] codigos ventana : {codigos_validos}")
+            # print(f"[DEBUG] ingresado en ventana: {codigo_ingresado in codigos_validos}")
             
             if not MFAHandler.verificar_codigo(secret_temp, codigo_ingresado):
                 flash("Código incorrecto. Verifique la hora de su dispositivo e intente de nuevo.", "danger")
@@ -677,7 +687,7 @@ class GestionSesiones:
             for s in (sesiones or []):
                 sesiones_formateadas.append({
                     "id":          s["ID_Sesion"],
-                    "JTI":         s["JTI"],                   # ← FALTABA ESTE CAMPO
+                    "JTI":         s["JTI"],
                     "dispositivo": s["Dispositivo"] or "Desconocido",
                     "ip":          s["IP"] or "—",
                     "inicio":      s["Fecha_Inicio"].strftime("%d/%m/%Y %H:%M") if s.get("Fecha_Inicio") else "—",
@@ -728,3 +738,164 @@ class GestionSesiones:
             print(f"[ERROR] cerrar_una: {e}")
             flash("Error al cerrar sesión. Intente nuevamente.", "danger")
         return redirect(url_for("dashboard.dashboard_security"))
+    
+            
+# ====================================================================================================================================================
+#                                           PAGINA SETTINGS.HTML
+# ====================================================================================================================================================
+
+ 
+class ConfiguracionGeneral:
+    #  Carga inicial: GET /settings 
+    
+    def mostrar(self):
+
+        id_usuario = session.get("user_id")
+        
+        prefs = sp_configuracion_obtener_notificaciones(id_usuario)
+ 
+        # Si el SP no devuelve resultados, inicializamos valores seguros
+        if prefs and len(prefs) > 0:
+            notif_email = bool(prefs[0]["Notificaciones_Email"])
+            notif_navegador = bool(prefs[0]["Notificaciones_Navegador"])
+        else:
+            notif_email = False
+            notif_navegador = False
+ 
+        form_email      = FormNotificacionesEmail()
+        form_navegador  = FormNotificacionesNavegador()
+        form_eliminar   = FormEliminarCuenta()
+ 
+        # Pre-seleccionar checkboxes según el estado guardado en BD
+        form_email.notificaciones_email.data          = notif_email
+        form_navegador.notificaciones_navegador.data  = notif_navegador
+ 
+        return render_template(
+            "dashboard_users/settings.html",
+            form_email=form_email,
+            form_navegador=form_navegador,
+            form_eliminar=form_eliminar,
+            notif_email_activo=notif_email,
+            notif_navegador_activo=notif_navegador,
+        )
+ 
+    #  Actualizar notificaciones de correo
+    
+    def actualizar_notif_email(self):
+        """Procesa el formulario de notificaciones por correo electrónico."""
+        form_email = FormNotificacionesEmail()
+ 
+        if form_email.validate_on_submit():
+            activo = 1 if form_email.notificaciones_email.data else 0
+ 
+            try:
+                id_usuario = session.get("user_id")
+
+                sp_configuracion_actualizar_notif_email(id_usuario, activo)
+ 
+                estado = "activadas" if activo else "desactivadas"
+                flash(
+                    f"Las notificaciones por correo han sido {estado} correctamente.",
+                    "success"
+                )
+ 
+            except Exception:
+                flash(
+                    "Ocurrió un error al actualizar las notificaciones por correo. "
+                    "Intenta de nuevo más tarde.",
+                    "danger"
+                )
+        else:
+            flash("Solicitud inválida. Por favor recarga la página e intenta de nuevo.", "warning")
+ 
+        return redirect(url_for("dashboard.dashboard_settings"))
+ 
+    #  Actualizar notificaciones de navegador: POST
+    def actualizar_notif_navegador(self):
+        """
+        Procesa el formulario de notificaciones del navegador.
+        """
+        form_navegador = FormNotificacionesNavegador()
+
+        if form_navegador.validate_on_submit():
+            activo = 1 if form_navegador.notificaciones_navegador.data else 0
+
+            try:
+                id_usuario = session.get("user_id")
+                sp_configuracion_actualizar_notif_navegador(id_usuario, activo)
+
+                estado = "activadas" if activo else "desactivadas"
+                flash(
+                    f"Las notificaciones del navegador han sido {estado} correctamente.",
+                    "success"
+                )
+
+            except Exception:
+                flash(
+                    "Ocurrió un error al actualizar las notificaciones del navegador. "
+                    "Intenta de nuevo más tarde.",
+                    "danger"
+                )
+        else:
+            flash("Solicitud inválida. Por favor recarga la página e intenta de nuevo.", "warning")
+
+        return redirect(url_for("dashboard.dashboard_settings"))
+
+
+class EliminarCuenta:
+    
+    def eliminar_cuenta(self):
+        form_eliminar = FormEliminarCuenta()
+        
+        if form_eliminar.validate_on_submit():
+            id_usuario = session.get("user_id")
+            username = session.get("username_login")
+            
+            if not id_usuario or not username:
+                flash("Sesión no válida. Por favor inicia sesión de nuevo.", "danger")
+                return redirect(url_for("home.login"))
+            
+            password = form_eliminar.contraseña.data
+
+            try:
+                # 1. Obtener sal y validar contraseña
+                data_user = sp_validar_data_user(username)
+                if not data_user:
+                    raise Exception("Usuario no encontrado")
+                
+                data_user = data_user[0]
+                salt = data_user["Password_Salt"]
+
+                if not self._validar_usuario(username, password, salt):
+                    flash("Contraseña incorrecta. No se procedió con la eliminación.", "danger")
+                    return redirect(url_for("dashboard.dashboard_settings"))
+                
+                # 2. Proceder con la eliminación lógica
+                ip = request.remote_addr or ""
+                user_agent = request.headers.get("User-Agent", "")
+                
+                sp_eliminar_cuenta_completa(id_usuario, ip, user_agent)
+                
+                session.clear()
+                flash("Cuenta eliminada correctamente. Hasta pronto.", "success")
+                return redirect(url_for("home.login"))
+
+            except Exception as e:
+                db.rollback()
+                print(f"[ERROR] eliminar_cuenta: {e}")
+                flash("Error de sistema al procesar la solicitud.", "danger")
+                return redirect(url_for("dashboard.dashboard_settings"))
+            
+        # Si el formulario no es válido o falta la contraseña
+        flash("Debe ingresar su contraseña para confirmar.", "warning")
+        return redirect(url_for("dashboard.dashboard_settings"))
+
+    def _validar_usuario(self, username, password, salt):
+        try:
+            hash_password = hashear_contraseña(password, salt)
+            result = sp_validar_login(username, hash_password)
+            # Retorna True solo si el resultado es SUCCESS
+            return result and result[0].get("Resultado") == "SUCCESS"
+        except Exception as e:
+            print(f"[ERROR] _validar_usuario: {e}")
+            return False

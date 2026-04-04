@@ -77,7 +77,7 @@ def sp_obtener_parentesco_acu():
 
 
 def sp_verificar_estudiante_acudiente(id_acudiente):
-    """Verifica si un acudiente ya tiene un estudiante registrado."""
+    """Verifica si un acudiente ya tiene un estudiante registrado"""
     return db.call_procedure(
         "sp_tbl_estudiante_verificar_por_acudiente",
         (id_acudiente,)
@@ -97,14 +97,6 @@ def sp_obtener_perfil_estudiante(id_usuario):
 
 # TBL_PERSONA
 
-def sp_insertar_persona(data):
-    return db.call_procedure(
-        "sp_tbl_persona_insertar",
-    data,
-        commit=False
-    )
-
-
 def sp_actualizar_persona(data):
     return db.call_procedure(
         "sp_tbl_persona_actualizar",
@@ -114,13 +106,6 @@ def sp_actualizar_persona(data):
 
 
 # TBL_DATOS_ADICIONALES
-
-def sp_insertar_datos_adicionales(data):
-    return db.call_procedure(
-        "sp_tbl_datos_adicionales_insertar",
-        data,
-        commit=False
-    )
 
 
 def sp_actualizar_datos_adicionales(data):
@@ -191,11 +176,11 @@ def sp_registrar_estudiante(data):
     
 # CONTRASEÑA
  
-def sp_cambiar_contrasena_perfil(id_usuario, hash_actual, nuevo_hash, nuevo_salt, ip, user_agent):
-    """Valida la contraseña actual y actualiza a la nueva."""
+def sp_cambiar_contraseña_perfil(id_usuario, nuevo_hash, nuevo_salt, ip, user_agent):
+    """Valida la contraseña actual y actualiza a la nueva"""
     return db.call_procedure(
-        "sp_tbl_usuario_cambiar_contrasena_perfil",
-        (id_usuario, hash_actual, nuevo_hash, nuevo_salt, ip, user_agent),
+        "sp_tbl_usuario_cambiar_contraseña_perfil",
+        (id_usuario, nuevo_hash, nuevo_salt, ip, user_agent),
         commit=False
     )
 
@@ -208,7 +193,7 @@ def sp_validar_data_user(username):
 # MFA
 
 def sp_guardar_mfa_secret_temp(id_usuario, secret):
-    """Guarda el secret temporal mientras el usuario no ha confirmado el código."""
+    """Guarda el secret temporal mientras el usuario no ha confirmado el código"""
     return db.call_procedure(
         "sp_tbl_usuario_guardar_mfa_secret_temp",
         (id_usuario, secret),
@@ -216,7 +201,7 @@ def sp_guardar_mfa_secret_temp(id_usuario, secret):
     )
 
 def sp_activar_mfa(id_usuario):
-    """Mueve el secret temporal al campo definitivo y activa 2FA."""
+    """Mueve el secret temporal al campo definitivo y activa 2FA"""
     return db.call_procedure(
         "sp_tbl_usuario_activar_mfa",
         (id_usuario,),
@@ -224,7 +209,7 @@ def sp_activar_mfa(id_usuario):
     )
 
 def sp_desactivar_mfa(id_usuario):
-    """Borra el secret y desactiva 2FA."""
+    """Borra el secret y desactiva 2FA"""
     return db.call_procedure(
         "sp_tbl_usuario_desactivar_mfa",
         (id_usuario,),
@@ -232,7 +217,7 @@ def sp_desactivar_mfa(id_usuario):
     )
 
 def sp_obtener_mfa_secret(id_usuario):
-    """Devuelve el estado y secrets MFA del usuario."""
+    """Devuelve el estado y secrets MFA del usuario"""
     return db.call_procedure(
         "sp_tbl_usuario_obtener_mfa_secret",
         (id_usuario,),
@@ -242,7 +227,7 @@ def sp_obtener_mfa_secret(id_usuario):
 # SISTEMA PARA VALIDAR SESIONES ACTIVAS
 
 def sp_registrar_sesion(id_usuario, jti, dispositivo, ip):
-    """Registra o actualiza una sesión activa."""
+    """Registra o actualiza una sesión activa"""
     return db.call_procedure(
         "sp_tbl_sesion_activa_registrar_sesion",
         (id_usuario, jti, dispositivo, ip),
@@ -250,7 +235,7 @@ def sp_registrar_sesion(id_usuario, jti, dispositivo, ip):
     )
 
 def sp_listar_sesiones(id_usuario):
-    """Lista las sesiones activas de un usuario."""
+    """Lista las sesiones activas de un usuario"""
     return db.call_procedure(
         "sp_tbl_sesion_activa_listar_sesiones",
         (id_usuario,),
@@ -258,7 +243,7 @@ def sp_listar_sesiones(id_usuario):
     )
 
 def sp_cerrar_sesion(jti):
-    """Marca como inactiva una sesión por su JTI."""
+    """Marca como inactiva una sesión por su JTI"""
     return db.call_procedure(
         "sp_tbl_sesion_activa_cerrar_sesion",
         (jti,),
@@ -266,7 +251,7 @@ def sp_cerrar_sesion(jti):
     )
 
 def sp_cerrar_todas_sesiones(id_usuario, jti_actual):
-    """Cierra todas las sesiones excepto la actual."""
+    """Cierra todas las sesiones excepto la actual"""
     return db.call_procedure(
         "sp_tbl_sesion_activa_cerrar_todas_sesiones",
         (id_usuario, jti_actual),
@@ -274,9 +259,58 @@ def sp_cerrar_todas_sesiones(id_usuario, jti_actual):
     )
 
 def sp_verificar_jti(jti):
-    """Verifica si un JTI está activo (para token blacklist)."""
+    """Verifica si un JTI está activo (para token blacklist)"""
     return db.call_procedure(
         "sp_tbl_sesion_activa_verificar_jti",
         (jti,),
         commit=False
+    )
+    
+    
+    
+    
+# ====================================================================================================================================================
+#                                           PAGINA SECURITY.HTML
+# ====================================================================================================================================================
+
+# SISTEMA DE CONFIGURACIONES VARIAS
+
+def sp_configuracion_obtener_notificaciones(id_usuario):
+    """Obtiene el estado actual de las preferencias de notificación del usuario"""
+    return db.call_procedure(
+        "sp_configuracion_obtener_notificaciones",
+        (id_usuario,),
+        commit=False
+    )
+ 
+def sp_configuracion_actualizar_notif_email(id_usuario, activo):
+    """Actualiza el campo Notificaciones_Email del usuario"""
+    return db.call_procedure(
+        "sp_configuracion_actualizar_notif_email",
+        (id_usuario, activo),
+        commit=True
+    )
+ 
+def sp_configuracion_actualizar_notif_navegador(id_usuario, activo):
+    """Actualiza el campo Notificaciones_Navegador del usuario"""
+    return db.call_procedure(
+        "sp_configuracion_actualizar_notif_navegador",
+        (id_usuario, activo),
+        commit=True
+    )
+
+# SISTEMA PARA ELIMINAR AL USUARIO ACTUAL
+
+def sp_validar_login(username, password):
+    return db.call_procedure(
+        "sp_tbl_usuario_validar_login",
+        (username, password)
+    )
+
+def sp_eliminar_cuenta_completa(id_usuario, ip, user_agent):
+    """Elimina lógicamente un usuario y el estudiante vinculado"""
+    return db.call_procedure(
+        "sp_eliminar_cuenta_completa",
+        (id_usuario, ip, user_agent),
+        commit=True
     )

@@ -115,20 +115,20 @@
                     <h5 class="fw-bold mb-4">
                         <i class="fas fa-lock me-2 text-primary"></i>Actualizar Contraseña
                     </h5>
-                    <form method="POST" action="{{ url_for('dashboard.security_cambiar_contrasena') }}" class="needs-validation" novalidate>
+                    <form method="POST" action="{{ url_for('dashboard.security_cambiar_contraseña') }}" class="needs-validation" novalidate>
                         {{ form_password.hidden_tag() }}
 
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Contraseña Actual</label>
                             <div class="input-group">
-                                {{ form_password.contrasena_actual(class="form-control", id="antiguaContraseña", autocomplete="current-password") }}
+                                {{ form_password.contraseña_actual(class="form-control", id="antiguaContraseña", autocomplete="current-password") }}
                                 <button class="btn btn-outline-primary" type="button" onclick="togglePassword('antiguaContraseña', this)">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
-                            {% if form_password.contrasena_actual.errors %}
+                            {% if form_password.contraseña_actual.errors %}
                                 <div class="invalid-feedback d-block">
-                                    {% for error in form_password.contrasena_actual.errors %}
+                                    {% for error in form_password.contraseña_actual.errors %}
                                         <small>{{ error }}</small><br>
                                     {% endfor %}
                                 </div>
@@ -138,7 +138,7 @@
                         <div class="mb-3">
                             <label class="form-label small fw-bold">Nueva Contraseña</label>
                             <div class="input-group">
-                                {{ form_password.nueva_contrasena(class="form-control", id="nuevaContraseña", autocomplete="new-password") }}
+                                {{ form_password.nueva_contraseña(class="form-control", id="nuevaContraseña", autocomplete="new-password") }}
                                 <button class="btn btn-outline-primary" type="button" onclick="togglePassword('nuevaContraseña', this)">
                                     <i class="fas fa-eye"></i>
                                 </button>
@@ -147,9 +147,9 @@
                                 <i class="fas fa-info-circle me-1"></i>
                                 Mínimo 12 caracteres, mayúsculas, minúsculas, número y carácter especial.
                             </div>
-                            {% if form_password.nueva_contrasena.errors %}
+                            {% if form_password.nueva_contraseña.errors %}
                                 <div class="invalid-feedback d-block">
-                                    {% for error in form_password.nueva_contrasena.errors %}
+                                    {% for error in form_password.nueva_contraseña.errors %}
                                         <small>{{ error }}</small><br>
                                     {% endfor %}
                                 </div>
@@ -159,14 +159,14 @@
                         <div class="mb-4">
                             <label class="form-label small fw-bold">Confirmar Nueva Contraseña</label>
                             <div class="input-group">
-                                {{ form_password.confirmar_contrasena(class="form-control", id="confirmarNuevaContraseña", autocomplete="new-password") }}
+                                {{ form_password.confirmar_contraseña(class="form-control", id="confirmarNuevaContraseña", autocomplete="new-password") }}
                                 <button class="btn btn-outline-primary" type="button" onclick="togglePassword('confirmarNuevaContraseña', this)">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
-                            {% if form_password.confirmar_contrasena.errors %}
+                            {% if form_password.confirmar_contraseña.errors %}
                                 <div class="invalid-feedback d-block">
-                                    {% for error in form_password.confirmar_contrasena.errors %}
+                                    {% for error in form_password.confirmar_contraseña.errors %}
                                         <small>{{ error }}</small><br>
                                     {% endfor %}
                                 </div>

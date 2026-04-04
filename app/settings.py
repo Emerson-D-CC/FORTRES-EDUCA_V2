@@ -19,7 +19,7 @@ class Config:
     # JWT
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=55)
-    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=1)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(hours=24)
     JWT_TOKEN_LOCATION = ["cookies"]
     JWT_COOKIE_SECURE = False  # Cambiar a True en producción (HTTPS)
     JWT_ACCESS_COOKIE_NAME = "access_token"
@@ -27,9 +27,9 @@ class Config:
     JWT_COOKIE_CSRF_PROTECT = False
     
     # Configuración de sesiones
-    PERMANENT_SESSION_LIFETIME = timedelta(minutes=15)
+    PERMANENT_SESSION_LIFETIME = timedelta(minutes=55)
     MAX_SESSION_DURATION = timedelta(hours=24)  # Duración máxima total de sesión
-    SESSION_MAX_ACTIVAS = int(os.getenv("SESSION_MAX_ACTIVAS", 5))
+    SESSION_MAX_ACTIVAS = int(os.getenv("SESSION_MAX_ACTIVAS", 3))
 
     # MFA
     MFA_ISSUER = os.getenv("MFA_ISSUER")

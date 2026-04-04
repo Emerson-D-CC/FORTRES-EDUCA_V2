@@ -155,22 +155,6 @@ CREATE TABLE TBL_ESTADO_TICKET (
     Estado_Estado_Ticket ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE'
 ) ENGINE=InnoDB;
 
--- --------------------------------------------------------
---
--- Estructura de tabla para la tabla TBL_PERSONA
---
-
-DROP TABLE IF EXISTS TBL_PERSONA;
-
-CREATE TABLE TBL_PERSONA (
-    ID_Persona VARCHAR(15) PRIMARY KEY,
-    Primer_Nombre VARCHAR(50) NOT NULL,
-    Segundo_Nombre VARCHAR(50),
-    Primer_Apellido VARCHAR(50) NOT NULL,
-    Segundo_Apellido VARCHAR(50),
-    Fecha_Nacimiento DATE NOT NULL,
-    Estado_Persona ENUM('ACTIVE','BLOCKED','INACTIVE') DEFAULT 'ACTIVE'
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 --
@@ -228,19 +212,37 @@ CREATE TABLE TBL_CUPOS (
 
 -- --------------------------------------------------------
 --
+-- Estructura de tabla para la tabla TBL_PERSONA
+--
+
+DROP TABLE IF EXISTS TBL_PERSONA;
+
+CREATE TABLE TBL_PERSONA (
+    ID_Persona INT AUTO_INCREMENT PRIMARY KEY,
+    Num_Doc_Persona VARCHAR(30) UNIQUE NOT NULL,
+    Primer_Nombre VARCHAR(50) NOT NULL,
+    Segundo_Nombre VARCHAR(50),
+    Primer_Apellido VARCHAR(50) NOT NULL,
+    Segundo_Apellido VARCHAR(50),
+    Fecha_Nacimiento DATE NOT NULL,
+    Estado_Persona ENUM('ACTIVE','BLOCKED','INACTIVE') DEFAULT 'ACTIVE'
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+--
 -- Estructura de tabla para la tabla TBL_DATOS_ADICIONALES de la persona
 --
 
 DROP TABLE IF EXISTS TBL_DATOS_ADICIONALES;
 
 CREATE TABLE TBL_DATOS_ADICIONALES (
-    ID_Datos_Adicionales VARCHAR(16) PRIMARY KEY,
+    ID_Datos_Adicionales INT AUTO_INCREMENT PRIMARY KEY,
     Email VARCHAR(255) UNIQUE NOT NULL,
-    Telefono VARCHAR(20) UNIQUE NOT NULL,
+    Telefono VARCHAR(45) UNIQUE NOT NULL,
 
     FK_ID_Parentesco INT NOT NULL,
     FK_ID_Tipo_Iden INT NOT NULL,
-    FK_ID_Persona VARCHAR(15) NOT NULL,
+    FK_ID_Persona INT UNIQUE NOT NULL,
     FK_ID_Genero INT NOT NULL,
     FK_ID_Grupo_Preferencial INT NOT NULL,
     FK_ID_Estrato INT NOT NULL,
@@ -266,7 +268,7 @@ CREATE TABLE TBL_DATOS_ADICIONALES (
 DROP TABLE IF EXISTS TBL_USUARIO;
 
 CREATE TABLE TBL_USUARIO (
-    ID_Usuario VARCHAR(16) PRIMARY KEY,
+    ID_Usuario INT AUTO_INCREMENT PRIMARY KEY,
     Nombre_Usuario VARCHAR(50) UNIQUE NOT NULL,
 
     Password_Salt VARBINARY(16) NOT NULL,
@@ -278,12 +280,16 @@ CREATE TABLE TBL_USUARIO (
     Fecha_Creacion DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
 
     Doble_Factor_Activo ENUM('ACTIVE','INACTIVE') DEFAULT 'INACTIVE',
+    MFA_Fecha_Configuracion DATETIME NULL DEFAULT NULL, 
     MFA_Secret VARCHAR(64) NULL DEFAULT NULL,
     MFA_Secret_Temp VARCHAR(64) NULL DEFAULT NULL,
 
+    Notificaciones_Email TINYINT(1) NOT NULL DEFAULT 0,
+    Notificaciones_Navegador TINYINT(1) NOT NULL DEFAULT 0,
+    
     Aceptacion_Terminos ENUM('ACCEPTED','REJECTED') DEFAULT 'REJECTED',
 
-    FK_ID_Persona VARCHAR(15) NOT NULL,
+    FK_ID_Persona INT UNIQUE NOT NULL,
     FK_ID_Rol INT NOT NULL,
 
     Estado_Usuario ENUM('ACTIVE','BLOCK','INACTIVE') DEFAULT 'ACTIVE',
@@ -301,10 +307,10 @@ CREATE TABLE TBL_USUARIO (
 DROP TABLE IF EXISTS TBL_ESTUDIANTE;
 
 CREATE TABLE TBL_ESTUDIANTE (
-    ID_Estudiante VARCHAR(16) PRIMARY KEY,
+    ID_Estudiante INT AUTO_INCREMENT PRIMARY KEY,
     FK_ID_Tipo_Iden INT NOT NULL,
 
-    FK_ID_Persona VARCHAR(15) NOT NULL,
+    FK_ID_Persona INT NOT NULL,
     FK_ID_Grado_Actual INT NOT NULL,
     FK_ID_Gardo_Proximo INT NULL,
     FK_ID_Colegio_Anterior INT NOT NULL,
@@ -312,7 +318,7 @@ CREATE TABLE TBL_ESTUDIANTE (
     FK_ID_Genero INT NOT NULL,
     FK_ID_Grupo_Preferencial INT NOT NULL,
 
-    FK_ID_Acudiente VARCHAR(16) NOT NULL,
+    FK_ID_Acudiente INT UNIQUE NOT NULL,
     FK_ID_Parentesco_Es INT NOT NULL,
     
     Estado_Estudiante ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE',
@@ -348,8 +354,8 @@ CREATE TABLE TBL_TICKET (
     Fecha_Cierre DATETIME,
     Puntaje_Prioridad INT NOT NULL,
 
-    FK_ID_Usuario_Creador VARCHAR(16) NOT NULL,
-    FK_ID_Usuario_Tecnico VARCHAR(16),
+    FK_ID_Usuario_Creador INT NOT NULL,
+    FK_ID_Usuario_Tecnico INT,
     FK_ID_Estado_Ticket INT NOT NULL,
     FK_ID_Tipo_Caso INT NOT NULL,
     FK_ID_Barrio INT NOT NULL,
@@ -377,7 +383,7 @@ CREATE TABLE TBL_TICKET_COMENTARIO (
     Fecha_Creacion DATETIME NOT NULL,
     Es_Interno TINYINT(1) NOT NULL,
 
-    FK_ID_Usuario VARCHAR(16) NOT NULL,
+    FK_ID_Usuario INT NOT NULL,
     FK_ID_Ticket VARCHAR(10) NOT NULL,
 
     Estado_Comentario_Ticket ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE',
@@ -430,7 +436,7 @@ CREATE TABLE TBL_AUDITORIA (
     ID_Auditoria BIGINT AUTO_INCREMENT PRIMARY KEY,
 
     Tabla_Afectada VARCHAR(100) NOT NULL,
-    Tipo_Evento ENUM('CREATE','READ','UPDATE','DELETE','LOGIN','PASSWORD_CHANGE'),
+    Tipo_Evento ENUM('CREATE','READ','UPDATE','DELETE','LOGIN','PASSWORD_CHANGE','DELETE_STUDENT','ACCOUNT_CLOSED'),
 
     ID_Registro_Afectado VARCHAR(50) NOT NULL,
 
@@ -442,7 +448,7 @@ CREATE TABLE TBL_AUDITORIA (
     IP_Usuario VARCHAR(50) NOT NULL,
     User_Agent VARCHAR(255) NULL,
 
-    FK_ID_Usuario VARCHAR(16) NOT NULL,
+    FK_ID_Usuario INT NOT NULL,
 
     Estado_Auditoria ENUM('ACTIVE','INACTIVE') DEFAULT 'ACTIVE',
 
@@ -457,7 +463,7 @@ DROP TABLE IF EXISTS TBL_SESION_ACTIVA;
 
 CREATE TABLE TBL_SESION_ACTIVA (
     ID_Sesion INT AUTO_INCREMENT PRIMARY KEY,
-    FK_ID_Usuario VARCHAR(16) NOT NULL,
+    FK_ID_Usuario INT NOT NULL,
     JTI VARCHAR(64) NOT NULL UNIQUE,
     Dispositivo VARCHAR(255) NULL,
     IP VARCHAR(50) NULL,
@@ -483,9 +489,9 @@ DROP TABLE IF EXISTS TBL_AUDITORIA_SESION;
 CREATE TABLE TBL_AUDITORIA_SESION (
     ID_Auditoria BIGINT AUTO_INCREMENT PRIMARY KEY,
 
-    FK_ID_Usuario VARCHAR(16) NULL,
+    FK_ID_Usuario INT NULL,
     IP_Usuario VARCHAR(45) NOT NULL,
-    Tipo_Evento ENUM('LOGIN','LOGOUT','FAILED_LOGIN'),
+    Tipo_Evento ENUM('LOGIN','LOGOUT','FAILED_LOGIN','FAILED_MFA','LOGIN_MFA_OK'),
     Fecha_Evento DATETIME DEFAULT CURRENT_TIMESTAMP,
     User_Agent VARCHAR(255) NOT NULL,
 

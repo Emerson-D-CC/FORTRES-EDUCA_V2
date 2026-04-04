@@ -5,21 +5,22 @@
 
 {% block titulo %} Fortress Educa - Iniciar Sesión {% endblock %}
 
-<!-- invocar el bloque -->
+<!-- Invocar el bloque -->
 {% block Contenido_Pagina %}
+
+    <!--
+        FORTRESS EDUCA - PLATAFORMA DE CUPOS EDUCATIVOS
+        Archivo: login.html
+        Función: Portal de autenticación para acudientes
+    -->
 
     <!-- Sección navbar -->
     <section id="navbar">
         <!-- Llamar narvar.html -->
         {% include 'components/home_navbar_1.html' %}
     </section>
-
-    <!--
-        FORTRESS EDUCA - PLATAFORMA DE CUPOS EDUCATIVOS
-        Archivo: login.html
-        Función: Portal de autenticación para acudientes y administradores
-    -->
-
+    
+    <!-- Contenedor de los elementode de Login -->
     <div class="auth-container fade-in">
         <div class="text-center mb-4">
             <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
@@ -100,6 +101,7 @@
         </div>
     </div>
 
+    <!-- Llamar JS de reCAPTCHA -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 {% endblock %}

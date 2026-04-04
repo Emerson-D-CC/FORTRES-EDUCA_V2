@@ -7,8 +7,30 @@ from app.database.connection_db_v2 import db
 from app.modules.dashboard_user.models import sp_cerrar_sesion
 
 TIEMPO_MAX_INACTIVIDAD = Config.PERMANENT_SESSION_LIFETIME
-MAX_SESSION_DURATION   = Config.MAX_SESSION_DURATION
+MAX_SESSION_DURATION = Config.MAX_SESSION_DURATION
 
+
+def _cerrar_sesion_inactiva():
+    """Marca la sesión JWT actual como inactiva en BD y limpia Flask session."""
+    try:
+        verify_jwt_in_request(optional=True)
+        claims = get_jwt()
+        if claims:
+            jti = claims.get("jti", "")
+            if jti:
+                sp_cerrar_sesion(jti)
+                db.commit()
+                
+        jti = session.get("jti")
+        if jti:
+            sp_cerrar_sesion(jti)
+            db.commit()
+            print(f"[INFO] Sesión cerrada por inactividad: JTI={jti}")
+            
+    except Exception as e:
+        print(f"[WARN] No se pudo cerrar sesión en BD (inactividad): {e}")
+    finally:
+        session.clear()
 
 def _cerrar_sesion_inactiva():
     """Marca la sesión JWT actual como inactiva en BD y limpia Flask session."""
@@ -38,7 +60,7 @@ def controlar_sesion(app):
             "home.register",
             "home.recuperar_solicitar",
             "home.recuperar_verificar",
-            "home.recuperar_nueva_contrasena",
+            "home.recuperar_nueva_contraseña",
             "home.privacy_policy",
             "home.terms_of_use",
         ]
@@ -55,7 +77,7 @@ def controlar_sesion(app):
                 try:
                     session_start = datetime.fromisoformat(session_start_str)
                     if ahora - session_start > MAX_SESSION_DURATION:
-                        _cerrar_sesion_inactiva()          # ← marca BD + limpia sesión
+                        _cerrar_sesion_inactiva()
                         response = redirect(url_for("home.login"))
                         unset_jwt_cookies(response)
                         return response

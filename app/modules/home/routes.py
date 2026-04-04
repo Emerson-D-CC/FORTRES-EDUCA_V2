@@ -35,15 +35,15 @@ def register():
 
 @home_bp.route("/recuperar", methods=["GET", "POST"])
 def recuperar_solicitar():
-    return RecuperarContrasena().solicitar_codigo()
+    return Recuperarcontraseña().solicitar_codigo()
 
 @home_bp.route("/recuperar/verificar", methods=["GET", "POST"])
 def recuperar_verificar():
-    return RecuperarContrasena().verificar_codigo()
+    return Recuperarcontraseña().verificar_codigo()
 
-@home_bp.route("/recuperar/nueva-contrasena", methods=["GET", "POST"])
-def recuperar_nueva_contrasena():
-    return RecuperarContrasena().nueva_contrasena()
+@home_bp.route("/recuperar/nueva-contraseña", methods=["GET", "POST"])
+def recuperar_nueva_contraseña():
+    return Recuperarcontraseña().nueva_contraseña()
 
 @home_bp.route("/politica_de_privacidad")
 def privacy_policy():

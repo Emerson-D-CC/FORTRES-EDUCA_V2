@@ -1,9 +1,12 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SelectField, BooleanField
+from wtforms import StringField, PasswordField, SelectField, BooleanField, DateField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 
 from app.core.regexs import regex
 
+# ====================================================================================================================================================
+#                                           PAGINA LOGIN.HTML
+# ====================================================================================================================================================
 
 class LoginForm(FlaskForm):
 
@@ -17,6 +20,10 @@ class LoginForm(FlaskForm):
         validators=[DataRequired(), Length(min=6, max=255)]
     )
     
+    
+# ====================================================================================================================================================
+#                                           PAGINA VERIFY_MFA.HTML
+# ====================================================================================================================================================
     
 class FormVerificarMFA(FlaskForm):
 
@@ -32,6 +39,10 @@ class FormVerificarMFA(FlaskForm):
         if not regex.codigo_mfa(field.data):
             raise ValidationError("El código debe ser exactamente 6 dígitos numéricos.")
 
+
+# ====================================================================================================================================================
+#                                           PAGINA REGISTER.HTML
+# ====================================================================================================================================================
 
 class RegisterForm(FlaskForm):
 
@@ -68,6 +79,11 @@ class RegisterForm(FlaskForm):
         validators=[DataRequired(), Length(min=5, max=15)]
     )
 
+    fecha_nacimiento = DateField(
+        "Fecha de Nacimiento",
+        validators = [DataRequired()]
+    )
+    
     parentesco = SelectField(
         "Parentesco con el Menor",
         validators=[DataRequired()],
@@ -129,8 +145,12 @@ class RegisterForm(FlaskForm):
         if not regex.telefono_sin_prefijo_celular(field.data):
             raise ValidationError("El teléfono debe ser un número de celular válido (10 dígitos, comienza con 3).")
         
+        
+# ====================================================================================================================================================
+#                                           PAGINA RECOVER_PASSWORD.HTML
+# ====================================================================================================================================================
 
-class RecuperarContrasenaForm(FlaskForm):
+class RecuperarcontraseñaForm(FlaskForm):
     username = StringField(
         "Correo Electrónico",
         validators=[DataRequired(), Length(min=3, max=100), Email()]
@@ -143,7 +163,7 @@ class VerificarCodigoForm(FlaskForm):
     )
 
 
-class NuevaContrasenaForm(FlaskForm):
+class NuevacontraseñaForm(FlaskForm):
     password = PasswordField(
         "Nueva Contraseña",
         validators=[DataRequired(), Length(min=6, max=255)]

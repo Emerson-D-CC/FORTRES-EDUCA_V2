@@ -17,7 +17,7 @@ from app.core.extensions import mail
 
 # Seguridad
 from app.security.recaptcha import validar_recaptcha
-from app.security.hash import generar_salt, hashear_contrasena
+from app.security.hash import generar_salt, hashear_contraseña
 from app.security.jwt_handler import generar_access_token, generar_refresh_token
 from app.security.mfa_handler import MFAHandler
 
@@ -179,7 +179,10 @@ class Login:
                 
                 try:
                     decoded = decode_token(access_token)
+
                     jti = decoded.get("jti", "")
+                    session["jti"] = jti
+                    
                     sp_registrar_sesion(
                         data_user["ID_Usuario"],
                         jti,
@@ -240,7 +243,7 @@ class Login:
 
     def _validar_usuario(self, username, password, salt):
         try:
-            hash_password = hashear_contrasena(password, salt)
+            hash_password = hashear_contraseña(password, salt)
             result = sp_validar_login(username, hash_password)
 
             if not result:
@@ -252,6 +255,11 @@ class Login:
             return False
 
 
+
+# ====================================================================================================================================================
+#                                           FUNCIÓN DE LOGOUT
+# ====================================================================================================================================================
+
 class Logout:
     def logout(self):
         """Cierra la sesión del usuario activo usando Flask-JWT-Extended."""
@@ -261,8 +269,8 @@ class Logout:
 
             if claims:
                 user_id = claims.get("sub")
-                jti     = claims.get("jti", "")
-                ip      = request.remote_addr
+                jti = claims.get("jti", "")
+                ip = request.remote_addr
                 user_agent = request.headers.get("User-Agent")
 
                 # Marcar sesión como inactiva en BD
@@ -286,7 +294,6 @@ class Logout:
             unset_jwt_cookies(response)
             session.clear()
             return response
-
 
 
 
@@ -416,14 +423,9 @@ class Register:
                     recaptcha_error=None
                 )
 
-            # Construir IDs compuestos
-            persona_id = form.documento.data
-            usuario_id = f"U{form.documento.data}"
-            datos_id   = f"D{form.documento.data}"
-
             try:
                 # Verificar duplicados antes de insertar
-                user_exists = sp_usuario_existe(form.email.data, persona_id)
+                user_exists = sp_usuario_existe(form.email.data)
 
                 if user_exists:
                     flash("El documento o correo ya está registrado.", "warning")
@@ -436,7 +438,7 @@ class Register:
 
                 # Hash de contraseña
                 salt = generar_salt()
-                hash_password = hashear_contrasena(form.password.data, salt)
+                hash_password = hashear_contraseña(form.password.data, salt)
                 # Datos para auditoria
                 ip = request.remote_addr
                 user_agent = request.headers.get("User-Agent")
@@ -444,15 +446,13 @@ class Register:
                 sp_registrar_usuario((
 
                     # PERSONA
-                    persona_id,
                     form.primer_nombre.data,
                     form.segundo_nombre.data or None,
                     form.primer_apellido.data,
                     form.segundo_apellido.data or None,
-                    "2000-01-01",
+                    form.fecha_nacimiento.data,
 
                     # DATOS
-                    datos_id,
                     form.email.data,
                     form.telefono.data,
                     form.parentesco.data,
@@ -463,7 +463,6 @@ class Register:
                     form.barrio.data,
 
                     # USUARIO
-                    usuario_id,
                     form.email.data,
                     salt,
                     hash_password,
@@ -498,7 +497,7 @@ class Register:
 #                                           PAGINA RECOVER_PASSWORD.HTML
 # ====================================================================================================================================================
 
-class RecuperarContrasena:
+class Recuperarcontraseña:
 
     PEPPER = Config.PEPPER
     CODIGO_TTL_MINUTOS = 10  # tiempo de expiración codigo
@@ -506,7 +505,7 @@ class RecuperarContrasena:
     #  Solicitar código
     def solicitar_codigo(self):
         """GET / POST — el usuario ingresa su correo y recibe el código."""
-        form = RecuperarContrasenaForm()
+        form = RecuperarcontraseñaForm()
 
         if request.method == "GET":
             return render_template("home/recover_password.html", form=form, paso=1)
@@ -530,8 +529,8 @@ class RecuperarContrasena:
 
         # Guardar en sesión
         session["recuperacion"] = {
-            "username":   username,
-            "codigo":     codigo,
+            "username": username,
+            "codigo": codigo,
             "expiracion": expiracion,
             "verificado": False
         }
@@ -581,12 +580,12 @@ class RecuperarContrasena:
         session["recuperacion"]["verificado"] = True
         session.modified = True
 
-        return redirect(url_for("home.recuperar_nueva_contrasena"))
+        return redirect(url_for("home.recuperar_nueva_contraseña"))
 
     #  Nueva contraseña
-    def nueva_contrasena(self):
+    def nueva_contraseña(self):
         """GET / POST — el usuario define su nueva contraseña."""
-        form = NuevaContrasenaForm()
+        form = NuevacontraseñaForm()
 
         datos = session.get("recuperacion")
 
@@ -606,13 +605,13 @@ class RecuperarContrasena:
 
         # Generar nuevo salt y hash con pepper
         nuevo_salt = generar_salt()
-        nuevo_hash = hashear_contrasena(form.password.data, nuevo_salt)
+        nuevo_hash = hashear_contraseña(form.password.data, nuevo_salt)
         # Datos para auditoria
         ip = request.remote_addr
         user_agent = request.headers.get("User-Agent")
         
         try:
-            sp_actualizar_contrasena(username, nuevo_hash, nuevo_salt, ip, user_agent)
+            sp_actualizar_contraseña(username, nuevo_hash, nuevo_salt, ip, user_agent)
         except Exception as e:
             current_app.logger.error(f"Error actualizando contraseña: {e}")
             flash("Error al actualizar la contraseña. Intente más tarde.", "danger")

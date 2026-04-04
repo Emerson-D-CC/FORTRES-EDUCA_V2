@@ -1,22 +1,24 @@
+<!-- #Llamar a layout_public.html -->
 {% extends 'layout_public.html' %}
 
 {% block meta_description %}Plataforma institucional para la asignación de cupos educativos en Engativá.{% endblock %}
 
 {% block titulo %}Fortress Educa - Inicio{% endblock %}
 
+<!-- Invocar el bloque -->
 {% block Contenido_Pagina %}
+
+    <!--
+        FORTRESS EDUCA - PLATAFORMA DE CUPOS EDUCATIVOS
+        Archivo: home.html
+        Función: Página principal (Landing Page)
+    -->
 
     <!-- Sección navbar -->
     <section id="navbar">
         <!-- Llamar narvar.html -->
         {% include 'components/home_navbar_2.html' %}
     </section>
-
-    <!--
-        FORTRESS EDUCA - PLATAFORMA DE CUPOS EDUCATIVOS
-        Archivo: index.html
-        Función: Página principal (Landing Page)
-    -->
 
     <!-- Hero Section -->
     <section class="hero-section fade-in">

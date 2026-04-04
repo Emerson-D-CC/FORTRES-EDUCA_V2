@@ -5,20 +5,20 @@
 
 {% block titulo %} Fortress Educa - Registro de Acudiente {% endblock %}
 
-<!-- invocar el bloque -->
+<!-- Invocar el bloque -->
 {% block Contenido_Pagina %}
-
-    <!-- Sección navbar -->
-    <section id="navbar">
-        <!-- Llamar narvar.html -->
-        {% include 'components/home_navbar_1.html' %}
-    </section>
 
     <!--
         FORTRESS EDUCA - PLATAFORMA DE CUPOS EDUCATIVOS
         Archivo: registro.html
         Función: Formulario de registro de Acudientes / Representantes Legales
     -->
+
+    <!-- Sección navbar -->
+    <section id="navbar">
+        <!-- Llamar narvar.html -->
+        {% include 'components/home_navbar_1.html' %}
+    </section>
 
     <!-- Registration Section -->
     <section class="section-padding fade-in">
@@ -47,21 +47,51 @@
                                 Esta información será utilizada para el proceso de asignación de cupo educativo.
                             </div>
 
-                            <!--
-                                AQUÍ SE ENVIARÁ EL REGISTRO AL BACKEND
-                                FUTURA INTEGRACIÓN CON BASE DE DATOS
-                                ESTOS DATOS SE UTILIZARÁN PARA EL PROCESO DE ASIGNACIÓN DE CUPO
-                            -->
                             <form id="formRegistroAcudiente" method="POST" action="{{ url_for('home.register') }}">
 
                                 {{ form.hidden_tag() }}
 
                                 <div class="row g-3">
+
                                     <!-- 1. DATOS DEL ACUDIENTE -->
                                     <div class="col-12">
                                         <h5 class="text-primary mt-2 mb-3 pb-2 border-bottom">
                                             <i class="fas fa-user me-2"></i>1. Datos del Acudiente / Representante Legal
                                         </h5>
+                                    </div>
+
+                                    <!-- BLOQUE: Identificación del Acudiente -->
+                                    <div class="col-12">
+                                        <h6 class="text-muted fw-bold mb-3 mt-2">
+                                            <i class="fas fa-id-card me-1"></i> Identificación del Acudiente
+                                        </h6>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="tipoDocumento" class="form-label">Tipo de Documento *</label>
+                                        {{ form.tipo_documento(class="form-select", id="tipoDocumento") }}
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="documento" class="form-label">Número de Documento *</label>
+                                        <input type="text" class="form-control" name="documento" id="documento"
+                                            value="{{ request.form.get('documento', '') }}" required>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label for="nacionalidad" class="form-label">Nacionalidad *</label>
+                                        <!-- Campo deshabilitado, valor fijo, no necesita repoblar -->
+                                        <input type="text" class="form-control" id="nacionalidad"
+                                            value="Colombiano" disabled readonly>
+                                    </div>
+
+                                    <div class="col-12"><hr class="my-2"></div>
+
+                                    <!-- BLOQUE: Nombre Completo del Acudiente -->
+                                    <div class="col-12">
+                                        <h6 class="text-muted fw-bold mb-3">
+                                            <i class="fas fa-user me-1"></i> Nombre Completo del Acudiente
+                                        </h6>
                                     </div>
 
                                     <div class="col-md-3">
@@ -88,36 +118,30 @@
                                             value="{{ request.form.get('segundo_apellido', '') }}">
                                     </div>
 
-                                    <div class="col-md-4">
-                                        <label for="tipoDocumento" class="form-label">Tipo de Documento *</label>
-                                        {{ form.tipo_documento(class="form-select", id="tipoDocumento") }}
+                                    <div class="col-12"><hr class="my-2"></div>
+
+                                    <!-- BLOQUE: Datos Personales y de Contacto -->
+                                    <div class="col-12">
+                                        <h6 class="text-muted fw-bold mb-3">
+                                            <i class="fas fa-address-book me-1"></i> Datos Personales y de Contacto
+                                        </h6>
                                     </div>
 
                                     <div class="col-md-4">
-                                        <label for="documento" class="form-label">Número de Documento *</label>
-                                        <input type="text" class="form-control" name="documento" id="documento"
-                                            maxlength="10"
-                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                                            value="{{ request.form.get('documento', '') }}" required>
-                                    </div>
-
-                                    <div class="col-md-4">
-                                        <label for="nacionalidad" class="form-label">Nacionalidad *</label>
-                                        <!-- Campo deshabilitado, valor fijo, no necesita repoblar -->
-                                        <input type="text" class="form-control" id="nacionalidad"
-                                            value="Colombiano" disabled readonly>
+                                        <label for="fechaNacMenor" class="form-label text-muted small fw-bold">
+                                            Fecha de Nacimiento <span class="text-danger">*</span>
+                                        </label>
+                                        {{ form.fecha_nacimiento(class="form-control", id="fechaNacMenor") }}
                                     </div>
 
                                     <div class="col-md-4">
                                         <label for="tipoParentesco" class="form-label">Parentesco con el Menor *</label>
                                         {{ form.parentesco(class="form-select", id="tipoParentesco") }}
                                     </div>
-                                    
+
                                     <div class="col-md-4">
                                         <label for="telefono" class="form-label">Teléfono / Celular *</label>
                                         <input type="tel" class="form-control" name="telefono" id="telefono"
-                                            maxlength="10"
-                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                             value="{{ request.form.get('telefono', '') }}"
                                             required placeholder="Ej: 3001234567">
                                     </div>
@@ -130,14 +154,14 @@
                                         <div class="form-text">Correo activo.</div>
                                     </div>
 
-                                    <div class="col-md-8">
+                                    <div class="col-md-5">
                                         <label for="direccion" class="form-label">Dirección de Residencia *</label>
                                         <input type="text" class="form-control" name="direccion" id="direccion"
                                             value="{{ request.form.get('direccion', '') }}"
                                             required placeholder="Ej: Cra 80 #65-12">
                                     </div>
 
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label for="barrio" class="form-label">Barrio *</label>
                                         {{ form.barrio(class="form-select", id="barrio") }}
                                         <div class="form-text text-warning">
@@ -146,11 +170,20 @@
                                         </div>
                                     </div>
 
+                                    <div class="col-12"><hr class="my-2"></div>
+
                                     <!-- 2. SEGURIDAD -->
                                     <div class="col-12">
                                         <h5 class="text-primary mt-4 mb-3 pb-2 border-bottom">
                                             <i class="fas fa-lock me-2"></i>2. Seguridad de la Cuenta
                                         </h5>
+                                    </div>
+
+                                    <!-- BLOQUE: Contraseña -->
+                                    <div class="col-12">
+                                        <h6 class="text-muted fw-bold mb-3">
+                                            <i class="fas fa-key me-1"></i> Contraseña de Acceso
+                                        </h6>
                                     </div>
 
                                     <div class="col-md-6">
@@ -173,6 +206,8 @@
                                         <input type="password" class="form-control" name="confirm_password"
                                             id="confirmPassword" required>
                                     </div>
+
+                                    <div class="col-12"><hr class="my-2"></div>
 
                                     <!-- 3. TÉRMINOS -->
                                     <div class="col-12 mt-4">

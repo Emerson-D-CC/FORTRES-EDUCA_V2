@@ -128,10 +128,10 @@ def sp_obtener_email_por_username(username):
     return result[0]["Email"] if result else None
 
 
-def sp_actualizar_contrasena(username, nuevo_hash, nuevo_salt):
+def sp_actualizar_contraseña(username, nuevo_hash, nuevo_salt):
     """Actualiza el hash y salt de la contraseña del usuario."""
     return db.call_procedure(
-        "sp_usuario_recuperar_contrasena",
+        "sp_usuario_recuperar_contraseña",
         (username, nuevo_hash, nuevo_salt),
         commit=False
     )

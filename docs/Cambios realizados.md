@@ -1,3 +1,85 @@
+VERSIÓN 5.5 - 04/04/2026
+1. Modificación completa del diseño de register.html. Además, se agrego el campo para seleccionar la fecha de nacimiento.
+
+2. Se modifica la función de hash en \security\hash.py para que siempre retorne datos de tipo bytes.
+
+3. Reducción y comentariado de código HTML para los archivos de \home.
+
+4. Implementación de diseño de alecta para el modal_globlas.html
+
+5. Implementación de boton para ver la contraseña ingresada en el apartado de cambio de contraseña en security.html
+
+6. Implementación de 'shortcut icon' independiente para cada apartado:
+- home: shield.ico
+- dashboard_users: shield_user.ico
+- admin: shield_gear.ico
+
+7. Implementación de sistema de preferencias de notificaciones por correo/navegador.
+
+8. Implementación de sistema para eliminado logico de usuarios (usuario + estudiantes asociados) con sistema simple de ofuscación para datos sensibles y con restricción UNIQUE NOT NULL en BD. Además, de la creación de un modal dedicado para la confirmación con contraseña.
+
+9. Reestructuración de la base de datos:
+Modificaciones:
+- Modificación de TBL_USARIO para columnas de configuración de preferencias de notificaciones: Notificaciones_Email y Notificaciones_Navegador
+- Modificación de columna Tipo_Evento de la tabla TBL_AUDITORIA_SESION para incluir el ingreso por medio de MFA
+- Restructuración total del sistema de ID de las tablas relacionadas con el usaurio:
+    - Los ID de TBL_PERSONA, TBL_DATOS_ADICIONALES, TBL_USUARIO y TBL_ESTUDIANTE son de tipo INT AUTOINCREMENT. 
+    - El documento de identidad del usuario ahora tiene una columna dedicada en TBL_PERSONA.
+    - Corrección de la mayoria de los SPs relacionados con las tablas fueron modificados en base al nuevo tipo de datos de las PK de las tablas. En especial aquellos que tenian una TRANSACTION con envio de datos a TBL_AUDITORIA. 
+- Creación de SPs para el programa (Funciones para preferencia de notificaciones, eliminación de usuario):
+    - sp_configuracion_obtener_notificaciones
+    - sp_configuracion_actualizar_notif_email
+    - sp_configuracion_actualizar_notif_navegador
+    - sp_eliminar_cuenta_completa
+
+10. Debido a la reestructuración total del sistema de usuarios en lo que respecta al id de las tablas relacionadas se tuvo que validar y modificar todo lo relacionado con la gestión de usuario (login, registro, registro estudiante, actualización de datos de acudiente/estudiante) para adaptarlo a las nuevas tablas y SPs.
+
+---------------------------------------------------------------------
+VERSIÓN 5 - 02/04/2026
+
+1. Implementación de función para cambio de contraseña en la página security.html
+
+2. Implementación de control de sesiones abiertas del usuario.
+El sistema permite ver las sesiones abiertas de un usuario en otros dispositivos, permitiendo la opción de cerrarlas de forma remota.
+Modificaciones:
+- Modificación de clase Login
+- Modificación de clase Logout
+- Modificación del decorador login_required para el cierre completo de la sesión por inactividad.
+
+3. Implementación de 2FA por medio de Microsoft Authenticator.
+El sistema permite activar y usar (de forma opciona) el sistema de MFA como 2FA.
+Se creo el archivo verify_mfa.html para la pagina web.
+La logical del sistema de MFA se encuentra en \security\nfa_handler.py y en \home\services.py
+
+Modificaciones:
+- Modificación de la clase Login para validar si el usuario ha activado el MFA.
+- Se agregaron los campos del archivo de MFA en forms.py.
+- Creación de la ruta verificar_mfa
+- Creación de nuevo regex para validar los codigos de Authenticator
+
+4. Modificación del diseño y estilo de modal_global.html (anteriormente flash_modal.html). Además, de la creación de un archivo .css dedicado.
+
+5. Reestructuración de la base de datos:
+Modificaciones:
+- Creación de TBL_SESION_ACTIVA
+- Modificación de TBL_USARIO para columnas de configuración MFA
+- Creación de SPs para el programa (Funciones de cambio de contraseña, gestor de sesiones e implementación de MFA):
+    - sp_tbl_sesion_activa_verificar_jti
+    - sp_tbl_sesion_activa_cerrar_todas_sesiones
+    - sp_tbl_sesion_activa_cerrar_sesion
+    - sp_tbl_sesion_activa_listar_sesiones
+    - sp_tbl_sesion_activa_registrar_sesion
+    - sp_tbl_usuario_obtener_mfa_secret
+    - sp_tbl_usuario_desactivar_mfa
+    - sp_tbl_usuario_activar_mfa
+    - sp_tbl_usuario_guardar_mfa_secret_temp
+    - sp_tbl_usuario_cambiar_contrasena_perfil
+
+6. Implementación de nuevas librerias:
+- qrcode
+- pyotp
+
+---------------------------------------------------------------------
 VERSIÓN 4.5 - 01/04/2026
 1. Reestructuración de la base de datos:
     Modificaciones:

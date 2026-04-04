@@ -9,10 +9,10 @@ DELIMITER $$
 CREATE PROCEDURE sp_tbl_auditoria_actualizar(
     IN p_ID_Auditoria BIGINT,
     IN p_Tabla_Afectada VARCHAR(100),
-    IN p_Tipo_Evento VARCHAR(15),
+    IN p_Tipo_Evento VARCHAR(20),
     IN p_ID_Registro_Afectado VARCHAR(50),
     IN p_IP_Usuario VARCHAR(50),
-    IN p_FK_ID_Usuario VARCHAR(16)
+    IN p_FK_ID_Usuario INT
 )
 BEGIN
 UPDATE tbl_auditoria
@@ -89,7 +89,7 @@ CREATE PROCEDURE sp_insertar_auditoria(
     IN p_datos_new JSON,
     IN p_ip VARCHAR(50),
     IN p_user_agent VARCHAR(255),
-    IN p_id_usuario VARCHAR(16)
+    IN p_id_usuario INT
 )
 BEGIN
     INSERT INTO TBL_AUDITORIA (
@@ -479,37 +479,6 @@ BEGIN
 END $$
 DELIMITER ;
 
--- --------------------------------------------------------
-
-
-DROP PROCEDURE IF EXISTS sp_tbl_datos_adicionales_actualizar_all;
-
-DELIMITER $$
-CREATE PROCEDURE sp_tbl_datos_adicionales_actualizar_all(
-    IN p_ID_Datos_Adicionales VARCHAR(16),
-    IN p_Email VARCHAR(255),
-    IN p_Telefono VARCHAR(20),
-    IN p_FK_ID_Tipo_Iden INT,
-    IN p_FK_ID_Persona VARCHAR(15),
-    IN p_FK_ID_Genero INT,
-    IN p_FK_ID_Grupo_Preferencia INT,
-    IN p_FK_ID_Estrato INT,
-    IN p_FK_ID_Localidad INT
-)
-BEGIN
-    UPDATE tbl_datos_adicionales
-    SET
-        Email = p_Email,
-        Telefono = p_Telefono,
-        FK_ID_Tipo_Iden = p_FK_ID_Tipo_Iden,
-        FK_ID_Persona = p_FK_ID_Persona,
-        FK_ID_Genero = p_FK_ID_Genero,
-        FK_ID_Grupo_Preferencia = p_FK_ID_Grupo_Preferencia,
-        FK_ID_Estrato = p_FK_ID_Estrato,
-        FK_ID_Localidad = p_FK_ID_Localidad
-    WHERE ID_Datos_Adicionales = p_ID_Datos_Adicionales;
-END $$
-DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -532,7 +501,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_datos_adicionales_consultar_id;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_datos_adicionales_consultar_id(
-    IN p_ID_Datos_Adicionales VARCHAR(16)
+    IN p_ID_Datos_Adicionales INT
 )
 BEGIN
     SELECT *
@@ -549,7 +518,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_datos_adicionales_eliminar;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_datos_adicionales_eliminar(
-    IN p_ID_Datos_Adicionales VARCHAR(16)
+    IN p_ID_Datos_Adicionales INT
 )
 BEGIN
     UPDATE tbl_datos_adicionales
@@ -567,12 +536,12 @@ DELIMITER $$
 
 CREATE PROCEDURE sp_tbl_datos_adicionales_insertar(
 
-    IN p_ID_Datos_Adicionales VARCHAR(16),
+    IN p_ID_Datos_Adicionales INT,
     IN p_Email VARCHAR(255),
-    IN p_Telefono VARCHAR(20),
+    IN p_Telefono VARCHAR(45),
     IN p_FK_ID_Parentesco INT,
     IN p_FK_ID_Tipo_Iden INT,
-    IN p_FK_ID_Persona VARCHAR(15),
+    IN p_FK_ID_Persona INT,
     IN p_FK_ID_Genero INT,
     IN p_FK_ID_Grupo_Preferencial INT,
     IN p_FK_ID_Estrato INT,
@@ -619,62 +588,34 @@ DELIMITER ;
 
 -- --------------------------------------------------------
 
---  SP: Actualizar TBL_DATOS_ADICIONALES (acudiente)
--- DROP PROCEDURE IF EXISTS sp_tbl_datos_adicionales_actualizar;
--- DELIMITER $$
--- CREATE PROCEDURE sp_tbl_datos_adicionales_actualizar(
---     IN p_id_datos VARCHAR(16),
---     IN p_telefono VARCHAR(20),
---     IN p_id_persona VARCHAR(15),
---     IN p_genero INT,
---     IN p_grupo_pref INT,
---     IN p_estrato INT,
---     IN p_barrio INT
--- )
--- BEGIN
---     UPDATE TBL_DATOS_ADICIONALES
---     SET
---         Telefono = p_telefono,
---         FK_ID_Genero = p_genero,
---         FK_ID_Grupo_Preferencial = p_grupo_pref,
---         FK_ID_Estrato = p_estrato,
---         FK_ID_Barrio = p_barrio
---     WHERE ID_Datos_Adicionales = p_id_datos
---     AND FK_ID_Persona = p_id_persona;
--- END $$
--- DELIMITER ;
-
 DROP PROCEDURE IF EXISTS sp_tbl_datos_adicionales_actualizar;
 
 DELIMITER $$
-
 CREATE PROCEDURE sp_tbl_datos_adicionales_actualizar(
-    IN p_id_datos VARCHAR(16),
-    IN p_telefono VARCHAR(20),
-    IN p_id_persona VARCHAR(15),
+    IN p_id_datos INT,
+    IN p_telefono VARCHAR(45),
+    IN p_id_persona INT,
     IN p_genero INT,
     IN p_grupo_pref INT,
     IN p_estrato INT,
     IN p_barrio INT,
-    IN p_id_usuario VARCHAR(16),
+    IN p_id_usuario INT,
     IN p_ip VARCHAR(50),
     IN p_user_agent VARCHAR(255)
 )
 BEGIN
-
     DECLARE v_old JSON;
-    DECLARE v_new JSON;
-
+    
     START TRANSACTION;
 
+    -- Captura estado anterior para auditoría
     SELECT JSON_OBJECT(
         'Telefono', Telefono,
         'Genero', FK_ID_Genero,
         'Grupo', FK_ID_Grupo_Preferencial,
         'Estrato', FK_ID_Estrato,
         'Barrio', FK_ID_Barrio
-    )
-    INTO v_old
+    ) INTO v_old
     FROM TBL_DATOS_ADICIONALES
     WHERE ID_Datos_Adicionales = p_id_datos;
 
@@ -686,32 +627,19 @@ BEGIN
         FK_ID_Estrato = p_estrato,
         FK_ID_Barrio = p_barrio
     WHERE ID_Datos_Adicionales = p_id_datos
-    AND FK_ID_Persona = p_id_persona;
-
-    SET v_new = JSON_OBJECT(
-        'Telefono', p_telefono,
-        'Genero', p_genero,
-        'Grupo', p_grupo_pref,
-        'Estrato', p_estrato,
-        'Barrio', p_barrio
-    );
+      AND FK_ID_Persona = p_id_persona;
 
     CALL sp_insertar_auditoria(
-        'TBL_DATOS_ADICIONALES',
-        'UPDATE',
-        p_id_datos,
-        v_old,
-        v_new,
-        p_ip,
-        p_user_agent,
-        p_id_usuario
+        'TBL_DATOS_ADICIONALES', 'UPDATE', CAST(p_id_datos AS CHAR),
+        v_old, 
+        JSON_OBJECT('Telefono', p_telefono, 'Genero', p_genero, 'Barrio', p_barrio),
+        p_ip, p_user_agent, p_id_usuario
     );
 
     COMMIT;
-
 END $$
-
 DELIMITER ;
+
 
 -- --------------------------------------------------------
 
@@ -1007,15 +935,15 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS sp_tbl_estudiante_actualizar_all;
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_estudiante_actualizar_all(
-    IN p_ID_Estudiante VARCHAR(16),
+    IN p_ID_Estudiante INT,
     IN p_FK_ID_Tipo_Iden INT,
-    IN p_FK_ID_Persona VARCHAR(15),
+    IN p_FK_ID_Persona INT,
     IN p_FK_ID_Grado_Actual INT,
     IN p_FK_ID_Gardo_Proximo INT,
     IN p_FK_ID_Colegio_Anterior INT,
     IN p_FK_ID_Genero INT,
     IN p_FK_ID_Grupo_Preferencial INT,
-    IN p_FK_ID_Acudiente VARCHAR(16),
+    IN p_FK_ID_Acudiente INT,
     IN p_FK_ID_Parentesco INT,
     IN p_Estado_Estudiante ENUM('ACTIVE','INACTIVE')
 )
@@ -1046,17 +974,17 @@ CREATE PROCEDURE sp_tbl_estudiante_actualizar(
     IN p_colegio INT,
     IN p_genero INT,
     IN p_grupo_pref INT,
-    IN p_id_persona VARCHAR(15),
+    IN p_id_persona INT,
 
     -- AUDITORÍA
-    IN p_id_usuario VARCHAR(16),
+    IN p_id_usuario INT,
     IN p_ip VARCHAR(50),
     IN p_user_agent VARCHAR(255)
 )
 BEGIN
     DECLARE v_old JSON;
     DECLARE v_new JSON;
-    DECLARE v_id_estudiante VARCHAR(16);
+    DECLARE v_id_estudiante INT;
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
@@ -1137,28 +1065,6 @@ BEGIN
 END $$
 DELIMITER ;
 
--- DROP PROCEDURE IF EXISTS sp_tbl_estudiante_actualizar;
--- DELIMITER $$
--- CREATE PROCEDURE sp_tbl_estudiante_actualizar(
---     IN p_grado_actual INT,
---     IN p_grado_proximo INT,
---     IN p_colegio INT,
---     IN p_genero INT,
---     IN p_grupo_pref INT,
---     IN p_id_persona VARCHAR(15)
--- )
--- BEGIN
---     UPDATE TBL_ESTUDIANTE
---     SET
---         FK_ID_Grado_Actual = p_grado_actual,
---         FK_ID_Gardo_Proximo = p_grado_proximo,
---         FK_ID_Colegio_Anterior = p_colegio,
---         FK_ID_Genero = p_genero,
---         FK_ID_Grupo_Preferencial = p_grupo_pref
---     WHERE FK_ID_Persona = p_id_persona;
--- END $$
--- DELIMITER ;
-
 -- --------------------------------------------------------
 
 
@@ -1177,7 +1083,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_estudiante_consultar_id;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_estudiante_consultar_id(
-    IN p_ID_Estudiante VARCHAR(16)
+    IN p_ID_Estudiante INT
 )
 BEGIN
     SELECT * FROM tbl_estudiante 
@@ -1192,7 +1098,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_estudiante_eliminar;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_estudiante_eliminar(
-    IN p_ID_Estudiante VARCHAR(16)
+    IN p_ID_Estudiante INT
 )
 BEGIN
     UPDATE tbl_estudiante SET Estado_Colegio = 'INACTIVE' WHERE ID_Estudiante = p_ID_Estudiante;
@@ -1206,15 +1112,15 @@ DROP PROCEDURE IF EXISTS sp_tbl_estudiante_insertar;
 DELIMITER $$
 
 CREATE PROCEDURE sp_tbl_estudiante_insertar(
-    IN p_ID_Estudiante VARCHAR(16),
+    IN p_ID_Estudiante INT,
     IN p_FK_ID_Tipo_Iden INT,
-    IN p_FK_ID_Persona VARCHAR(15),
+    IN p_FK_ID_Persona INT,
     IN p_FK_ID_Grado_Actual INT,
     IN p_FK_ID_Gardo_Proximo INT,
     IN p_FK_ID_Colegio_Anterior INT,
     IN p_FK_ID_Genero INT,
     IN p_FK_ID_Grupo_Preferencial INT,
-    IN p_FK_ID_Acudiente VARCHAR(16),
+    IN p_FK_ID_Acudiente INT,
     IN p_FK_ID_Parentesco_Es INT,
     IN p_ip VARCHAR(50),
     IN p_user_agent VARCHAR(255)
@@ -1277,15 +1183,15 @@ DELIMITER ;
 
 -- DELIMITER $$
 -- CREATE PROCEDURE sp_tbl_estudiante_insertar(
---     IN p_ID_Estudiante VARCHAR(16),
+--     IN p_ID_Estudiante INT,
 --     IN p_FK_ID_Tipo_Iden INT,
---     IN p_FK_ID_Persona VARCHAR(15),
+--     IN p_FK_ID_Persona INT,
 --     IN p_FK_ID_Grado_Actual INT,
 --     IN p_FK_ID_Gardo_Proximo INT,
 --     IN p_FK_ID_Colegio_Anterior INT,
 --     IN p_FK_ID_Genero INT,
 --     IN p_FK_ID_Grupo_Preferencial INT,
---     IN p_FK_ID_Acudiente VARCHAR(16),
+--     IN p_FK_ID_Acudiente INT,
 --     IN p_FK_ID_Parentesco_Es INT
 -- )
 -- BEGIN
@@ -1326,7 +1232,7 @@ DELIMITER $$
 
 CREATE PROCEDURE sp_registrar_estudiante_completo(
     -- PERSONA
-    IN p_ID_Persona VARCHAR(15),
+    IN p_ID_Persona INT,
     IN p_Primer_Nombre VARCHAR(50),
     IN p_Segundo_Nombre VARCHAR(50),
     IN p_Primer_Apellido VARCHAR(50),
@@ -1334,14 +1240,14 @@ CREATE PROCEDURE sp_registrar_estudiante_completo(
     IN p_Fecha_Nacimiento DATE,
 
     -- ESTUDIANTE
-    IN p_ID_Estudiante VARCHAR(16),
+    IN p_ID_Estudiante INT,
     IN p_FK_ID_Tipo_Iden INT,
     IN p_FK_ID_Grado_Actual INT,
     IN p_FK_ID_Gardo_Proximo INT,
     IN p_FK_ID_Colegio_Anterior INT,
     IN p_FK_ID_Genero INT,
     IN p_FK_ID_Grupo_Preferencial INT,
-    IN p_FK_ID_Acudiente VARCHAR(16),
+    IN p_FK_ID_Acudiente INT,
     IN p_FK_ID_Parentesco_Es INT,
 
     -- AUDITORÍA
@@ -1396,7 +1302,7 @@ BEGIN
         v_new_persona,
         p_ip,
         p_user_agent,
-        'SYSTEM'
+        5157341
     );
 
     -- =========================
@@ -1453,43 +1359,48 @@ DELIMITER ;
 -- --------------------------------------------------------
 --  SP: Perfil del estudiante (datos para pre-poblar forms)
 DROP PROCEDURE IF EXISTS sp_perfil_estudiante_consultar;
+
 DELIMITER $$
+
 CREATE PROCEDURE sp_perfil_estudiante_consultar(
-    IN p_id_acudiente VARCHAR(16)
+    IN p_id_acudiente INT
 )
 BEGIN
     SELECT
-        -- Para el WHERE del UPDATE posterior
+        -- Llaves primarias técnicas (Necesarias para UPDATE y Auditoría)
+        e.ID_Estudiante, 
         p.ID_Persona,
 
-        -- Identificación (solo lectura)
+        -- Identificación (Solo lectura)
         ti.Nombre_Tipo_Iden,
-        p.ID_Persona AS Numero_Documento,
+        p.Num_Doc_Persona AS Numero_Documento, -- Corregido: Usar columna de negocio
 
-        -- Nombre (editable)
+        -- Datos Personales (Editables)
         p.Primer_Nombre,
         p.Segundo_Nombre,
         p.Primer_Apellido,
         p.Segundo_Apellido,
-
-        -- Demográficos (editable)
         p.Fecha_Nacimiento,
+
+        -- Demográficos (Editables - IDs para los Select del Form)
         e.FK_ID_Genero AS ID_Genero,
         e.FK_ID_Grupo_Preferencial AS ID_Grupo_Preferencial,
 
-        -- Académicos (editable)
+        -- Académicos (Editables)
         e.FK_ID_Grado_Actual AS ID_Grado_Actual,
         e.FK_ID_Gardo_Proximo AS ID_Grado_Proximo,
         e.FK_ID_Colegio_Anterior AS ID_Colegio_Anterior
+        
     FROM TBL_ESTUDIANTE e
     INNER JOIN TBL_PERSONA p ON e.FK_ID_Persona = p.ID_Persona
     INNER JOIN TBL_TIPO_IDENTIFICACION ti ON e.FK_ID_Tipo_Iden = ti.ID_Tipo_Iden
     WHERE e.FK_ID_Acudiente = p_id_acudiente
-    AND e.Estado_Estudiante = 'ACTIVE'
+      AND e.Estado_Estudiante = 'ACTIVE'
     LIMIT 1;
 END $$
 
 DELIMITER ;
+
 
 -- --------------------------------------------------------
 -- Usada en decorador para validar si el acudiente ya tiene un estudiante registrado
@@ -1499,7 +1410,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_estudiante_verificar_por_acudiente;
 DELIMITER $$
 
 CREATE PROCEDURE sp_tbl_estudiante_verificar_por_acudiente(
-    IN p_id_acudiente VARCHAR(16)
+    IN p_id_acudiente INT
 )
 BEGIN
     SELECT COUNT(*) AS tiene_estudiante
@@ -1518,8 +1429,8 @@ DROP PROCEDURE IF EXISTS sp_tbl_estudiante_verificar_existente;
 DELIMITER $$
 
 CREATE PROCEDURE sp_tbl_estudiante_verificar_existente (
-    IN p_id_estudiante VARCHAR(16),
-    IN p_fk_id_acudiente VARCHAR(16)
+    IN p_id_estudiante INT,
+    IN p_fk_id_acudiente INT
 )
 BEGIN
     DECLARE existe INT;
@@ -1791,7 +1702,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_persona_actualizar;
 DELIMITER $$
 
 CREATE PROCEDURE sp_tbl_persona_actualizar(
-    IN p_id_persona VARCHAR(15),
+    IN p_id_persona INT,
     IN p_primer_nombre VARCHAR(50),
     IN p_segundo_nombre VARCHAR(50),
     IN p_primer_apellido VARCHAR(50),
@@ -1799,7 +1710,7 @@ CREATE PROCEDURE sp_tbl_persona_actualizar(
     IN p_fecha_nac DATE,
 
     -- AUDITORÍA
-    IN p_id_usuario VARCHAR(16),
+    IN p_id_usuario INT,
     IN p_ip VARCHAR(50),
     IN p_user_agent VARCHAR(255)
 )
@@ -1885,7 +1796,7 @@ DELIMITER ;
 -- DROP PROCEDURE IF EXISTS sp_tbl_persona_actualizar;
 -- DELIMITER $$
 -- CREATE PROCEDURE sp_tbl_persona_actualizar(
---     IN p_id_persona VARCHAR(15),
+--     IN p_id_persona INT,
 --     IN p_primer_nombre VARCHAR(50),
 --     IN p_segundo_nombre VARCHAR(50),
 --     IN p_primer_apellido VARCHAR(50),
@@ -1921,7 +1832,7 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS sp_tbl_persona_eliminar;
 
 DELIMITER $$
-CREATE PROCEDURE sp_tbl_persona_eliminar(IN p_ID_Persona VARCHAR(15))
+CREATE PROCEDURE sp_tbl_persona_eliminar(IN p_ID_Persona INT)
 BEGIN
     UPDATE tbl_persona SET Estado_Persona = 'INACTIVE' WHERE ID_Persona = p_ID_Persona;
 END $$
@@ -1935,7 +1846,8 @@ DROP PROCEDURE IF EXISTS sp_tbl_persona_insertar;
 DELIMITER $$
 
 CREATE PROCEDURE sp_tbl_persona_insertar(
-    IN p_ID_Persona VARCHAR(15),
+    IN p_ID_Persona INT,
+    IN p_Num_Doc_Persona VARCHAR(30),
     IN p_Primer_Nombre VARCHAR(50),
     IN p_Segundo_Nombre VARCHAR(50),
     IN p_Primer_Apellido VARCHAR(50),
@@ -1946,6 +1858,7 @@ BEGIN
 
 INSERT INTO TBL_PERSONA(
     ID_Persona,
+    Num_Doc_Persona,
     Primer_Nombre,
     Segundo_Nombre,
     Primer_Apellido,
@@ -1956,6 +1869,7 @@ INSERT INTO TBL_PERSONA(
 
 VALUES(
     p_ID_Persona,
+    p_Num_Doc_Persona,
     p_Primer_Nombre,
     p_Segundo_Nombre,
     p_Primer_Apellido,
@@ -2082,7 +1996,7 @@ CREATE PROCEDURE sp_tbl_sesiones_actualizar(
     IN p_ID_Sesion BIGINT,
     IN p_IP_Usuario VARCHAR(50),
     IN p_Tiempo_Cierre DATETIME,
-    IN p_FK_ID_Usuario VARCHAR(16)
+    IN p_FK_ID_Usuario INT
 )
 BEGIN
     UPDATE tbl_sesiones
@@ -2139,7 +2053,7 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS sp_tbl_sesiones_insertar;
 
 DELIMITER $$
-CREATE PROCEDURE sp_tbl_sesiones_insertar (IN p_IP_Usuario VARCHAR(50), IN p_FK_ID_Usuario VARCHAR(16))
+CREATE PROCEDURE sp_tbl_sesiones_insertar (IN p_IP_Usuario VARCHAR(50), IN p_FK_ID_Usuario INT)
 BEGIN
     INSERT INTO tbl_sesiones(IP_Usuario, FK_ID_Usuario, Estado_Sesiones) VALUES(p_IP_Usuario, p_FK_ID_Usuario, 'ACTIVE');
 END $$
@@ -2157,7 +2071,7 @@ CREATE PROCEDURE sp_tbl_ticket_actualizar(
     IN p_Descripcion_Ticket TEXT,
     IN p_Fecha_Cierre DATETIME,
     IN p_Puntaje_Prioridad INT,
-    IN p_FK_ID_Usuario_Tecnico VARCHAR(16),
+    IN p_FK_ID_Usuario_Tecnico INT,
     IN p_FK_ID_Estado_Ticket INT,
     IN p_FK_ID_Tipo_Caso INT,
     IN p_FK_ID_Barrio INT,
@@ -2189,7 +2103,7 @@ CREATE PROCEDURE sp_tbl_ticket_comentario_actualizar(
     IN p_Comentario TEXT,
     IN p_Fecha_Comentario DATETIME,
     IN p_Es_Interno TINYINT(1),
-    IN p_FK_ID_Usuario VARCHAR(16),
+    IN p_FK_ID_Usuario INT,
     IN p_FK_ID_Ticket VARCHAR(10)
 )
 BEGIN
@@ -2259,7 +2173,7 @@ CREATE PROCEDURE sp_tbl_ticket_comentario_insertar(
     IN p_Fecha_Comentario DATETIME,
     IN p_Fecha_Creacion DATETIME,
     IN p_Es_Interno TINYINT(1),
-    IN p_FK_ID_Usuario VARCHAR(16),
+    IN p_FK_ID_Usuario INT,
     IN p_FK_ID_Ticket VARCHAR(10)
 )
 BEGIN
@@ -2340,8 +2254,8 @@ CREATE PROCEDURE sp_tbl_ticket_insertar(
     IN p_Titulo_Ticket VARCHAR(150),
     IN p_Descripcion_Ticket TEXT,
     IN p_Puntaje_Prioridad INT,
-    IN p_FK_ID_Usuario_Creador VARCHAR(16),
-    IN p_FK_ID_Usuario_Tecnico VARCHAR(16),
+    IN p_FK_ID_Usuario_Creador INT,
+    IN p_FK_ID_Usuario_Tecnico INT,
     IN p_FK_ID_Estado_Ticket INT,
     IN p_FK_ID_Tipo_Caso INT,
     IN p_FK_ID_Barrio INT,
@@ -2599,14 +2513,14 @@ DROP PROCEDURE IF EXISTS sp_tbl_usuario_actualizar;
 DELIMITER $$
 
 CREATE PROCEDURE sp_tbl_usuario_actualizar(
-    IN p_ID_Usuario VARCHAR(16),
+    IN p_ID_Usuario INT,
     IN p_Nombre_Usuario VARCHAR(50),
     IN p_password VARCHAR(255),
     IN p_Ultimo_Cambio_Contraseña DATETIME,
     IN p_Intentos_Fallidos INT,
     IN p_Doble_Factor_Activo ENUM('ACTIVE','INACTIVE'),
     IN p_Aceptacion_Terminos ENUM('ACCEPTED','REJECTED'),
-    IN p_FK_ID_Persona VARCHAR(15),
+    IN p_FK_ID_Persona INT,
     IN p_FK_ID_Rol INT
 )
 BEGIN
@@ -2652,7 +2566,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_usuario_consultar_id;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_usuario_consultar_id(
-    IN p_ID_Usuario VARCHAR(16)
+    IN p_ID_Usuario INT
 )
 BEGIN
     SELECT * FROM tbl_usuario WHERE ID_Usuario = p_ID_Usuario AND Estado_Usuario = 'ACTIVE';
@@ -2666,7 +2580,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_usuario_eliminar;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_usuario_eliminar(
-    IN p_ID_Usuario VARCHAR(16)
+    IN p_ID_Usuario INT
 )
 BEGIN
     UPDATE tbl_usuario SET Estado_Usuario = 'INACTIVE' WHERE ID_Usuario = p_ID_Usuario;
@@ -2679,13 +2593,13 @@ DELIMITER ;
 DROP PROCEDURE IF EXISTS sp_tbl_usuario_insertar;
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_usuario_insertar(
-    IN p_ID_Usuario VARCHAR(16),
+    IN p_ID_Usuario INT,
     IN p_Nombre_Usuario VARCHAR(50),
     IN p_password_salt VARBINARY(16),
     IN p_password_hash VARBINARY(32),
     IN p_Doble_Factor_Activo ENUM('ACTIVE','INACTIVE'),
     IN p_Aceptacion_Terminos ENUM('ACCEPTED','REJECTED'),
-    IN p_FK_ID_Persona VARCHAR(15),
+    IN p_FK_ID_Persona INT,
     IN p_FK_ID_Rol INT
 
 )
@@ -2766,7 +2680,7 @@ CREATE PROCEDURE sp_tbl_usuario_validar_login(
     IN p_password_hash VARBINARY(32)
 )
 BEGIN
-    DECLARE v_id_usuario VARCHAR(16);
+    DECLARE v_id_usuario INT;
     DECLARE v_hash VARBINARY(32);
     DECLARE v_resultado VARCHAR(10);
 
@@ -2820,7 +2734,7 @@ DROP PROCEDURE IF EXISTS sp_auditoria_sesion;
 
 DELIMITER $$
 CREATE PROCEDURE sp_auditoria_sesion(
-    IN p_usuario VARCHAR(16),
+    IN p_usuario INT,
     IN p_ip VARCHAR(45),
     IN p_evento VARCHAR(20),
     IN p_user_agent VARCHAR(255)
@@ -2867,7 +2781,7 @@ DELIMITER $$
 
 CREATE PROCEDURE sp_usuario_verificar_existente(
     IN p_Email VARCHAR(255),
-    IN p_Documento VARCHAR(15)
+    IN p_Documento INT
 )
 BEGIN
 SELECT 
@@ -2888,11 +2802,11 @@ DELIMITER ;
 -- RECUPERACIÓN DE CONTRASEÑA
 -- --------------------------------------------------------
 
-DROP PROCEDURE IF EXISTS sp_usuario_recuperar_contrasena;
+DROP PROCEDURE IF EXISTS sp_usuario_recuperar_contraseña;
 
 DELIMITER $$
 
-CREATE PROCEDURE sp_usuario_recuperar_contrasena(
+CREATE PROCEDURE sp_usuario_recuperar_contraseña(
     IN p_username     VARCHAR(100),
     IN p_nuevo_hash   VARBINARY(32),
     IN p_nuevo_salt   VARBINARY(16),
@@ -2901,7 +2815,7 @@ CREATE PROCEDURE sp_usuario_recuperar_contrasena(
 )
 BEGIN
 
-    DECLARE v_id_usuario VARCHAR(16);
+    DECLARE v_id_usuario INT;
 
     START TRANSACTION;
 
@@ -2923,7 +2837,7 @@ BEGIN
         JSON_OBJECT('evento','password_actualizado'),
         p_ip,
         p_user_agent,
-        'SYSTEM'
+        5157341
     );
 
     COMMIT;
@@ -3001,40 +2915,40 @@ DROP PROCEDURE IF EXISTS sp_perfil_acudiente_consultar;
 
 DELIMITER $$
 CREATE PROCEDURE sp_perfil_acudiente_consultar(
-    IN p_id_usuario VARCHAR(16)
+    IN p_id_usuario INT
 )
 BEGIN
     SELECT
-        -- Identidad (solo lectura)
+        -- Identidad (Solo lectura para el usuario)
+        p.ID_Persona, -- ID técnico para el servicio Python
+        p.Num_Doc_Persona AS Numero_Documento,
         p.Primer_Nombre,
         p.Segundo_Nombre,
         p.Primer_Apellido,
         p.Segundo_Apellido,
         ti.Nombre_Tipo_Iden,
-        p.ID_Persona AS Numero_Documento,
 
-        -- Contacto (editable)
+        -- Contacto (Editable)
+        da.ID_Datos_Adicionales,
         da.Email,
         da.Telefono,
 
-        -- Ubicación (editable)
+        -- Ubicación y Demografía (Editable)
         da.FK_ID_Barrio AS ID_Barrio,
         b.Nombre_Barrio,
         da.FK_ID_Estrato AS ID_Estrato,
-
-        -- Demográficos (editable)
         da.FK_ID_Genero AS ID_Genero,
         da.FK_ID_Grupo_Preferencial AS ID_Grupo_Preferencial,
 
-        -- Solo lectura
+        -- Metadatos
         par.Nombre_Parentesco,
         u.Fecha_Creacion
     FROM TBL_USUARIO u
     INNER JOIN TBL_PERSONA p ON u.FK_ID_Persona = p.ID_Persona
     INNER JOIN TBL_DATOS_ADICIONALES da ON da.FK_ID_Persona = p.ID_Persona
     INNER JOIN TBL_TIPO_IDENTIFICACION ti ON da.FK_ID_Tipo_Iden = ti.ID_Tipo_Iden
-    INNER JOIN TBL_BARRIO b ON da.FK_ID_Barrio  = b.ID_Barrio
-    INNER JOIN TBL_PARENTESCO par ON da.FK_ID_Parentesco  = par.ID_Parentesco
+    INNER JOIN TBL_BARRIO b ON da.FK_ID_Barrio = b.ID_Barrio
+    INNER JOIN TBL_PARENTESCO par ON da.FK_ID_Parentesco = par.ID_Parentesco
     WHERE u.ID_Usuario = p_id_usuario
     LIMIT 1;
 
@@ -3043,18 +2957,18 @@ DELIMITER ;
 
 
 
+
 -- ====================================================================================================================================================
 -- Procedures Para registro
+-- ====================================================================================================================================================
 
 DROP PROCEDURE IF EXISTS sp_registrar_usuario_completo;
-
 
 DELIMITER $$
 
 CREATE PROCEDURE sp_registrar_usuario_completo(
-
     -- PERSONA
-    IN p_ID_Persona VARCHAR(15),
+    IN p_Num_Doc_Persona VARCHAR(30),
     IN p_Primer_Nombre VARCHAR(50),
     IN p_Segundo_Nombre VARCHAR(50),
     IN p_Primer_Apellido VARCHAR(50),
@@ -3062,9 +2976,8 @@ CREATE PROCEDURE sp_registrar_usuario_completo(
     IN p_Fecha_Nacimiento DATE,
 
     -- DATOS ADICIONALES
-    IN p_ID_Datos_Adicionales VARCHAR(16),
     IN p_Email VARCHAR(255),
-    IN p_Telefono VARCHAR(20),
+    IN p_Telefono VARCHAR(45),
     IN p_FK_ID_Parentesco INT,
     IN p_FK_ID_Tipo_Iden INT,
     IN p_FK_ID_Genero INT,
@@ -3073,7 +2986,6 @@ CREATE PROCEDURE sp_registrar_usuario_completo(
     IN p_FK_ID_Barrio INT,
 
     -- USUARIO
-    IN p_ID_Usuario VARCHAR(16),
     IN p_Nombre_Usuario VARCHAR(50),
     IN p_password_salt VARBINARY(16),
     IN p_password_hash VARBINARY(32),
@@ -3082,92 +2994,86 @@ CREATE PROCEDURE sp_registrar_usuario_completo(
     -- AUDITORÍA
     IN p_IP VARCHAR(50),
     IN p_User_Agent VARCHAR(255)
-
 )
 BEGIN
+    DECLARE v_ID_Persona INT;
+    DECLARE v_ID_Datos_Adicionales INT;
+    DECLARE v_ID_Usuario INT;
 
-    DECLARE v_json_persona JSON;
-    DECLARE v_json_datos JSON;
-    DECLARE v_json_usuario JSON;
+    -- Manejo de errores
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
 
     START TRANSACTION;
 
     -- ========================
     -- INSERT PERSONA
     -- ========================
-    INSERT INTO TBL_PERSONA VALUES (
-        p_ID_Persona,
-        p_Primer_Nombre,
-        p_Segundo_Nombre,
-        p_Primer_Apellido,
-        p_Segundo_Apellido,
-        p_Fecha_Nacimiento,
-        'ACTIVE'
+    INSERT INTO TBL_PERSONA (
+        Num_Doc_Persona, Primer_Nombre, Segundo_Nombre, 
+        Primer_Apellido, Segundo_Apellido, Fecha_Nacimiento, Estado_Persona
+    ) VALUES (
+        p_Num_Doc_Persona, p_Primer_Nombre, p_Segundo_Nombre,
+        p_Primer_Apellido, p_Segundo_Apellido, p_Fecha_Nacimiento, 'ACTIVE'
     );
 
-    SET v_json_persona = JSON_OBJECT(
-        'ID', p_ID_Persona,
-        'Nombre', p_Primer_Nombre,
-        'Apellido', p_Primer_Apellido
-    );
+    SET v_ID_Persona = LAST_INSERT_ID();
 
     CALL sp_insertar_auditoria(
-        'TBL_PERSONA','CREATE',p_ID_Persona,
-        NULL,v_json_persona,p_IP,p_User_Agent,'SYSTEM'
+        'TBL_PERSONA', 'CREATE', CAST(v_ID_Persona AS CHAR),
+        NULL, JSON_OBJECT('Doc', p_Num_Doc_Persona, 'Nombre', p_Primer_Nombre), 
+        p_IP, p_User_Agent, 'SYSTEM'
     );
 
     -- ========================
     -- DATOS ADICIONALES
     -- ========================
-    INSERT INTO TBL_DATOS_ADICIONALES VALUES (
-        p_ID_Datos_Adicionales,
-        p_Email,
-        p_Telefono,
-        p_FK_ID_Parentesco,
-        p_FK_ID_Tipo_Iden,
-        p_ID_Persona,
-        p_FK_ID_Genero,
-        p_FK_ID_Grupo_Preferencial,
-        p_FK_ID_Estrato,
-        p_FK_ID_Barrio,
-        'ACTIVE'
+    INSERT INTO TBL_DATOS_ADICIONALES (
+        Email, Telefono, FK_ID_Parentesco, FK_ID_Tipo_Iden, 
+        FK_ID_Persona, FK_ID_Genero, FK_ID_Grupo_Preferencial, 
+        FK_ID_Estrato, FK_ID_Barrio, Estado_Datos_Adicionales
+    ) VALUES (
+        p_Email, p_Telefono, p_FK_ID_Parentesco, p_FK_ID_Tipo_Iden,
+        v_ID_Persona, p_FK_ID_Genero, p_FK_ID_Grupo_Preferencial,
+        p_FK_ID_Estrato, p_FK_ID_Barrio, 'ACTIVE'
     );
 
-    SET v_json_datos = JSON_OBJECT(
-        'Email', p_Email,
-        'Telefono', p_Telefono
-    );
+    SET v_ID_Datos_Adicionales = LAST_INSERT_ID();
 
     CALL sp_insertar_auditoria(
-        'TBL_DATOS_ADICIONALES','CREATE',p_ID_Datos_Adicionales,
-        NULL,v_json_datos,p_IP,p_User_Agent,'SYSTEM'
+        'TBL_DATOS_ADICIONALES', 'CREATE', CAST(v_ID_Datos_Adicionales AS CHAR),
+        NULL, JSON_OBJECT('Email', p_Email, 'Tel', p_Telefono), 
+        p_IP, p_User_Agent, 'SYSTEM'
     );
 
     -- ========================
     -- USUARIO
     -- ========================
-    INSERT INTO TBL_USUARIO VALUES (
-        p_ID_Usuario,
-        p_Nombre_Usuario,
-        p_password_salt,
-        p_password_hash,
-        NULL,NULL,NULL,
-        CURRENT_TIMESTAMP,
-        'INACTIVE',
-        'ACCEPTED',
-        p_ID_Persona,
-        p_FK_ID_Rol,
-        'ACTIVE'
+    INSERT INTO TBL_USUARIO (
+        Nombre_Usuario, Password_Salt, Contraseña_Hash, 
+        Ultimo_Cambio_Contraseña, Ultimo_Login, Intentos_Fallidos,
+        Fecha_Creacion, Doble_Factor_Activo, MFA_Fecha_Configuracion,
+        MFA_Secret, MFA_Secret_Temp, Notificaciones_Email,
+        Notificaciones_Navegador, Aceptacion_Terminos, FK_ID_Persona,
+        FK_ID_Rol, Estado_Usuario
+    ) VALUES (
+        p_Nombre_Usuario, p_password_salt, p_password_hash,
+        NULL, NULL, 0,
+        CURRENT_TIMESTAMP, 'INACTIVE', NULL,
+        NULL, NULL, 0,
+        0, 'ACCEPTED', v_ID_Persona,
+        p_FK_ID_Rol, 'ACTIVE'
     );
 
-    SET v_json_usuario = JSON_OBJECT(
-        'ID', p_ID_Usuario,
-        'Username', p_Nombre_Usuario
-    );
+    SET v_ID_Usuario = LAST_INSERT_ID();
 
     CALL sp_insertar_auditoria(
-        'TBL_USUARIO','CREATE',p_ID_Usuario,
-        NULL,v_json_usuario,p_IP,p_User_Agent,'SYSTEM'
+        'TBL_USUARIO', 'CREATE', CAST(v_ID_Usuario AS CHAR),
+        NULL, JSON_OBJECT('Username', p_Nombre_Usuario), 
+        p_IP, p_User_Agent, 'SYSTEM'
     );
 
     COMMIT;
@@ -3175,6 +3081,7 @@ BEGIN
 END $$
 
 DELIMITER ;
+
 
 
 -- ====================================================================================================================================================
@@ -3183,51 +3090,54 @@ DELIMITER ;
 
 -- --------------------------------------------------------
 -- SP: Cambio de contraseña desde perfil
-DROP PROCEDURE IF EXISTS sp_tbl_usuario_cambiar_contrasena_perfil;
+DROP PROCEDURE IF EXISTS sp_tbl_usuario_cambiar_contraseña_perfil;
+
 DELIMITER $$
-CREATE PROCEDURE sp_tbl_usuario_cambiar_contrasena_perfil(
-    IN p_id_usuario VARCHAR(16),
-    IN p_hash_actual VARBINARY(32),
+
+CREATE PROCEDURE sp_tbl_usuario_cambiar_contraseña_perfil(
+    IN p_id_usuario INT,
     IN p_nuevo_hash VARBINARY(32),
     IN p_nuevo_salt VARBINARY(16),
     IN p_ip VARCHAR(50),
     IN p_user_agent VARCHAR(255)
 )
 BEGIN
-    DECLARE v_match INT DEFAULT 0;
-
-    SELECT COUNT(*) INTO v_match
-    FROM TBL_USUARIO
-    WHERE ID_Usuario = p_id_usuario
-      AND Contraseña_Hash = p_hash_actual;
-
-    IF v_match = 0 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'INVALID_CURRENT_PASSWORD';
-    END IF;
-
+    
     START TRANSACTION;
+
+        -- Actualización de credenciales
         UPDATE TBL_USUARIO
         SET Contraseña_Hash = p_nuevo_hash,
             Password_Salt = p_nuevo_salt,
             Ultimo_Cambio_Contraseña = CURRENT_TIMESTAMP
         WHERE ID_Usuario = p_id_usuario;
 
+        -- Registro de auditoría
         CALL sp_insertar_auditoria(
-            'TBL_USUARIO', 'PASSWORD_CHANGE', p_id_usuario,
-            JSON_OBJECT('evento','cambio_password_perfil'),
-            JSON_OBJECT('resultado','password_actualizado'),
-            p_ip, p_user_agent, 'USER'
+            'TBL_USUARIO', 
+            'PASSWORD_CHANGE', 
+            CAST(p_id_usuario AS CHAR),
+            JSON_OBJECT('evento', 'cambio_password_perfil'),
+            JSON_OBJECT('resultado', 'exitoso'),
+            p_ip, 
+            p_user_agent, 
+            p_id_usuario
         );
+
     COMMIT;
+
 END $$
+
 DELIMITER ;
+
+
 
 -- --------------------------------------------------------
 -- SP: Guardar secret MFA temporal
 DROP PROCEDURE IF EXISTS sp_tbl_usuario_guardar_mfa_secret_temp;
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_usuario_guardar_mfa_secret_temp(
-    IN p_id_usuario VARCHAR(16),
+    IN p_id_usuario INT,
     IN p_secret VARCHAR(64)
 )
 BEGIN
@@ -3243,11 +3153,12 @@ DROP PROCEDURE IF EXISTS sp_tbl_usuario_activar_mfa;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_usuario_activar_mfa(
-    IN p_id_usuario VARCHAR(16)
+    IN p_id_usuario INT
 )
 BEGIN
     UPDATE TBL_USUARIO
-    SET MFA_Secret = MFA_Secret_Temp,
+    SET MFA_Fecha_Configuracion = CURRENT_TIMESTAMP,
+        MFA_Secret = MFA_Secret_Temp,
         MFA_Secret_Temp = NULL,
         Doble_Factor_Activo = 'ACTIVE'
     WHERE ID_Usuario = p_id_usuario;
@@ -3262,11 +3173,12 @@ DROP PROCEDURE IF EXISTS sp_tbl_usuario_desactivar_mfa;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_usuario_desactivar_mfa(
-    IN p_id_usuario VARCHAR(16)
+    IN p_id_usuario INT
 )
 BEGIN
     UPDATE TBL_USUARIO
-    SET MFA_Secret = NULL,
+    SET MFA_Fecha_Configuracion = CURRENT_TIMESTAMP,
+        MFA_Secret = NULL,
         MFA_Secret_Temp = NULL,
         Doble_Factor_Activo = 'INACTIVE'
     WHERE ID_Usuario = p_id_usuario;
@@ -3281,7 +3193,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_usuario_obtener_mfa_secret;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_usuario_obtener_mfa_secret(
-    IN p_id_usuario VARCHAR(16)
+    IN p_id_usuario INT
 )
 BEGIN
     SELECT MFA_Secret, MFA_Secret_Temp, Doble_Factor_Activo
@@ -3298,7 +3210,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_sesion_activa_registrar_sesion;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_sesion_activa_registrar_sesion(
-    IN p_id_usuario VARCHAR(16),
+    IN p_id_usuario INT,
     IN p_jti VARCHAR(64),
     IN p_dispositivo VARCHAR(255),
     IN p_ip VARCHAR(50)
@@ -3318,7 +3230,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_sesion_activa_listar_sesiones;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_sesion_activa_listar_sesiones(
-    IN p_id_usuario VARCHAR(16)
+    IN p_id_usuario INT
 )
 BEGIN
     SELECT ID_Sesion, JTI, Dispositivo, IP, Fecha_Inicio, Ultimo_Acceso
@@ -3354,7 +3266,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_sesion_activa_cerrar_todas_sesiones;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_sesion_activa_cerrar_todas_sesiones(
-    IN p_id_usuario VARCHAR(16),
+    IN p_id_usuario INT,
     IN p_jti_actual VARCHAR(64)   -- excluir la sesión actual
 )
 BEGIN
@@ -3381,3 +3293,178 @@ BEGIN
     WHERE JTI = p_jti AND Activa = 1;
 END $$
 DELIMITER ;
+
+
+-- ====================================================================================================================================================
+-- SP PARA EL PAGINA DE SETTINGS DE SEGURIDAD
+-- ====================================================================================================================================================
+
+-- --------------------------------------------------------
+-- SP: Obtener preferencias de notificación del usuario
+
+DROP PROCEDURE IF EXISTS sp_configuracion_obtener_notificaciones;
+ 
+DELIMITER $$
+CREATE PROCEDURE sp_configuracion_obtener_notificaciones(
+    IN p_id_usuario INT
+)
+BEGIN
+    SELECT
+        Notificaciones_Email,
+        Notificaciones_Navegador
+    FROM TBL_USUARIO
+    WHERE ID_Usuario = p_id_usuario
+      AND Estado_Usuario = 'ACTIVE';
+END $$
+DELIMITER ;
+ 
+ 
+-- --------------------------------------------------------
+-- SP: Actualizar notificaciones de correo electrónico
+
+DROP PROCEDURE IF EXISTS sp_configuracion_actualizar_notif_email;
+ 
+DELIMITER $$
+CREATE PROCEDURE sp_configuracion_actualizar_notif_email(
+    IN p_id_usuario    INT,
+    IN p_activo        TINYINT(1)   -- 1 = activar, 0 = desactivar
+)
+BEGIN
+    DECLARE v_existe INT DEFAULT 0;
+ 
+    SELECT COUNT(*) INTO v_existe
+    FROM TBL_USUARIO
+    WHERE ID_Usuario   = p_id_usuario
+      AND Estado_Usuario = 'ACTIVE';
+ 
+    IF v_existe = 0 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Usuario no encontrado o inactivo.';
+    END IF;
+ 
+    UPDATE TBL_USUARIO
+    SET Notificaciones_Email = p_activo
+    WHERE ID_Usuario = p_id_usuario;
+ 
+    -- Devuelve el estado actualizado para confirmación
+    SELECT Notificaciones_Email AS notif_email_activo
+    FROM TBL_USUARIO
+    WHERE ID_Usuario = p_id_usuario;
+END $$
+DELIMITER ;
+ 
+ 
+-- --------------------------------------------------------
+-- SP: Actualizar notificaciones del navegador
+
+DROP PROCEDURE IF EXISTS sp_configuracion_actualizar_notif_navegador;
+ 
+DELIMITER $$
+CREATE PROCEDURE sp_configuracion_actualizar_notif_navegador(
+    IN p_id_usuario    INT,
+    IN p_activo        TINYINT(1)   -- 1 = activar, 0 = desactivar
+)
+BEGIN
+    DECLARE v_existe INT DEFAULT 0;
+ 
+    SELECT COUNT(*) INTO v_existe
+    FROM TBL_USUARIO
+    WHERE ID_Usuario    = p_id_usuario
+      AND Estado_Usuario = 'ACTIVE';
+ 
+    IF v_existe = 0 THEN
+        SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'Usuario no encontrado o inactivo.';
+    END IF;
+ 
+    UPDATE TBL_USUARIO
+    SET Notificaciones_Navegador = p_activo
+    WHERE ID_Usuario = p_id_usuario;
+ 
+    -- Devuelve el estado actualizado para confirmación
+    SELECT Notificaciones_Navegador AS notif_navegador_activo
+    FROM TBL_USUARIO
+    WHERE ID_Usuario = p_id_usuario;
+END $$
+DELIMITER ;
+
+
+
+-- --------------------------------------------------------
+-- SP: Eliminar Usuario y Estudiante asociado
+
+DROP PROCEDURE IF EXISTS sp_eliminar_cuenta_completa;
+
+DELIMITER $$
+
+CREATE PROCEDURE sp_eliminar_cuenta_completa(
+    IN p_ID_Usuario INT,
+    IN p_IP VARCHAR(50),
+    IN p_User_Agent VARCHAR(255)
+)
+BEGIN
+    -- Declaración de variable para el prefijo de ofuscación
+    DECLARE v_Timestamp VARCHAR(20);
+    
+    -- Manejador de errores para hacer ROLLBACK si algo falla
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error en la eliminación completa del usuario y sus estudiantes asociados';
+    END;
+
+    -- Generar una marca de tiempo única para esta transacción
+    SET v_Timestamp = DATE_FORMAT(NOW(), '%Y%m%d%H%i%s');
+
+    START TRANSACTION;
+        
+        -- 1. OFUSCAR Y DESACTIVAR PERSONAS DE LOS ESTUDIANTES 
+        -- (Se hace primero por las dependencias de FK)
+        UPDATE TBL_PERSONA 
+        SET Num_Doc_Persona = CONCAT('DEL_', v_Timestamp, '_', Num_Doc_Persona),
+            Estado_Persona = 'INACTIVE'
+        WHERE ID_Persona IN (
+            SELECT FK_ID_Persona FROM TBL_ESTUDIANTE WHERE FK_ID_Acudiente = p_ID_Usuario
+        );
+
+        -- 2. INACTIVAR REGISTROS EN TBL_ESTUDIANTE
+        UPDATE TBL_ESTUDIANTE 
+        SET Estado_Estudiante = 'INACTIVE'
+        WHERE FK_ID_Acudiente = p_ID_Usuario;
+
+        -- Registro de auditoría para los estudiantes
+        CALL sp_insertar_auditoria(
+            'TBL_ESTUDIANTE', 'DELETE_STUDENT', CAST(p_ID_Usuario AS CHAR),
+            NULL, JSON_OBJECT('Accion', 'Baja masiva por retiro de acudiente'),
+            p_IP, p_User_Agent, p_ID_Usuario
+        );
+
+        -- 3. [LOGICA DE OFUSCACIÓN DE USUARIO Y DATOS ADICIONALES]
+        UPDATE TBL_USUARIO u
+        JOIN TBL_DATOS_ADICIONALES d ON u.FK_ID_Persona = d.FK_ID_Persona
+        SET u.Estado_Usuario = 'INACTIVE',
+            u.Nombre_Usuario = CONCAT('del_', v_Timestamp, '_', u.Nombre_Usuario),
+            d.Estado_Datos_Adicionales = 'INACTIVE',
+            d.Email = CONCAT('del_', v_Timestamp, '_', d.Email),
+            d.Telefono = CONCAT('del_', v_Timestamp, '_', d.Telefono) -- Corregido: antes usaba d.Email
+        WHERE u.ID_Usuario = p_ID_Usuario;
+
+        -- 4. INACTIVAR Y OFUSCAR PERSONA DEL USUARIO (Acudiente)
+        UPDATE TBL_PERSONA p
+        JOIN TBL_USUARIO u ON p.ID_Persona = u.FK_ID_Persona
+        SET p.Estado_Persona = 'INACTIVE',
+            p.Num_Doc_Persona = CONCAT('DEL_', v_Timestamp, '_', p.Num_Doc_Persona)
+        WHERE u.ID_Usuario = p_ID_Usuario;
+
+        -- Auditoría final del cierre de cuenta
+        CALL sp_insertar_auditoria(
+            'SISTEMA', 'ACCOUNT_CLOSED', CAST(p_ID_Usuario AS CHAR),
+            NULL, JSON_OBJECT('Status', 'Cuenta inactivada y datos UNIQUE liberados'),
+            p_IP, p_User_Agent, p_ID_Usuario
+        );
+
+    COMMIT;
+END $$
+
+DELIMITER ;
+
