@@ -15,243 +15,478 @@ import pyotp, time # usado para debuggin y obtener logs
 # ====================================================================================================================================================
 
 class DashboardHome:
-    """
-    El decorador @estudiante_requerido ya garantiza que si
-    se llega aquí, el estudiante existe. Solo renderiza.
-    """
+
     def index(self):
         return render_template(
             "dashboard_users/index.html",
             active_page="home",
         )
 
+# ====================================================================================================================================================
+#                                           PÁGINA REQUEST.HTML
+# ====================================================================================================================================================
+
+# Tamaño máximo de archivo en bytes
+_MAX_FILE_SIZE = 5 * 1024 * 1024   # 5 MB
+_MAX_FILE_SIZE_CERTS = 10 * 1024 * 1024  # 10 MB para certificados
+
+# SelectFields obligatorios del ticket (valor 0 = sin selección)
+_SELECTS_REQUERIDOS_TICKET = {
+    "id_estudiante":       "form_p1",
+    "id_tipo_afectacion":  "form_p2",
+    "id_barrio":           "form_p3",
+    "id_tiempo_residencia":"form_p3",
+    "id_jornada":          "form_p4",
+}
+
+
+def _generar_id_ticket():
+    """Genera el ID de ticket en formato EDU-000000"""
+    ultimo = sp_ticket_obtener_ultimo_numero()
+    
+    if ultimo is None:
+        ultimo = 0
+        
+    ultimo = int(ultimo)
+    siguiente = ultimo + 1
+    return f"EDU-{siguiente:06d}"
+
+
+def _form_opciones_ticket(form_p1, form_p2, form_p3, form_p4, lista_est):
+    """Pobla los choices de los SelectFields del wizard"""
+    # Paso 1 — estudiantes
+    form_p1.id_estudiante.choices = (
+        [(0, "— Seleccione un estudiante —")] +
+        [
+            (e["ID_Estudiante"],
+             f"{e['Primer_Nombre']} {e['Primer_Apellido']}"
+             f" — {e.get('Nombre_Grado_Proximo') or e.get('Nombre_Grado_Actual', '')}")
+            for e in lista_est
+        ]
+    )
+
+    # Paso 2 — tipos de afectación
+    form_p2.id_tipo_afectacion.choices = (
+        [(0, "— Seleccione una afectación —")] +
+        [(a["ID_Tipo_Afectacion"], a["Nombre_Afectacion"])
+         for a in sp_obtener_tipos_afectacion()]
+    )
+
+    # Paso 3 — barrios y tiempos de residencia
+    form_p3.id_barrio.choices = (
+        [(0, "— Seleccione un barrio —")] +
+        [(b["ID_Barrio"], b["Nombre_Barrio"]) for b in sp_obtener_barrios()]
+    )
+    form_p3.id_tiempo_residencia.choices = (
+        [(0, "— Seleccione —")] +
+        [(t["ID_Tiempo_Residencia"], t["Nombre_Tiempo"])
+         for t in sp_obtener_tiempos_residencia()]
+    )
+
+    # Paso 4 — jornadas y colegios
+    form_p4.id_jornada.choices = (
+        [(0, "— Seleccione una jornada —")] +
+        [(j["ID_Jornada"], j["Nombre_Jornada"]) for j in sp_obtener_jornadas()]
+    )
+    form_p4.id_colegio.choices = (
+        [(0, "Sin preferencia (el sistema asignará)")] +
+        [(c["ID_Colegio"], c["Nombre_Colegio"]) for c in sp_obtener_colegios()]
+    )
+
+
+def _leer_archivo(file_storage, max_size=_MAX_FILE_SIZE):
+    """Lee un FileStorage y retorna los bytes"""
+    if not file_storage or file_storage.filename == "":
+        return None
+    datos = file_storage.read()
+    if len(datos) > max_size:
+        raise ValueError(f"El archivo '{file_storage.filename}' supera el tamaño permitido.")
+    return datos
+
+
+class CrearTicket:
+
+    def crear(self):
+        user_id = session.get("user_id")
+        if not user_id:
+            flash("Sesión no encontrada.", "danger")
+            return redirect(url_for("dashboard.dashboard_home"))
+
+        # Verificar que el acudiente tiene al menos un estudiante
+        lista_est = sp_obtener_estudiantes_por_acudiente(user_id)
+        if not lista_est:
+            flash("Debes registrar al menos un estudiante antes de crear una solicitud.", "info")
+            return redirect(url_for("dashboard.dashboard_register_student"))
+
+        # Instanciar todos los formularios
+        form_p1 = FormTicketPaso1()
+        form_p2 = FormTicketPaso2()
+        form_p3 = FormTicketPaso3()
+        form_p4 = FormTicketPaso4()
+        form_p5 = FormTicketPaso5()
+        form_p6 = FormTicketPaso6()
+
+        # Poblar SelectFields
+        _form_opciones_ticket(form_p1, form_p2, form_p3, form_p4, lista_est)
+
+        # Catálogo de afectaciones para el template (radio buttons)
+        tipos_afectacion = sp_obtener_tipos_afectacion()
+
+        if request.method == "GET":
+            return render_template(
+                "dashboard_users/ticket_request.html",
+                form_p1=form_p1,
+                form_p2=form_p2,
+                form_p3=form_p3,
+                form_p4=form_p4,
+                form_p5=form_p5,
+                form_p6=form_p6,
+                tipos_afectacion=tipos_afectacion,
+                active_page="request",
+            )
+
+        # POST
+
+        # Validar todos los formularios juntos
+        forms_validos = all([
+            form_p1.validate_on_submit(),
+            form_p2.validate_on_submit(),
+            form_p3.validate_on_submit(),
+            form_p4.validate_on_submit(),
+            form_p5.validate_on_submit(),
+            form_p6.validate_on_submit(),
+        ])
+
+        if not forms_validos:
+            errores = {}
+            for f in [form_p1, form_p2, form_p3, form_p4, form_p5, form_p6]:
+                errores.update(f.errors)
+            print(f"[FORM ERRORS TICKET] {errores}")
+            flash("Por favor revise todos los campos del formulario.", "danger")
+            return render_template(
+                "dashboard_users/ticket_request.html",
+                form_p1=form_p1,
+                form_p2=form_p2,
+                form_p3=form_p3,
+                form_p4=form_p4,
+                form_p5=form_p5,
+                form_p6=form_p6,
+                tipos_afectacion=tipos_afectacion,
+                active_page="request",
+            )
+
+        # Segunda validación para SelectFields == 0
+        form_map = {
+            "form_p1": form_p1, "form_p2": form_p2,
+            "form_p3": form_p3, "form_p4": form_p4,
+        }
+        
+        campos_invalidos = [
+            campo for campo, form_key in _SELECTS_REQUERIDOS_TICKET.items()
+            if getattr(form_map[form_key], campo).data == 0
+        ]
+        
+        if campos_invalidos:
+            flash("Hay campos de selección sin completar.", "danger")
+            return render_template(
+                "dashboard_users/ticket_request.html",
+                form_p1=form_p1,
+                form_p2=form_p2,
+                form_p3=form_p3,
+                form_p4=form_p4,
+                form_p5=form_p5,
+                form_p6=form_p6,
+                tipos_afectacion=tipos_afectacion,
+                active_page="request",
+            )
+
+        id_estudiante = form_p1.id_estudiante.data
+
+        # Verificar que el estudiante no tenga ya un ticket activo
+        if sp_ticket_verificar_activo(id_estudiante, user_id):
+            flash("Este estudiante ya tiene una solicitud activa en proceso.", "warning")
+            return render_template(
+                "dashboard_users/ticket_request.html",
+                form_p1=form_p1,
+                form_p2=form_p2, 
+                form_p3=form_p3,
+                form_p4=form_p4,
+                form_p5=form_p5,
+                form_p6=form_p6,
+                tipos_afectacion=tipos_afectacion,
+                active_page="request",
+            )
+
+        # Colegio: 0 = sin preferencia → NULL
+        id_colegio = form_p4.id_colegio.data if form_p4.id_colegio.data != 0 else None
+        ip = request.remote_addr
+        user_agent = request.headers.get("User-Agent")
+        
+        id_ticket = _generar_id_ticket()
+
+        try:
+            sp_ticket_crear((
+                id_ticket,
+                user_id,
+                id_estudiante,
+                form_p2.id_tipo_afectacion.data,
+                form_p2.descripcion.data,
+                form_p3.id_barrio.data,
+                form_p3.id_tiempo_residencia.data,
+                form_p4.id_jornada.data,
+                id_colegio,
+                ip,
+                user_agent,
+            ))
+
+            # Documentos individuales: (file_storage, id_tipo_doc, max_size)
+            archivos = [
+                (form_p5.doc_acudiente.data, 1, _MAX_FILE_SIZE),
+                (form_p5.doc_menor.data, 2, _MAX_FILE_SIZE),
+                (form_p5.doc_victima.data, 4, _MAX_FILE_SIZE),
+            ]
+            for file_storage, id_tipo_doc, max_size in archivos:
+                datos = _leer_archivo(file_storage, max_size)
+                if datos:
+                    sp_documento_ticket_insertar((
+                        id_ticket, id_tipo_doc, datos, file_storage.filename
+                    ))
+
+            # Certificados múltiples
+            for cert in (form_p5.doc_certificados.data or []):
+                datos = _leer_archivo(cert, _MAX_FILE_SIZE_CERTS)
+                if datos:
+                    sp_documento_ticket_insertar((
+                        id_ticket, 3, datos, cert.filename
+                    ))
+
+            db.commit()
+            flash(f"Solicitud {id_ticket} creada correctamente. La revisaremos pronto.", "success")
+            return redirect(url_for("dashboard.dashboard_ticket_status"))
+
+        except ValueError as ve:
+            db.rollback()
+            flash(str(ve), "warning")
+        except Exception as e:  
+            db.rollback()
+            print(f"[ERROR] Creación de ticket fallida: {e}")
+            flash("Ocurrió un error al crear la solicitud. Intente nuevamente.", "danger")
+
+        return render_template(
+            "dashboard_users/ticket_request.html",
+            form_p1=form_p1,
+            form_p2=form_p2,
+            form_p3=form_p3,
+            form_p4=form_p4,
+            form_p5=form_p5,
+            form_p6=form_p6,
+            tipos_afectacion=tipos_afectacion,
+            active_page="request",
+        )
+
+
 
 # ====================================================================================================================================================
 #                                           PAGINA PROFILE.HTML
 # ====================================================================================================================================================
 
-#  HELPERS INTERNOS
-
 def _form_opciones_acudiente(form):
     """Asigna choices a los SelectFields del formulario del acudiente."""
-    estratos = sp_obtener_estratos()
-    generos = sp_obtener_generos()
-    grupos_pref = sp_obtener_grupos_preferenciales()
-    barrios = sp_obtener_barrios()
-
     form.estrato.choices = (
         [(0, "— Seleccione un Estrato —")] +
-        [(e["ID_Estrato"], e["Numero_Estrato"]) for e in estratos]
+        [(e["ID_Estrato"], e["Nombre_Estrato"]) for e in sp_obtener_estratos()]
     )
     form.genero.choices = (
         [(0, "— Seleccione un Género —")] +
-        [(g["ID_Genero"], g["Nombre_Genero"]) for g in generos]
+        [(g["ID_Genero"], g["Nombre_Genero"]) for g in sp_obtener_generos()]
     )
     form.grupo_preferencial.choices = (
         [(0, "— Seleccione un Grupo —")] +
-        [(gp["ID_Grupo_Preferencial"], gp["Nombre_Grupo_Preferencial"]) for gp in grupos_pref]
+        [(gp["ID_Grupo_Preferencial"], gp["Nombre_Grupo_Preferencial"]) for gp in sp_obtener_grupos_preferenciales()]
     )
     form.barrio.choices = (
         [(0, "— Seleccione un Barrio —")] +
-        [(b["ID_Barrio"], b["Nombre_Barrio"]) for b in barrios]
+        [(b["ID_Barrio"], b["Nombre_Barrio"]) for b in sp_obtener_barrios()]
     )
+
 
 def _form_opciones_estudiante(form):
     """Asigna choices a todos los SelectFields del formulario del estudiante."""
-    
-    generos = sp_obtener_generos()
-    grupos_preferenciales = sp_obtener_grupos_preferenciales()
-    grados = sp_obtener_grados()
-    colegios = sp_obtener_colegios()
-    
-    
     form.genero.choices = (
-        [(0, "— Seleccione un Genero —")] +
-        [(g["ID_Genero"], g["Nombre_Genero"]) for g in generos]
+        [(0, "— Seleccione un Género —")] +
+        [(g["ID_Genero"], g["Nombre_Genero"]) for g in sp_obtener_generos()]
     )
     form.grupo_preferencial.choices = (
         [(0, "— Seleccione un Grupo —")] +
-        [(gp["ID_Grupo_Preferencial"], gp["Nombre_Grupo_Preferencial"]) for gp in grupos_preferenciales]
+        [(gp["ID_Grupo_Preferencial"], gp["Nombre_Grupo_Preferencial"]) for gp in sp_obtener_grupos_preferenciales()]
     )
     form.grado_actual.choices = (
         [(0, "— Seleccione un grado —")] +
-        [(gr["ID_Grado"], gr["Nombre_Grado"]) for gr in grados]
+        [(gr["ID_Grado"], gr["Nombre_Grado"]) for gr in sp_obtener_grados()]
     )
     form.grado_proximo.choices = (
         [(0, "— Seleccione un grado —")] +
-        [(gr["ID_Grado"], gr["Nombre_Grado"]) for gr in grados]
-    )    
+        [(gr["ID_Grado"], gr["Nombre_Grado"]) for gr in sp_obtener_grados()]
+    )
     form.colegio_anterior.choices = (
         [(0, "— Seleccione un Colegio —")] +
-        [(c["ID_Colegio"], c["Nombre_Colegio"]) for c in colegios]
+        [(c["ID_Colegio"], c["Nombre_Colegio"]) for c in sp_obtener_colegios()]
     )
-    
-#  PROFILE — Acudiente
+
+
 class Profile:
 
     def cargar_perfil(self):
-        """
-        Carga y pre-pobla ambos formularios con los datos actuales del acudiente
-        y del estudiante vinculado. Retorna el contexto listo para render_template.
-        """
-        # ── Formularios
-        form_acu_fijos = FormAcudienteDatosPersonales()
-        form_acu_edit = FormAcudienteDatosEditables()
-        form_est = FormEstudianteDatosEditables()
-
-        _form_opciones_acudiente(form_acu_edit)
-        _form_opciones_estudiante(form_est)
-
-        user_id = session["user_id"]
+        user_id = session.get("user_id")
         if not user_id:
             flash("No se encontró sesión de usuario activa.", "danger")
             return redirect(url_for("dashboard.dashboard_home"))
 
+        verificacion = sp_verificar_estudiante_acudiente(user_id)
+        if not verificacion or verificacion.get("total_estudiantes", 0) == 0:
+            flash("Debes registrar al menos un estudiante para continuar.", "info")
+            return redirect(url_for("dashboard.dashboard_register_student"))
+
+        form_acu_edit = FormAcudienteDatosEditables()
+        form_est = FormEstudianteDatosEditables()
+        _form_opciones_acudiente(form_acu_edit)
+        _form_opciones_estudiante(form_est)
+
+        # Determinar tab activo
+        # Por defecto: acudiente. Si viene ?tab=menor o hay ?estudiante=X → menor.
+        id_param  = request.args.get("estudiante", type=int)
+        tab_param = request.args.get("tab", "")
+        active_tab = "menor" if (tab_param == "menor" or id_param) else "acudiente"
+
+        # POST
         if request.method == "POST":
             form_type = request.form.get("form_type", "").strip().lower()
-
             if form_type == "acudiente":
-                if self.actualizar_acudiente():
-                    return redirect(url_for("dashboard.dashboard_profile"))
+                if self._actualizar_acudiente(form_acu_edit):
+                    return redirect(url_for("dashboard.dashboard_profile", tab="acudiente"))
+                active_tab = "acudiente"
             elif form_type == "estudiante":
-                if self.actualizar_estudiante():
-                    return redirect(url_for("dashboard.dashboard_profile"))
+                # Recuperar el estudiante que se estaba editando para volver a él
+                id_est_post = request.form.get("id_estudiante", type=int)
+                if self._actualizar_estudiante(form_est):
+                    return redirect(url_for(
+                        "dashboard.dashboard_profile",
+                        tab="menor",
+                        estudiante=id_est_post
+                    ))
+                active_tab = "menor"
             else:
                 flash("Tipo de formulario no reconocido.", "danger")
-                
-        # ── Datos desde BD
+
+        # Datos desde BD
         datos_acu_fijos = sp_obtener_perfil_acudiente(user_id)
         datos_acu = sp_obtener_perfil_acudiente(user_id)
-        datos_est = sp_obtener_perfil_estudiante(user_id)
-        
-        
-        if datos_acu_fijos:
-            form_acu_fijos.primer_nombre.data = datos_acu_fijos.get("Primer_Nombre")
-            form_acu_fijos.segundo_nombre.data = datos_acu_fijos.get("Segundo_Nombre")
-            form_acu_fijos.primer_apellido.data = datos_acu_fijos.get("Primer_Apellido")
-            form_acu_fijos.segundo_apellido.data = datos_acu_fijos.get("Segundo_Apellido")        
-            form_acu_fijos.tipo_identificacion.data = datos_acu_fijos.get("Nombre_Tipo_Iden")
-            form_acu_fijos.numero_documento.data = datos_acu_fijos.get("Numero_Documento")
-            form_acu_fijos.parentesco.data = datos_acu_fijos.get("Nombre_Parentesco")
-            form_acu_fijos.email.data = datos_acu_fijos.get("Email")
+        lista_est = sp_obtener_estudiantes_por_acudiente(user_id)
 
-            fecha = datos_acu_fijos.get("Fecha_Creacion")
-            if fecha:
-                fecha_formateada = fecha.strftime("%d/%m/%Y %H:%M")
-            else:
-                fecha_formateada = None
-            form_acu_fijos.fecha_creacion.data = fecha_formateada
-            
-        # ── Pre-poblar acudiente
-        if datos_acu:
+        # Pre-poblar acudiente (solo GET)
+        if datos_acu and request.method == "GET":
             form_acu_edit.telefono.data = datos_acu.get("Telefono")
             form_acu_edit.barrio.data = datos_acu.get("ID_Barrio", 0)
             form_acu_edit.genero.data = datos_acu.get("ID_Genero", 0)
             form_acu_edit.grupo_preferencial.data = datos_acu.get("ID_Grupo_Preferencial", 0)
             form_acu_edit.estrato.data = datos_acu.get("ID_Estrato", 0)
 
-        # ── Pre-poblar estudiante
-        if datos_est:
-            form_est.primer_nombre.data = datos_est.get("Primer_Nombre")
-            form_est.segundo_nombre.data = datos_est.get("Segundo_Nombre")
-            form_est.primer_apellido.data = datos_est.get("Primer_Apellido")
-            form_est.segundo_apellido.data = datos_est.get("Segundo_Apellido")
-            form_est.fecha_nacimiento.data = datos_est.get("Fecha_Nacimiento")
-            form_est.genero.data = datos_est.get("ID_Genero", 0)
-            form_est.grupo_preferencial.data = datos_est.get("ID_Grupo_Preferencial", 0)
-            form_est.grado_actual.data = datos_est.get("ID_Grado_Actual", 0)
-            form_est.grado_proximo.data = datos_est.get("ID_Grado_Proximo", 0)
-            form_est.colegio_anterior.data = datos_est.get("ID_Colegio_Anterior", 0)
-            
+        # Estudiante activo
+        estudiante_activo = None
+        if lista_est:
+            if id_param:
+                estudiante_activo = next(
+                    (e for e in lista_est if e["ID_Estudiante"] == id_param),
+                    lista_est[0]
+                )
+            else:
+                estudiante_activo = lista_est[0]
+
+            if request.method == "GET" and estudiante_activo:
+                form_est.id_estudiante.data = estudiante_activo["ID_Estudiante"]
+                form_est.primer_nombre.data = estudiante_activo.get("Primer_Nombre")
+                form_est.segundo_nombre.data = estudiante_activo.get("Segundo_Nombre")
+                form_est.primer_apellido.data = estudiante_activo.get("Primer_Apellido")
+                form_est.segundo_apellido.data = estudiante_activo.get("Segundo_Apellido")
+                form_est.fecha_nacimiento.data = estudiante_activo.get("Fecha_Nacimiento")
+                form_est.genero.data = estudiante_activo.get("ID_Genero", 0)
+                form_est.grupo_preferencial.data = estudiante_activo.get("ID_Grupo_Preferencial", 0)
+                form_est.grado_actual.data = estudiante_activo.get("ID_Grado_Actual", 0)
+                form_est.grado_proximo.data = estudiante_activo.get("ID_Grado_Proximo", 0)
+                form_est.colegio_anterior.data = estudiante_activo.get("ID_Colegio_Anterior", 0)
+
         return render_template(
             "dashboard_users/profile.html",
-            form_acu_fijos=form_acu_fijos,
             form_acu=form_acu_edit,
             form_est=form_est,
             datos_acu_fijos=datos_acu_fijos,
             datos_acu=datos_acu,
-            datos_est=datos_est,
+            lista_est=lista_est,
+            estudiante_activo=estudiante_activo,
+            active_tab=active_tab,
             active_page="profile",
         )
 
-    # ── Guardar acudiente ─────────────────────────────────────────────────────
+    # Guardar acudiente
 
-    def actualizar_acudiente(self):
-        form = FormAcudienteDatosEditables()
+    def _actualizar_acudiente(self, form):
         _form_opciones_acudiente(form)
-
         if not form.validate_on_submit():
-            print("FORM ERRORS:", form.errors)
             flash("Por favor revise los campos del formulario del acudiente.", "danger")
             return False
 
-        user_id = session.get("user_id")
-        if not user_id:
-            flash("No se encontró sesión de usuario activa.", "danger")
-            return False
-        
+        user_id   = session.get("user_id")
         datos_acu = sp_obtener_perfil_acudiente(user_id)
         if not datos_acu:
             flash("No se encontró el perfil del acudiente.", "danger")
             return False
-            
-        # Extraemos los IDs autoincrementales obtenidos por el SP de consulta
-        persona_id = datos_acu.get("ID_Persona")
-        datos_id = datos_acu.get("ID_Datos_Adicionales")
 
         try:
-            # Enviamos los IDs enteros a la base de datos
             sp_actualizar_datos_adicionales((
-                datos_id,
+                datos_acu.get("ID_Datos_Adicionales"),
                 form.telefono.data,
-                persona_id,
+                datos_acu.get("ID_Persona"),
                 form.genero.data,
                 form.grupo_preferencial.data,
-                form.estrato.data,  
+                form.estrato.data,
                 form.barrio.data,
                 user_id,
                 request.remote_addr,
-                request.headers.get("User-Agent")
+                request.headers.get("User-Agent"),
             ))
-            
             db.commit()
-            flash("Datos actualizados correctamente.", "success")
+            flash("Datos del acudiente actualizados correctamente.", "success")
             return True
-
         except Exception as e:
             db.rollback()
-            flash("Error al guardar los cambios.", "danger")
+            flash("Error al guardar los cambios del acudiente.", "danger")
             return False
-    
-    
-    # Guardar estudiante 
-    def actualizar_estudiante(self):
-        form = FormEstudianteDatosEditables()
-        _form_opciones_estudiante(form)
 
+    # Guardar estudiante
+
+    def _actualizar_estudiante(self, form):
+        _form_opciones_estudiante(form)
         if not form.validate_on_submit():
             flash("Por favor revise los campos del formulario del menor.", "danger")
             return False
 
         user_id = session.get("user_id")
-        if not user_id:
-            flash("No se encontró sesión de usuario activa.", "danger")
-            return False
+        id_estudiante = form.id_estudiante.data
 
-        datos_est = sp_obtener_perfil_estudiante(user_id)
+        # Verificar que el estudiante pertenece al acudiente activo
+        datos_est = sp_obtener_estudiante_por_id(id_estudiante, user_id)
+        
         if not datos_est:
-            flash("No se encontró el estudiante vinculado.", "danger")
+            flash("No se encontró el estudiante indicado.", "danger")
             return False
 
-        id_persona_est = datos_est["ID_Persona"]
-        # Datos para auditoria
         ip = request.remote_addr
-        user_agent = request.headers.get("User-Agent")    
-            
+        user_agent = request.headers.get("User-Agent")
+        
         try:
             # 1. Actualizar TBL_PERSONA del menor
             sp_actualizar_persona((
-                id_persona_est,
+                datos_est["ID_Persona"],
                 form.primer_nombre.data,
                 form.segundo_nombre.data or None,
                 form.primer_apellido.data,
@@ -259,7 +494,7 @@ class Profile:
                 form.fecha_nacimiento.data,
                 user_id,
                 ip,
-                user_agent
+                user_agent,
             ))
 
             # 2. Actualizar TBL_ESTUDIANTE
@@ -269,20 +504,18 @@ class Profile:
                 form.colegio_anterior.data,
                 form.genero.data,
                 form.grupo_preferencial.data,
-                id_persona_est,
+                datos_est["ID_Persona"],
                 user_id,
                 ip,
-                user_agent                
+                user_agent,
             ))
 
             db.commit()
             flash("Datos del estudiante actualizados correctamente.", "success")
             return True
-
         except Exception as e:
             db.rollback()
-            print(f"[ERROR] Actualización estudiante fallida: {e}")
-            flash("Ocurrió un error al guardar los cambios.", "danger")
+            flash("Ocurrió un error al guardar los cambios del estudiante.", "danger")
             return False
         
         
@@ -297,12 +530,15 @@ def _form_opciones_estudiante_register(form):
     grupos_preferenciales = sp_obtener_grupos_preferenciales()
     grados = sp_obtener_grados()
     colegios = sp_obtener_colegios()
-    tipos_identificacion = sp_obtener_tipos_identificacion()
+    tipos_identificacion  = sp_obtener_tipos_identificacion()
     parentesco_estudiante = sp_obtener_parentesco_est()
-    
-    
+
+    form.tipo_identificacion.choices = (
+        [(0, "— Seleccione una Identificación —")] +
+        [(t["ID_Tipo_Iden"], t["Nombre_Tipo_Iden"]) for t in tipos_identificacion]
+    )
     form.genero.choices = (
-        [(0, "— Seleccione un Genero —")] +
+        [(0, "— Seleccione un Género —")] +
         [(g["ID_Genero"], g["Nombre_Genero"]) for g in generos]
     )
     form.grupo_preferencial.choices = (
@@ -316,28 +552,27 @@ def _form_opciones_estudiante_register(form):
     form.grado_proximo.choices = (
         [(0, "— Seleccione un grado —")] +
         [(gr["ID_Grado"], gr["Nombre_Grado"]) for gr in grados]
-    )    
+    )
     form.colegio_anterior.choices = (
         [(0, "— Seleccione un Colegio —")] +
         [(c["ID_Colegio"], c["Nombre_Colegio"]) for c in colegios]
-    )
-    form.tipo_identificacion.choices = (
-        [(0, "— Seleccione una Identificación —")] +
-        [(t["ID_Tipo_Iden"], t["Nombre_Tipo_Iden"]) for t in tipos_identificacion]
     )
     form.parentesco.choices = (
         [(0, "— Seleccione un Parentesco —")] +
         [(p["ID_Parentesco"], p["Nombre_Parentesco"]) for p in parentesco_estudiante]
     )
 
+
+# Campos SelectField que no pueden ser 0
+_SELECTS_REQUERIDOS = [
+    "tipo_identificacion", "genero", "grupo_preferencial",
+    "grado_actual", "grado_proximo", "colegio_anterior", "parentesco"
+]
+
+
 class RegisterEstudiante:
 
     def registrar(self):
-        """
-        Maneja GET y POST del formulario de registro del estudiante.
-        ID_Estudiante = 'E' + ID_Persona del menor (VARCHAR 16).
-        """
-
         form = FormRegistroEstudiante()
         _form_opciones_estudiante_register(form)
 
@@ -347,69 +582,77 @@ class RegisterEstudiante:
                 form=form,
             )
 
-        # ----- POST -----
+        # POST
+
+        # Validación de WTForms
         if not form.validate_on_submit():
             errores = "; ".join(
                 f"{field}: {', '.join(msgs)}"
                 for field, msgs in form.errors.items()
             )
-            print(f"Errores en el formulario: {errores}")
-            flash("Por favor revise los campos del formulario.", "danger")
+            print(f"[FORM ERRORS] {errores}")
+            flash("Por favor revise todos los campos del formulario.", "danger")
             return render_template(
-                "dashboard_user/register_student.html",
+                "dashboard_users/register_student.html",
                 form=form,
             )
 
-        # Construir IDs compuestos
-        id_persona_estudiante = form.numero_documento.data
-        id_estudiante = f"E{id_persona_estudiante}"
-
-        id_persona = session["user_id"]
-        # Datos para auditoria
-        ip = request.remote_addr
-        user_agent = request.headers.get("User-Agent")
+        # verificar que ningún SelectField llegó como 0
+        campos_invalidos = [
+            campo for campo in _SELECTS_REQUERIDOS
+            if getattr(form, campo).data == 0
+        ]
         
+        if campos_invalidos:
+            flash("Hay campos de selección sin completar. Por favor revise el formulario.", "danger")
+            return render_template(
+                "dashboard_users/register_student.html",
+                form=form,
+            )
+
+        # ── Datos seguros, proceder con BD ───────────────────────────────────
+        user_id = session["user_id"]
+        ip  = request.remote_addr
+        user_agent = request.headers.get("User-Agent")
+
         try:
-            # Verificar que el estudiante no esté ya registrado
-            estudiante_existente = sp_estudiante_existe(id_estudiante, id_persona)
+            # Verificar duplicado
+            estudiante_existente = sp_estudiante_existe(
+                form.numero_documento.data, user_id
+            )
             if estudiante_existente:
                 flash("Este estudiante ya se encuentra registrado.", "warning")
                 return render_template(
-                    "dashboard_user/register_student.html",
+                    "dashboard_users/register_student.html",
                     form=form,
                 )
 
-            # Registrar estudiante
             sp_registrar_estudiante((
-                # Datos TBL_PERSONA
-                id_persona_estudiante,
+                # TBL_PERSONA
+                form.numero_documento.data,
                 form.primer_nombre.data,
                 form.segundo_nombre.data or None,
                 form.primer_apellido.data,
                 form.segundo_apellido.data or None,
                 form.fecha_nacimiento.data,
-                
-                # Datos TBL_ESTUDIANTE
-                id_estudiante,
+                # TBL_ESTUDIANTE
                 form.tipo_identificacion.data,
                 form.grado_actual.data,
                 form.grado_proximo.data,
                 form.colegio_anterior.data,
                 form.genero.data,
                 form.grupo_preferencial.data,
-                id_persona,
+                user_id,
                 form.parentesco.data,
-                
-                # Datos TBL_AUDITORIA
+                # Auditoría
                 ip,
-                user_agent
+                user_agent,
             ))
 
             db.commit()
-            
             session["estudiante_verificado"] = True
             flash("Estudiante registrado correctamente.", "success")
-            return redirect(url_for("dashboard.dashboard_home"))
+            return redirect(url_for("dashboard.dashboard_profile"))
 
         except Exception as e:
             db.rollback()
@@ -417,14 +660,33 @@ class RegisterEstudiante:
             session["estudiante_verificado"] = False
             flash("Ocurrió un error al registrar al estudiante. Intente nuevamente.", "danger")
             return render_template(
-                "dashboard_user/register_student.html",
+                "dashboard_users/register_student.html",
                 form=form,
             )
+
 
 # ====================================================================================================================================================
 #                                           PAGINA SECURITY.HTML
 # ====================================================================================================================================================
 
+class Security:
+    """Inicializa los formularios para la pagina de security."""
+
+    def cargar_seguridad(self):
+        form_password = FormCambiarcontraseña()
+        form_mfa_activar = FormVerificarMFA()
+        form_mfa_desactivar = FormVerificarMFA()
+        sesiones = GestionSesiones().cargar_vista()
+        return render_template(
+            "dashboard_users/security.html",
+            form_password=form_password,
+            form_mfa_activar=form_mfa_activar,
+            form_mfa_desactivar=form_mfa_desactivar,
+            sesiones=sesiones,
+            active_page="security"
+        )
+
+#  GESTIÓN DE CAMBIO DE CONTRASEÑA
 
 class Cambiarcontraseña:
     """Gestiona el cambio de contraseña desde el perfil del usuario."""
@@ -686,13 +948,13 @@ class GestionSesiones:
             sesiones_formateadas = []
             for s in (sesiones or []):
                 sesiones_formateadas.append({
-                    "id":          s["ID_Sesion"],
-                    "JTI":         s["JTI"],
+                    "id": s["ID_Sesion"],
+                    "JTI": s["JTI"],
                     "dispositivo": s["Dispositivo"] or "Desconocido",
-                    "ip":          s["IP"] or "—",
-                    "inicio":      s["Fecha_Inicio"].strftime("%d/%m/%Y %H:%M") if s.get("Fecha_Inicio") else "—",
-                    "ultimo":      s["Ultimo_Acceso"].strftime("%d/%m/%Y %H:%M") if s.get("Ultimo_Acceso") else "—",
-                    "es_actual":   s["JTI"] == jti_actual,
+                    "ip": s["IP"] or "—",
+                    "inicio": s["Fecha_Inicio"].strftime("%d/%m/%Y %H:%M") if s.get("Fecha_Inicio") else "—",
+                    "ultimo": s["Ultimo_Acceso"].strftime("%d/%m/%Y %H:%M") if s.get("Ultimo_Acceso") else "—",
+                    "es_actual": s["JTI"] == jti_actual,
                 })
 
             session['sesiones_activas'] = sesiones_formateadas

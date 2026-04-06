@@ -8,10 +8,10 @@
         <a href="{{ url_for('dashboard.dashboard_home') }}" class="nav-link{% if active_page == 'home' %} active{% endif %}">
             <i class="fas fa-home"></i> <span>Resumen</span>
         </a>
-        <a href="{{ url_for('dashboard.dashboard_request') }}" class="nav-link{% if active_page == 'request' %} active{% endif %}">
+        <a href="{{ url_for('dashboard.dashboard_ticket_request') }}" class="nav-link{% if active_page == 'request' %} active{% endif %}">
             <i class="fas fa-file-alt"></i> <span>Nueva Solicitud</span>
         </a>
-        <a href="{{ url_for('dashboard.dashboard_status') }}" class="nav-link{% if active_page == 'status' %} active{% endif %}">
+        <a href="{{ url_for('dashboard.dashboard_ticket_status') }}" class="nav-link{% if active_page == 'status' %} active{% endif %}">
             <i class="fas fa-search"></i> <span>Seguimiento</span>
         </a>
         <a href="{{ url_for('dashboard.dashboard_profile') }}" class="nav-link{% if active_page == 'profile' %} active{% endif %}">

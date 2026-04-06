@@ -38,7 +38,7 @@ def create_app():
     app.register_blueprint(dashboard_bp)
 
     # Controlador de errores 
-    register_error_handlers(app)
+    # register_error_handlers(app)
     
     # Datos del usuario requiridos en header 
     register_context_processors(app)

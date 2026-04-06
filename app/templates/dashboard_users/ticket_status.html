@@ -1,13 +1,19 @@
 <!-- #Llamar a layout_dashboard.html -->
 {% extends 'layout_dashboard.html' %}
 
-{% block titulo %}Fortress Educa - Seguimiento{% endblock %}
+{% block titulo %}Seguimiento - Fortress Educa{% endblock %}
 
 <!-- Titulo del Header -->
 {% set header_title = "Seguimiento de Solicitudes de Cupo" %}
 
 <!-- invocar el bloque -->
 {% block Contenido_Pagina %}
+
+    <!--
+        FORTRESS EDUCA - PLATAFORMA DE CUPOS EDUCATIVOS
+        Archivo: ticket_status.html
+        Función: Visualización del progreso de un ticket
+    -->
 
     <main class="page-content">
 
@@ -20,15 +26,11 @@
                         <h5 class="fw-bold mb-0">
                             <i class="fas fa-list me-2 text-primary"></i>Mis Solicitudes de Cupo
                         </h5>
-                        <a href="{{ url_for('dashboard.dashboard_request') }}" class="btn btn-primary btn-sm">
+                        <a href="{{ url_for('dashboard.dashboard_ticket_request') }}" class="btn btn-primary btn-sm">
                             <i class="fas fa-plus me-1"></i> Nueva
                         </a>
                     </div>
 
-                    <!--
-                                    AQUÍ SE CARGARÁN LAS SOLICITUDES DESDE LA BASE DE DATOS
-                                    DATA_SOURCE: GET /api/solicitudes/acudiente/{userId}
-                                -->
                     <div class="table-responsive">
                         <table class="table table-hover align-middle" id="tablaSolicitudes">
                             <thead class="table-light">

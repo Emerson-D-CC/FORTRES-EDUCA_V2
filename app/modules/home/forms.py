@@ -44,6 +44,14 @@ class FormVerificarMFA(FlaskForm):
 #                                           PAGINA REGISTER.HTML
 # ====================================================================================================================================================
 
+
+# FUNCIÓN PARA VALIDAR SI EL ID = 0
+def seleccion_valida(form, field):
+    """Validador para SelectField"""
+    if not field.data or field.data == 0:
+        raise ValidationError("Debe seleccionar una opción válida.")
+
+
 class RegisterForm(FlaskForm):
 
     # Datos personales 
@@ -69,7 +77,7 @@ class RegisterForm(FlaskForm):
 
     tipo_documento = SelectField(
         "Tipo Documento",
-        validators=[DataRequired()],
+        validators=[DataRequired(), seleccion_valida],
         coerce=str,
         choices=[]
     )
@@ -86,7 +94,7 @@ class RegisterForm(FlaskForm):
     
     parentesco = SelectField(
         "Parentesco con el Menor",
-        validators=[DataRequired()],
+        validators=[DataRequired(), seleccion_valida],
         coerce=str,
         choices=[]
     )
@@ -108,7 +116,7 @@ class RegisterForm(FlaskForm):
 
     barrio = SelectField(
         "Barrio",
-        validators=[DataRequired()],
+        validators=[DataRequired(), seleccion_valida],
         coerce=int,
         choices=[]
     )

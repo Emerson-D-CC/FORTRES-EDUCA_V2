@@ -1,7 +1,7 @@
 <!-- #Llamar a layout_dashboard.html -->
 {% extends 'layout_dashboard.html' %}
 
-{% block titulo %}Fortress Educa - Panel Usuario{% endblock %}
+{% block titulo %}Panel Principal - Fortress Educa{% endblock %}
 
 <!-- Titulo del Header -->
 {% set header_title = "Panel Principal" %}
@@ -28,13 +28,7 @@
             </div>
         </div>
 
-            <!--
-                AQUÍ SE MOSTRARÁ EL ESTADO DEL CUPO EDUCATIVO DESDE LA BASE DE DATOS
-                DATA_SOURCE: GET /api/solicitudes/resumen/{userId}
-                FUTURA INTEGRACIÓN CON SISTEMA DE CUPOS
-            -->
-
-                <!-- Stats Grid -->
+        <!-- Stats Grid -->
         <div class="row g-4 mb-4">
             <!-- Estado del Cupo -->
             <div class="col-md-6 col-xl-3">
@@ -198,7 +192,7 @@
         <h5 class="mb-3 text-muted">Acciones Rápidas</h5>
         <div class="row g-3">
             <div class="col-md-4">
-                <a href="{{ url_for('dashboard.dashboard_request') }}"
+                <a href="{{ url_for('dashboard.dashboard_ticket_request') }}"
                     class="card h-100 p-3 text-decoration-none border-0 shadow-sm hover-elevate">
                     <div class="d-flex align-items-center">
                         <div class="rounded-circle text-white p-3 me-3"
@@ -213,7 +207,7 @@
                 </a>
             </div>
             <div class="col-md-4">
-                <a href="{{ url_for('dashboard.dashboard_status') }}"
+                <a href="{{ url_for('dashboard.dashboard_ticket_status') }}"
                     class="card h-100 p-3 text-decoration-none border-0 shadow-sm hover-elevate">
                     <div class="d-flex align-items-center">
                         <div class="rounded-circle text-white p-3 me-3"
@@ -247,6 +241,7 @@
     
 {% endblock %}
 
+<!-- Bloque de Modal Reutilizable -->
 {% block modal_global %}
     {% if mostrar_modal_estudiante %}
         {% with

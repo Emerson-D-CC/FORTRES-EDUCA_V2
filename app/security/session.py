@@ -32,21 +32,6 @@ def _cerrar_sesion_inactiva():
     finally:
         session.clear()
 
-def _cerrar_sesion_inactiva():
-    """Marca la sesión JWT actual como inactiva en BD y limpia Flask session."""
-    try:
-        verify_jwt_in_request(optional=True)
-        claims = get_jwt()
-        if claims:
-            jti = claims.get("jti", "")
-            if jti:
-                sp_cerrar_sesion(jti)
-                db.commit()
-    except Exception as e:
-        print(f"[WARN] No se pudo cerrar sesión en BD (inactividad): {e}")
-    finally:
-        session.clear()
-
 
 def controlar_sesion(app):
 

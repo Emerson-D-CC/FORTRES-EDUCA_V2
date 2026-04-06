@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template
-from flask_wtf.csrf import CSRFProtect, CSRFError
+from flask_wtf.csrf import CSRFError
 from .services import *
 
 home_bp = Blueprint("home", __name__, url_prefix="/home")

@@ -356,8 +356,8 @@ class Register:
 
     def _form_registro_acudiente(self, form):
         barrio = sp_obtener_barrios()
-        tipos_documento = sp_obtener_tipos_documento()
         parentesco = sp_obtener_parentesco_acu()
+        tipos_documento = sp_obtener_tipos_documento()
         
         form.barrio.choices = [
             (bar["ID_Barrio"], bar["Nombre_Barrio"]) for bar in barrio

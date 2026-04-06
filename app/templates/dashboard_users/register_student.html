@@ -1,7 +1,7 @@
 <!-- #Llamar a layout_dashboard.html -->
 {% extends 'layout_dashboard.html' %}
 
-{% block titulo %}Fortress Educa - Registrar Estudiante{% endblock %}
+{% block titulo %}Registrar Estudiante - Fortress Educa{% endblock %}
 
 <!-- Titulo del Header -->
 {% set header_title = "Registrar Estudiante" %}
@@ -232,6 +232,7 @@
 
 {% endblock %}
 
+<!-- Bloque de Modal Reutilizable -->
 {% block modal_global %}
     {% with
         modal_id         = "modalSalidaRegistro",
@@ -242,8 +243,7 @@
         modal_btn_id     = "btnConfirmarSalida",
         modal_redirect   = "#",
         modal_btn_label  = "Continuar de todas formas",
-        modal_body       = "El registro del estudiante es obligatorio para usar el sistema.
-                            Si sale ahora, deberá completarlo desde el inicio en su próximo ingreso.",
+        modal_body       = "Si sale ahora, los datos no se guardaran y deberá completar el registro desde el inicio.",
         modal_show       = false
     %}
         {% include "components/modal_informative.html" %}

@@ -36,7 +36,7 @@ CREATE PROCEDURE sp_tbl_auditoria_consultar()
 BEGIN
 SELECT *
 FROM tbl_auditoria
-WHERE Estado_Auditoria = 'ACTIVE';
+WHERE Estado_Auditoria = 1;
 END $$
 DELIMITER ;
 
@@ -53,7 +53,7 @@ BEGIN
 SELECT *
 FROM tbl_auditoria
 WHERE ID_Auditoria = p_ID_Auditoria
-AND Estado_Auditoria = 'ACTIVE';
+AND Estado_Auditoria = 1;
 END $$
 DELIMITER ;
 
@@ -68,7 +68,7 @@ IN p_ID_Auditoria BIGINT
 )
 BEGIN
 UPDATE tbl_auditoria
-SET Estado_Auditoria = 'INACTIVE'
+SET Estado_Auditoria = 0
 WHERE ID_Auditoria = p_ID_Auditoria;
 END $$
 DELIMITER ;
@@ -128,7 +128,7 @@ SELECT
 ID_Localidad,
 Nombre_Localidad
 FROM TBL_LOCALIDAD
-WHERE Estado_Localidad = 'ACTIVE'
+WHERE Estado_Localidad = 1
 ORDER BY Nombre_Localidad;
 
 END $$
@@ -144,7 +144,7 @@ DELIMITER $$
 CREATE PROCEDURE sp_tbl_barrio_actualizar(
 IN p_ID_Barrio INT,
 IN p_Nombre_Barrio VARCHAR(30),
-IN p_FK_ID_Localidad INT
+IN p_FK_ID_Localidad TINYINT
 )
 BEGIN
 UPDATE tbl_barrio
@@ -165,7 +165,7 @@ CREATE PROCEDURE sp_tbl_barrio_lista()
 BEGIN
 SELECT *
 FROM tbl_barrio
-WHERE Estado_Barrio = 'ACTIVE';
+WHERE Estado_Barrio = 1;
 END $$
 DELIMITER ;
 
@@ -176,18 +176,14 @@ DROP PROCEDURE IF EXISTS sp_tbl_barrio_consultar;
 DELIMITER $$
 
 CREATE PROCEDURE sp_tbl_barrio_consultar()
-
 BEGIN
-
-SELECT
-ID_Barrio,
-Nombre_Barrio
-FROM TBL_BARRIO
-WHERE Estado_Barrio = 'ACTIVE'
-ORDER BY Nombre_Barrio;
-
+    SELECT
+    ID_Barrio,
+    Nombre_Barrio
+    FROM TBL_BARRIO
+    WHERE Estado_Barrio = 1
+    ORDER BY Nombre_Barrio;
 END $$
-
 DELIMITER ;
 
 -- --------------------------------------------------------
@@ -196,13 +192,13 @@ DROP PROCEDURE IF EXISTS sp_tbl_barrio_consultar_id;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_barrio_consultar_id(
-IN p_ID_Barrio INT
+    IN p_ID_Barrio INT
 )
 BEGIN
-SELECT *
-FROM tbl_barrio
-WHERE ID_Barrio = p_ID_Barrio
-AND Estado_Barrio = 'ACTIVE';
+    SELECT *
+    FROM tbl_barrio
+    WHERE ID_Barrio = p_ID_Barrio
+    AND Estado_Barrio = 1;
 END $$
 DELIMITER ;
 
@@ -217,7 +213,7 @@ CREATE PROCEDURE sp_tbl_barrio_eliminar(
 )
 BEGIN
     UPDATE tbl_barrio
-    SET Estado_Barrio = 'INACTIVE'
+    SET Estado_Barrio = 0
     WHERE ID_Barrio = p_ID_Barrio;
 END $$
 DELIMITER ;
@@ -230,7 +226,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_barrio_insertar;
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_barrio_insertar(
     IN p_Nombre_Barrio VARCHAR(30),
-    IN p_FK_ID_Localidad INT
+    IN p_FK_ID_Localidad TINYINT
 )
 BEGIN
     INSERT INTO tbl_barrio(
@@ -241,7 +237,7 @@ BEGIN
     VALUES(
         p_Nombre_Barrio,
         p_FK_ID_Localidad,
-        'ACTIVE'
+        1
     );
 END $$
 DELIMITER ;
@@ -252,7 +248,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_barrio_por_localidad;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_barrio_por_localidad(
-    IN p_FK_ID_Localidad INT
+    IN p_FK_ID_Localidad TINYINT
 )
 BEGIN
     SELECT 
@@ -261,7 +257,7 @@ BEGIN
         FK_ID_Localidad
     FROM tbl_barrio
     WHERE FK_ID_Localidad = p_FK_ID_Localidad
-    AND Estado_Barrio = 'ACTIVE';
+    AND Estado_Barrio = 1;
 END $$
 DELIMITER ;
 
@@ -274,7 +270,7 @@ CREATE PROCEDURE sp_tbl_colegio_actualizar(
     IN p_ID_Colegio INT,
     IN p_Nombre_Colegio VARCHAR(100),
     IN p_Direccion_Colegio VARCHAR(100),
-    IN p_FK_ID_Localidad INT
+    IN p_FK_ID_Localidad TINYINT
 )
 BEGIN
     UPDATE tbl_colegio
@@ -296,7 +292,7 @@ CREATE PROCEDURE sp_tbl_colegio_lista()
 BEGIN
     SELECT *
     FROM tbl_colegio
-    WHERE Estado_Colegio = 'ACTIVE';
+    WHERE Estado_Colegio = 1;
 END $$
 DELIMITER ;
 
@@ -312,7 +308,7 @@ SELECT
     ID_Colegio,
     Nombre_Colegio
 FROM TBL_COLEGIO
-WHERE Estado_Colegio = 'ACTIVE'
+WHERE Estado_Colegio = 1
 ORDER BY Nombre_Colegio;
 
 END $$
@@ -332,7 +328,7 @@ BEGIN
     SELECT *
     FROM tbl_colegio
     WHERE ID_Colegio = p_ID_Colegio
-    AND Estado_Colegio = 'ACTIVE';
+    AND Estado_Colegio = 1;
 END $$
 DELIMITER ;
 
@@ -347,7 +343,7 @@ CREATE PROCEDURE sp_tbl_colegio_eliminar(
 )
 BEGIN
     UPDATE tbl_colegio
-    SET Estado_Colegio = 'INACTIVE'
+    SET Estado_Colegio = 0
     WHERE ID_Colegio = p_ID_Colegio;
 END $$
 DELIMITER ;
@@ -361,7 +357,7 @@ DELIMITER $$
 CREATE PROCEDURE sp_tbl_colegio_insertar(
     IN p_Nombre_Colegio VARCHAR(100),
     IN p_Direccion_Colegio VARCHAR(100),
-    IN p_FK_ID_Localidad INT
+    IN p_FK_ID_Localidad TINYINT
 )
 BEGIN
     INSERT INTO tbl_colegio(
@@ -374,7 +370,7 @@ BEGIN
         p_Nombre_Colegio,
         p_Direccion_Colegio,
         p_FK_ID_Localidad,
-        'ACTIVE'
+        1
     );
 END $$
 DELIMITER ;
@@ -387,9 +383,9 @@ DROP PROCEDURE IF EXISTS sp_tbl_cupos_actualizar;
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_cupos_actualizar(
     IN p_ID_Cupos INT,
-    IN p_FK_ID_Grado INT,
+    IN p_FK_ID_Grado TINYINT,
     IN p_FK_ID_Colegio INT,
-    IN p_Jornada VARCHAR(30),
+    IN p_FK_ID_Jornada TINYINT,
     IN p_Cupos_Disponibles TINYINT
 )
 BEGIN
@@ -397,7 +393,7 @@ BEGIN
     SET
         FK_ID_Grado = p_FK_ID_Grado,
         FK_ID_Colegio = p_FK_ID_Colegio,
-        Jornada = p_Jornada,
+        FK_ID_Jornada = p_FK_ID_Jornada,
         Cupos_Disponibles = p_Cupos_Disponibles
     WHERE ID_Cupos = p_ID_Cupos;
 END $$
@@ -413,7 +409,7 @@ CREATE PROCEDURE sp_tbl_cupos_consultar()
 BEGIN
     SELECT *
     FROM tbl_cupos
-    WHERE Estado_Cupos = 'ACTIVE';
+    WHERE Estado_Cupos = 1;
 END $$
 DELIMITER ;
 
@@ -430,7 +426,7 @@ BEGIN
     SELECT *
     FROM tbl_cupos
     WHERE ID_Cupos = p_ID_Cupos
-    AND Estado_Cupos = 'ACTIVE';
+    AND Estado_Cupos = 1;
 END $$
 DELIMITER ;
 
@@ -445,7 +441,7 @@ CREATE PROCEDURE sp_tbl_cupos_eliminar(
 )
 BEGIN
     UPDATE tbl_cupos
-    SET Estado_Cupos = 'INACTIVE'
+    SET Estado_Cupos = 0
     WHERE ID_Cupos = p_ID_Cupos;
 END $$
 DELIMITER ;
@@ -456,25 +452,25 @@ DROP PROCEDURE IF EXISTS sp_tbl_cupos_insertar;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_cupos_insertar(
-    IN p_FK_ID_Grado INT,
+    IN p_FK_ID_Grado TINYINT,
     IN p_FK_ID_Colegio INT,
-    IN p_Jornada VARCHAR(30),
+    IN p_FK_ID_Jornada TINYINT,
     IN p_Cupos_Disponibles TINYINT
 )
 BEGIN
     INSERT INTO tbl_cupos(
         FK_ID_Grado,
         FK_ID_Colegio,
-        Jornada,
+        FK_ID_Jornada,
         Cupos_Disponibles,
         Estado_Cupos
     )
     VALUES(
         p_FK_ID_Grado,
         p_FK_ID_Colegio,
-        p_Jornada,
+        p_FK_ID_Jornada,
         p_Cupos_Disponibles,
-        'ACTIVE'
+        1
     );
 END $$
 DELIMITER ;
@@ -490,7 +486,7 @@ CREATE PROCEDURE sp_tbl_datos_adicionales_consultar()
 BEGIN
     SELECT *
     FROM tbl_datos_adicionales
-    WHERE Estado_Datos_Adicionales = 'ACTIVE';
+    WHERE Estado_Datos_Adicionales = 1;
 END $$
 DELIMITER ;
 
@@ -507,7 +503,7 @@ BEGIN
     SELECT *
     FROM tbl_datos_adicionales
     WHERE ID_Datos_Adicionales = p_ID_Datos_Adicionales
-    AND Estado_Datos_Adicionales = 'ACTIVE';
+    AND Estado_Datos_Adicionales = 1;
 END $$
 DELIMITER ;
 
@@ -522,7 +518,7 @@ CREATE PROCEDURE sp_tbl_datos_adicionales_eliminar(
 )
 BEGIN
     UPDATE tbl_datos_adicionales
-    SET Estado_Datos_Adicionales = 'INACTIVE'
+    SET Estado_Datos_Adicionales = 0
     WHERE ID_Datos_Adicionales = p_ID_Datos_Adicionales;
 END $$
 DELIMITER ;
@@ -539,12 +535,12 @@ CREATE PROCEDURE sp_tbl_datos_adicionales_insertar(
     IN p_ID_Datos_Adicionales INT,
     IN p_Email VARCHAR(255),
     IN p_Telefono VARCHAR(45),
-    IN p_FK_ID_Parentesco INT,
-    IN p_FK_ID_Tipo_Iden INT,
+    IN p_FK_ID_Parentesco TINYINT,
+    IN p_FK_ID_Tipo_Iden TINYINT,
     IN p_FK_ID_Persona INT,
-    IN p_FK_ID_Genero INT,
-    IN p_FK_ID_Grupo_Preferencial INT,
-    IN p_FK_ID_Estrato INT,
+    IN p_FK_ID_Genero TINYINT,
+    IN p_FK_ID_Grupo_Preferencial TINYINT,
+    IN p_FK_ID_Estrato TINYINT,
     IN p_FK_ID_Barrio INT
 
 )
@@ -579,7 +575,7 @@ VALUES(
     p_FK_ID_Estrato,
     p_FK_ID_Barrio,
 
-    'ACTIVE'
+    1
 );
 
 END $$
@@ -595,10 +591,10 @@ CREATE PROCEDURE sp_tbl_datos_adicionales_actualizar(
     IN p_id_datos INT,
     IN p_telefono VARCHAR(45),
     IN p_id_persona INT,
-    IN p_genero INT,
-    IN p_grupo_pref INT,
-    IN p_estrato INT,
-    IN p_barrio INT,
+    IN p_genero TINYINT,
+    IN p_grupo_pref TINYINT,
+    IN p_estrato TINYINT,
+    IN p_barrio TINYINT,
     IN p_id_usuario INT,
     IN p_ip VARCHAR(50),
     IN p_user_agent VARCHAR(255)
@@ -650,7 +646,7 @@ DELIMITER $$
 CREATE PROCEDURE sp_tbl_documento_ticket_actualizar(
     IN p_ID_Doc_Ticket INT,
     IN p_FK_ID_Ticket VARCHAR(10),
-    IN p_FK_ID_Tipo_Doc INT,
+    IN p_FK_ID_Tipo_Doc TINYINT,
     IN p_Archivo MEDIUMBLOB,
     IN p_Nombre_Original VARCHAR(100)
 )
@@ -675,7 +671,7 @@ CREATE PROCEDURE sp_tbl_documento_ticket_consultar()
 BEGIN
     SELECT ID_Doc_Ticket, FK_ID_Ticket, FK_ID_Tipo_Doc, Nombre_Original, Fecha_Subida, Estado_Documentos
     FROM tbl_documento_ticket
-    WHERE Estado_Documentos = 'ACTIVE';
+    WHERE Estado_Documentos = 1;
 END $$
 DELIMITER ;
 
@@ -692,7 +688,7 @@ BEGIN
     SELECT *
     FROM tbl_documento_ticket
     WHERE ID_Doc_Ticket = p_ID_Doc_Ticket
-    AND Estado_Documentos = 'ACTIVE';
+    AND Estado_Documentos = 1;
 END $$
 DELIMITER ;
 
@@ -707,7 +703,7 @@ CREATE PROCEDURE sp_tbl_documento_ticket_eliminar(
 )
 BEGIN
     UPDATE tbl_documento_ticket
-    SET Estado_Documentos = 'INACTIVE'
+    SET Estado_Documentos = 0
     WHERE ID_Doc_Ticket = p_ID_Doc_Ticket;
 END $$
 DELIMITER ;
@@ -720,7 +716,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_documento_ticket_insertar;
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_documento_ticket_insertar(
     IN p_FK_ID_Ticket VARCHAR(10),
-    IN p_FK_ID_Tipo_Doc INT,
+    IN p_FK_ID_Tipo_Doc TINYINT,
     IN p_Archivo MEDIUMBLOB,
     IN p_Nombre_Original VARCHAR(100)
 )
@@ -737,7 +733,7 @@ BEGIN
         p_FK_ID_Tipo_Doc,
         p_Archivo,
         p_Nombre_Original,
-        'ACTIVE'
+        1
     );
 END $$
 DELIMITER ;
@@ -749,7 +745,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_estado_ticket_actualizar;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_estado_ticket_actualizar(
-    IN p_ID_Estado_Ticket INT,
+    IN p_ID_Estado_Ticket TINYINT,
     IN p_Nombre_Estado VARCHAR(50),
     IN p_Estado_Final TINYINT(1)
 )
@@ -776,7 +772,7 @@ BEGIN
         Estado_Final, 
         Estado_Estado_Ticket
     FROM tbl_estado_ticket
-    WHERE Estado_Estado_Ticket = 'ACTIVE';
+    WHERE Estado_Estado_Ticket = 1;
 END $$
 DELIMITER ;
 
@@ -787,13 +783,13 @@ DROP PROCEDURE IF EXISTS sp_tbl_estado_ticket_consultar_id;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_estado_ticket_consultar_id(
-    IN p_ID_Estado_Ticket INT
+    IN p_ID_Estado_Ticket TINYINT
 )
 BEGIN
     SELECT *
     FROM tbl_estado_ticket
     WHERE ID_Estado_Ticket = p_ID_Estado_Ticket
-    AND Estado_Estado_Ticket = 'ACTIVE';
+    AND Estado_Estado_Ticket = 1;
 END $$
 DELIMITER ;
 
@@ -808,7 +804,7 @@ CREATE PROCEDURE sp_tbl_estado_ticket_eliminar(
 )
 BEGIN
     UPDATE tbl_estado_ticket
-    SET Estado_Estado_Ticket = 'INACTIVE'
+    SET Estado_Estado_Ticket = 0
     WHERE ID_Estado_Ticket = p_ID_Estado_Ticket;
 END $$
 DELIMITER ;
@@ -831,7 +827,7 @@ BEGIN
     VALUES(
         p_Nombre_Estado,
         p_Estado_Final,
-        'ACTIVE'
+        1
     );
 END $$
 DELIMITER ;
@@ -843,14 +839,14 @@ DROP PROCEDURE IF EXISTS sp_tbl_estrato_actualizar;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_estrato_actualizar(
-    IN p_ID_Estrato INT,
-    IN p_Numero_Estrato INT,
+    IN p_ID_Estrato TINYINT,
+    IN p_Nombre_Estrato VARCHAR(10),
     IN p_Nivel_Prioridad_E TINYINT
 )
 BEGIN
     UPDATE tbl_estrato
     SET
-        Numero_Estrato = p_Numero_Estrato,
+        Nombre_Estrato = p_Nombre_Estrato,
         Nivel_Prioridad_E = p_Nivel_Prioridad_E
     WHERE ID_Estrato = p_ID_Estrato;
 END $$
@@ -866,9 +862,9 @@ CREATE PROCEDURE sp_tbl_estrato_consultar()
 BEGIN
     SELECT 
         ID_Estrato, 
-        Numero_Estrato
+        Nombre_Estrato
     FROM tbl_estrato
-    WHERE Estado_Estrato = 'ACTIVE'
+    WHERE Estado_Estrato = 1
     ORDER BY ID_Estrato;
 END $$
 DELIMITER ;
@@ -880,13 +876,13 @@ DROP PROCEDURE IF EXISTS sp_tbl_estrato_consultar_id;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_estrato_consultar_id(
-    IN p_ID_Estrato INT
+    IN p_ID_Estrato TINYINT
 )
 BEGIN
     SELECT *
     FROM tbl_estrato
     WHERE ID_Estrato = p_ID_Estrato
-    AND Estado_Estrato = 'ACTIVE';
+    AND Estado_Estrato = 1;
 END $$
 DELIMITER ;
 
@@ -901,7 +897,7 @@ CREATE PROCEDURE sp_tbl_estrato_eliminar(
 )
 BEGIN
     UPDATE tbl_estrato
-    SET Estado_Estrato = 'INACTIVE'
+    SET Estado_Estrato = 0
     WHERE ID_Estrato = p_ID_Estrato;
 END $$
 DELIMITER ;
@@ -913,19 +909,19 @@ DROP PROCEDURE IF EXISTS sp_tbl_estrato_insertar;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_estrato_insertar(
-    IN p_Numero_Estrato INT,
+    IN p_Nombre_Estrato VARCHAR(10),
     IN p_Nivel_Prioridad_E TINYINT
 )
 BEGIN
     INSERT INTO tbl_estrato(
-        Numero_Estrato,
+        Nombre_Estrato,
         Nivel_Prioridad_E,
         Estado_Estrato
     )
     VALUES(
-        p_Numero_Estrato,
+        p_Nombre_Estrato,
         p_Nivel_Prioridad_E,
-        'ACTIVE'
+        1
     );
 END $$
 DELIMITER ;
@@ -936,16 +932,16 @@ DROP PROCEDURE IF EXISTS sp_tbl_estudiante_actualizar_all;
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_estudiante_actualizar_all(
     IN p_ID_Estudiante INT,
-    IN p_FK_ID_Tipo_Iden INT,
+    IN p_FK_ID_Tipo_Iden TINYINT,
     IN p_FK_ID_Persona INT,
-    IN p_FK_ID_Grado_Actual INT,
-    IN p_FK_ID_Gardo_Proximo INT,
+    IN p_FK_ID_Grado_Actual TINYINT,
+    IN p_FK_ID_Gardo_Proximo TINYINT,
     IN p_FK_ID_Colegio_Anterior INT,
-    IN p_FK_ID_Genero INT,
-    IN p_FK_ID_Grupo_Preferencial INT,
+    IN p_FK_ID_Genero TINYINT,
+    IN p_FK_ID_Grupo_Preferencial TINYINT,
     IN p_FK_ID_Acudiente INT,
-    IN p_FK_ID_Parentesco INT,
-    IN p_Estado_Estudiante ENUM('ACTIVE','INACTIVE')
+    IN p_FK_ID_Parentesco TINYINT,
+    IN p_Estado_Estudiante TINYINT
 )
 BEGIN
     UPDATE TBL_ESTUDIANTE
@@ -969,11 +965,11 @@ DROP PROCEDURE IF EXISTS sp_tbl_estudiante_actualizar;
 DELIMITER $$
 
 CREATE PROCEDURE sp_tbl_estudiante_actualizar(
-    IN p_grado_actual INT,
-    IN p_grado_proximo INT,
+    IN p_grado_actual TINYINT,
+    IN p_grado_proximo TINYINT,
     IN p_colegio INT,
-    IN p_genero INT,
-    IN p_grupo_pref INT,
+    IN p_genero TINYINT,
+    IN p_grupo_pref TINYINT,
     IN p_id_persona INT,
 
     -- AUDITORÍA
@@ -1072,7 +1068,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_estudiante_consultar;
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_estudiante_consultar()
 BEGIN
-    SELECT * FROM TBL_ESTUDIANTE WHERE Estado_Estudiante = 'ACTIVE';
+    SELECT * FROM TBL_ESTUDIANTE WHERE Estado_Estudiante = 1;
 END $$
 DELIMITER ;
 
@@ -1087,7 +1083,7 @@ CREATE PROCEDURE sp_tbl_estudiante_consultar_id(
 )
 BEGIN
     SELECT * FROM tbl_estudiante 
-    WHERE ID_Estudiante = p_ID_Estudiante AND Estado_Colegio = 'ACTIVE';
+    WHERE ID_Estudiante = p_ID_Estudiante AND Estado_Estudiante = 1;
 END $$
 DELIMITER ;
 
@@ -1101,7 +1097,7 @@ CREATE PROCEDURE sp_tbl_estudiante_eliminar(
     IN p_ID_Estudiante INT
 )
 BEGIN
-    UPDATE tbl_estudiante SET Estado_Colegio = 'INACTIVE' WHERE ID_Estudiante = p_ID_Estudiante;
+    UPDATE tbl_estudiante SET Estado_Estudiante = 0 WHERE ID_Estudiante = p_ID_Estudiante;
 END $$
 DELIMITER ;
 
@@ -1113,15 +1109,15 @@ DELIMITER $$
 
 CREATE PROCEDURE sp_tbl_estudiante_insertar(
     IN p_ID_Estudiante INT,
-    IN p_FK_ID_Tipo_Iden INT,
+    IN p_FK_ID_Tipo_Iden TINYINT,
     IN p_FK_ID_Persona INT,
-    IN p_FK_ID_Grado_Actual INT,
-    IN p_FK_ID_Gardo_Proximo INT,
+    IN p_FK_ID_Grado_Actual TINYINT,
+    IN p_FK_ID_Gardo_Proximo TINYINT,
     IN p_FK_ID_Colegio_Anterior INT,
-    IN p_FK_ID_Genero INT,
-    IN p_FK_ID_Grupo_Preferencial INT,
+    IN p_FK_ID_Genero TINYINT,
+    IN p_FK_ID_Grupo_Preferencial TINYINT,
     IN p_FK_ID_Acudiente INT,
-    IN p_FK_ID_Parentesco_Es INT,
+    IN p_FK_ID_Parentesco_Es TINYINT,
     IN p_ip VARCHAR(50),
     IN p_user_agent VARCHAR(255)
 )
@@ -1179,49 +1175,6 @@ END $$
 
 DELIMITER ;
 
--- DROP PROCEDURE IF EXISTS sp_tbl_estudiante_insertar;
-
--- DELIMITER $$
--- CREATE PROCEDURE sp_tbl_estudiante_insertar(
---     IN p_ID_Estudiante INT,
---     IN p_FK_ID_Tipo_Iden INT,
---     IN p_FK_ID_Persona INT,
---     IN p_FK_ID_Grado_Actual INT,
---     IN p_FK_ID_Gardo_Proximo INT,
---     IN p_FK_ID_Colegio_Anterior INT,
---     IN p_FK_ID_Genero INT,
---     IN p_FK_ID_Grupo_Preferencial INT,
---     IN p_FK_ID_Acudiente INT,
---     IN p_FK_ID_Parentesco_Es INT
--- )
--- BEGIN
---     INSERT INTO TBL_ESTUDIANTE (
---         ID_Estudiante,
---         FK_ID_Tipo_Iden,
---         FK_ID_Persona,
---         FK_ID_Grado_Actual,
---         FK_ID_Gardo_Proximo,
---         FK_ID_Colegio_Anterior,
---         FK_ID_Genero,
---         FK_ID_Grupo_Preferencial,
---         FK_ID_Acudiente,
---         FK_ID_Parentesco_Es
---     )
---     VALUES (
---         p_ID_Estudiante,
---         p_FK_ID_Tipo_Iden,
---         p_FK_ID_Persona,
---         p_FK_ID_Grado_Actual,
---         p_FK_ID_Gardo_Proximo,
---         p_FK_ID_Colegio_Anterior,
---         p_FK_ID_Genero,
---         p_FK_ID_Grupo_Preferencial,
---         p_FK_ID_Acudiente,
---         p_FK_ID_Parentesco_Es
---     );
--- END $$
--- DELIMITER ;
-
 
 -- --------------------------------------------------------
 
@@ -1232,7 +1185,7 @@ DELIMITER $$
 
 CREATE PROCEDURE sp_registrar_estudiante_completo(
     -- PERSONA
-    IN p_ID_Persona INT,
+    IN p_Num_Doc_Persona VARCHAR(30),
     IN p_Primer_Nombre VARCHAR(50),
     IN p_Segundo_Nombre VARCHAR(50),
     IN p_Primer_Apellido VARCHAR(50),
@@ -1240,24 +1193,25 @@ CREATE PROCEDURE sp_registrar_estudiante_completo(
     IN p_Fecha_Nacimiento DATE,
 
     -- ESTUDIANTE
-    IN p_ID_Estudiante INT,
-    IN p_FK_ID_Tipo_Iden INT,
-    IN p_FK_ID_Grado_Actual INT,
-    IN p_FK_ID_Gardo_Proximo INT,
+    IN p_FK_ID_Tipo_Iden TINYINT,
+    IN p_FK_ID_Grado_Actual TINYINT,
+    IN p_FK_ID_Gardo_Proximo TINYINT,
     IN p_FK_ID_Colegio_Anterior INT,
-    IN p_FK_ID_Genero INT,
-    IN p_FK_ID_Grupo_Preferencial INT,
+    IN p_FK_ID_Genero TINYINT,
+    IN p_FK_ID_Grupo_Preferencial TINYINT,
     IN p_FK_ID_Acudiente INT,
-    IN p_FK_ID_Parentesco_Es INT,
+    IN p_FK_ID_Parentesco_Es TINYINT,
 
     -- AUDITORÍA
     IN p_ip VARCHAR(50),
     IN p_user_agent VARCHAR(255)
 )
 BEGIN
-    DECLARE v_new_persona JSON;
-    DECLARE v_new_estudiante JSON;
+    -- Variables para capturar los IDs generados automáticamente
+    DECLARE v_ID_Persona_New INT;
+    DECLARE v_ID_Estudiante_New INT;
 
+    -- Manejador de errores
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
@@ -1271,7 +1225,7 @@ BEGIN
     -- 1. INSERT PERSONA
     -- =========================
     INSERT INTO TBL_PERSONA(
-        ID_Persona,
+        Num_Doc_Persona,
         Primer_Nombre,
         Segundo_Nombre,
         Primer_Apellido,
@@ -1280,36 +1234,33 @@ BEGIN
         Estado_Persona
     )
     VALUES(
-        p_ID_Persona,
+        p_Num_Doc_Persona,
         p_Primer_Nombre,
         p_Segundo_Nombre,
         p_Primer_Apellido,
         p_Segundo_Apellido,
         p_Fecha_Nacimiento,
-        'ACTIVE'
+        1
     );
 
-    SET v_new_persona = JSON_OBJECT(
-        'ID', p_ID_Persona,
-        'Nombre', CONCAT(p_Primer_Nombre, ' ', p_Primer_Apellido)
-    );
+    -- Capturamos el ID generado para la persona
+    SET v_ID_Persona_New = LAST_INSERT_ID();
 
     CALL sp_insertar_auditoria(
         'TBL_PERSONA',
         'CREATE',
-        p_ID_Persona,
+        CAST(v_ID_Persona_New AS CHAR),
         NULL,
-        v_new_persona,
+        JSON_OBJECT('Doc', p_Num_Doc_Persona, 'Nombre', p_Primer_Nombre),
         p_ip,
         p_user_agent,
-        5157341
+        p_FK_ID_Acudiente -- El acudiente es quien realiza el registro
     );
 
     -- =========================
     -- 2. INSERT ESTUDIANTE
     -- =========================
     INSERT INTO TBL_ESTUDIANTE (
-        ID_Estudiante,
         FK_ID_Tipo_Iden,
         FK_ID_Persona,
         FK_ID_Grado_Actual,
@@ -1318,33 +1269,31 @@ BEGIN
         FK_ID_Genero,
         FK_ID_Grupo_Preferencial,
         FK_ID_Acudiente,
-        FK_ID_Parentesco_Es
+        FK_ID_Parentesco_Es,
+        Estado_Estudiante
     )
     VALUES (
-        p_ID_Estudiante,
         p_FK_ID_Tipo_Iden,
-        p_ID_Persona,
+        v_ID_Persona_New, -- Usamos el ID recién creado
         p_FK_ID_Grado_Actual,
         p_FK_ID_Gardo_Proximo,
         p_FK_ID_Colegio_Anterior,
         p_FK_ID_Genero,
         p_FK_ID_Grupo_Preferencial,
         p_FK_ID_Acudiente,
-        p_FK_ID_Parentesco_Es
+        p_FK_ID_Parentesco_Es,
+        1
     );
 
-    SET v_new_estudiante = JSON_OBJECT(
-        'ID', p_ID_Estudiante,
-        'Persona', p_ID_Persona,
-        'Acudiente', p_FK_ID_Acudiente
-    );
+    -- Capturamos el ID generado para el estudiante
+    SET v_ID_Estudiante_New = LAST_INSERT_ID();
 
     CALL sp_insertar_auditoria(
         'TBL_ESTUDIANTE',
         'CREATE',
-        p_ID_Estudiante,
+        CAST(v_ID_Estudiante_New AS CHAR),
         NULL,
-        v_new_estudiante,
+        JSON_OBJECT('ID_Persona', v_ID_Persona_New, 'Grado', p_FK_ID_Grado_Actual),
         p_ip,
         p_user_agent,
         p_FK_ID_Acudiente
@@ -1355,6 +1304,7 @@ BEGIN
 END $$
 
 DELIMITER ;
+
 
 -- --------------------------------------------------------
 --  SP: Perfil del estudiante (datos para pre-poblar forms)
@@ -1395,28 +1345,7 @@ BEGIN
     INNER JOIN TBL_PERSONA p ON e.FK_ID_Persona = p.ID_Persona
     INNER JOIN TBL_TIPO_IDENTIFICACION ti ON e.FK_ID_Tipo_Iden = ti.ID_Tipo_Iden
     WHERE e.FK_ID_Acudiente = p_id_acudiente
-      AND e.Estado_Estudiante = 'ACTIVE'
-    LIMIT 1;
-END $$
-
-DELIMITER ;
-
-
--- --------------------------------------------------------
--- Usada en decorador para validar si el acudiente ya tiene un estudiante registrado
-
-DROP PROCEDURE IF EXISTS sp_tbl_estudiante_verificar_por_acudiente;
-
-DELIMITER $$
-
-CREATE PROCEDURE sp_tbl_estudiante_verificar_por_acudiente(
-    IN p_id_acudiente INT
-)
-BEGIN
-    SELECT COUNT(*) AS tiene_estudiante
-    FROM TBL_ESTUDIANTE
-    WHERE FK_ID_Acudiente = p_id_acudiente
-    AND Estado_Estudiante = 'ACTIVE'
+      AND e.Estado_Estudiante = 1
     LIMIT 1;
 END $$
 
@@ -1424,25 +1353,27 @@ DELIMITER ;
 
 -- --------------------------------------------------------
 -- Usada en registro para validar si existe un estudiante con el mismo documento
+
 DROP PROCEDURE IF EXISTS sp_tbl_estudiante_verificar_existente;
 
 DELIMITER $$
 
 CREATE PROCEDURE sp_tbl_estudiante_verificar_existente (
-    IN p_id_estudiante INT,
+    IN p_num_doc VARCHAR(30),
     IN p_fk_id_acudiente INT
 )
 BEGIN
-    DECLARE existe INT;
 
-    -- Contamos si hay coincidencias
-    SELECT COUNT(*) INTO existe 
-    FROM TBL_ESTUDIANTE 
-    WHERE ID_Estudiante = p_id_estudiante AND FK_ID_Acudiente = p_fk_id_acudiente AND Estado_Estudiante = 'ACTIVE'; 
-
+    SELECT COUNT(*) AS existe 
+    FROM TBL_ESTUDIANTE e
+    INNER JOIN TBL_PERSONA p ON e.FK_ID_Persona = p.ID_Persona
+    WHERE p.Num_Doc_Persona = p_num_doc 
+      AND e.FK_ID_Acudiente = p_fk_id_acudiente 
+      AND e.Estado_Estudiante = 1; 
 END $$
 
 DELIMITER ;
+
 
 -- --------------------------------------------------------
 
@@ -1464,7 +1395,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_genero_lista;
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_genero_lista()
 BEGIN
-    SELECT * FROM tbl_genero WHERE Estado_Genero = 'ACTIVE';
+    SELECT * FROM tbl_genero WHERE Estado_Genero = 1;
 END $$
 DELIMITER ;
 
@@ -1481,7 +1412,7 @@ SELECT
     ID_Genero,
     Nombre_Genero
 FROM TBL_GENERO
-WHERE Estado_Genero = 'ACTIVE'
+WHERE Estado_Genero = 1
 ORDER BY Nombre_Genero;
 
 END $$
@@ -1496,7 +1427,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_genero_consultar_id;
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_genero_consultar_id(IN p_ID_Genero INT)
 BEGIN
-    SELECT * FROM tbl_genero WHERE ID_Genero = p_ID_Genero AND Estado_Genero = 'ACTIVE';
+    SELECT * FROM tbl_genero WHERE ID_Genero = p_ID_Genero AND Estado_Genero = 1;
 END $$
 DELIMITER ;
 
@@ -1508,7 +1439,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_genero_eliminar;
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_genero_eliminar(IN p_ID_Genero INT)
 BEGIN
-    UPDATE tbl_genero SET Estado_Genero = 'INACTIVE' WHERE ID_Genero = p_ID_Genero;
+    UPDATE tbl_genero SET Estado_Genero = 0 WHERE ID_Genero = p_ID_Genero;
 END $$
 DELIMITER ;
 
@@ -1520,7 +1451,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_genero_insertar;
 DELIMITER $$
 CREATE PROCEDURE `sp_tbl_genero_insertar`(IN p_Nombre_Genero VARCHAR(30))
 BEGIN
-    INSERT INTO tbl_genero(Nombre_Genero, Estado_Genero) VALUES(p_Nombre_Genero, 'ACTIVE');
+    INSERT INTO tbl_genero(Nombre_Genero, Estado_Genero) VALUES(p_Nombre_Genero, 1);
 END $$
 DELIMITER ;
 
@@ -1531,7 +1462,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_grado_actualizar;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_grado_actualizar(
-    IN p_ID_Grado INT,
+    IN p_ID_Grado TINYINT,
     IN p_Nombre_Grado VARCHAR(30),
     IN p_Nivel_Educativo VARCHAR(30)
 )
@@ -1551,7 +1482,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_grado_lista;
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_grado_lista()
 BEGIN
-    SELECT * FROM tbl_grado WHERE Estado_Grado = 'ACTIVE';
+    SELECT * FROM tbl_grado WHERE Estado_Grado = 1;
 END $$
 DELIMITER ;
 
@@ -1567,7 +1498,7 @@ SELECT
     ID_Grado,
     Nombre_Grado
 FROM TBL_GRADO
-WHERE Estado_Grado = 'ACTIVE'
+WHERE Estado_Grado = 1
 ORDER BY ID_Grado;
 
 END $$
@@ -1581,11 +1512,11 @@ DROP PROCEDURE IF EXISTS sp_tbl_grado_consultar_id;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_grado_consultar_id(
-    IN p_ID_Grado INT
+    IN p_ID_Grado TINYINT
 )
 BEGIN
     SELECT * FROM tbl_grado 
-    WHERE ID_Grado = p_ID_Grado AND Estado_Grado = 'ACTIVE';
+    WHERE ID_Grado = p_ID_Grado AND Estado_Grado = 1;
 END $$
 DELIMITER ;
 
@@ -1596,10 +1527,10 @@ DROP PROCEDURE IF EXISTS sp_tbl_grado_eliminar;
 
 DELIMITER $$
 CREATE PROCEDURE `sp_tbl_grado_eliminar`(
-    IN p_ID_Grado INT
+    IN p_ID_Grado TINYINT
 )
 BEGIN
-    UPDATE tbl_grado SET Estado_Grado = 'INACTIVE' WHERE ID_Grado = p_ID_Grado;
+    UPDATE tbl_grado SET Estado_Grado = 0 WHERE ID_Grado = p_ID_Grado;
 END $$
 DELIMITER ;
 
@@ -1622,7 +1553,7 @@ BEGIN
     VALUES(
         p_Nombre_Grado,
         p_Nivel_Educativo,
-        'ACTIVE'
+        1
     );
 END $$
 DELIMITER ;
@@ -1648,7 +1579,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_grupo_preferencial_lista;
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_grupo_preferencial_lista()
 BEGIN
-    SELECT * FROM tbl_grupo_preferencial WHERE Estado_Grupo_Preferencial = 'ACTIVE';
+    SELECT * FROM tbl_grupo_preferencial WHERE Estado_Grupo_Preferencial = 1;
 END $$
 DELIMITER ;
 
@@ -1663,7 +1594,7 @@ SELECT
     ID_Grupo_Preferencial,
     Nombre_Grupo_Preferencial
 FROM TBL_GRUPO_PREFERENCIAL
-WHERE Estado_Grupo_Preferencial = 'ACTIVE'
+WHERE Estado_Grupo_Preferencial = 1
 ORDER BY ID_Grupo_Preferencial;
 
 END $$
@@ -1678,7 +1609,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_grupo_preferencial_eliminar;
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_grupo_preferencial_eliminar(IN p_ID_Grupo_Preferencial INT)
 BEGIN
-    UPDATE tbl_grupo_preferencial SET Estado_Grupo_Preferencial = 'INACTIVE' WHERE ID_Grupo_Preferencial = p_ID_Grupo_Preferencial;
+    UPDATE tbl_grupo_preferencial SET Estado_Grupo_Preferencial = 0 WHERE ID_Grupo_Preferencial = p_ID_Grupo_Preferencial;
 END $$
 DELIMITER ;
 
@@ -1691,7 +1622,7 @@ DELIMITER $$
 CREATE PROCEDURE sp_tbl_grupo_preferencial_insertar(IN p_Nombre_Grupo_Preferencial VARCHAR(100), IN p_Nivel_Prioridad_GP TINYINT)
 BEGIN
     INSERT INTO tbl_grupo_preferencial(Nombre_Grupo_Preferencial, Nivel_Prioridad_GP, Estado_Grupo_Preferencial) 
-    VALUES(p_Nombre_Grupo_Preferencial, p_Nivel_Prioridad_GP, 'ACTIVE');
+    VALUES(p_Nombre_Grupo_Preferencial, p_Nivel_Prioridad_GP, 1);
 END $$
 DELIMITER ;
 
@@ -1822,7 +1753,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_persona_consultar;
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_persona_consultar()
 BEGIN
-    SELECT * FROM tbl_persona WHERE Estado_Persona = 'ACTIVE';
+    SELECT * FROM tbl_persona WHERE Estado_Persona = 1;
 END $$
 DELIMITER ;
 
@@ -1834,7 +1765,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_persona_eliminar;
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_persona_eliminar(IN p_ID_Persona INT)
 BEGIN
-    UPDATE tbl_persona SET Estado_Persona = 'INACTIVE' WHERE ID_Persona = p_ID_Persona;
+    UPDATE tbl_persona SET Estado_Persona = 0 WHERE ID_Persona = p_ID_Persona;
 END $$
 DELIMITER ;
 
@@ -1875,7 +1806,7 @@ VALUES(
     p_Primer_Apellido,
     p_Segundo_Apellido,
     p_Fecha_Nacimiento,
-    'ACTIVE'
+    1
 );
 
 END $$
@@ -1889,7 +1820,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_rol_actualizar;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_rol_actualizar(
-    IN p_ID_Rol INT,
+    IN p_ID_Rol TINYINT,
     IN p_Nombre_Rol VARCHAR(50),
     IN p_Descripcion_Rol VARCHAR(150)
 )
@@ -1910,7 +1841,7 @@ DELIMITER $$
 CREATE PROCEDURE sp_tbl_rol_consultar()
 BEGIN
     SELECT * FROM tbl_rol 
-    WHERE Estado_Rol = 'ACTIVE';
+    WHERE Estado_Rol = 1;
 END $$
 DELIMITER ;
 
@@ -1921,12 +1852,12 @@ DROP PROCEDURE IF EXISTS sp_tbl_rol_consultar_id;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_rol_consultar_id(
-    IN p_ID_Rol INT
+    IN p_ID_Rol TINYINT
 )
 BEGIN
     SELECT * FROM tbl_rol 
     WHERE ID_Rol = p_ID_Rol 
-    AND Estado_Rol = 'ACTIVE';
+    AND Estado_Rol = 1;
 END $$
 DELIMITER ;
 
@@ -1943,7 +1874,7 @@ BEGIN
     SELECT ID_Rol 
     FROM tbl_rol 
     WHERE Nombre_Rol = p_Nombre_Rol 
-    AND Estado_Rol = 'ACTIVE';
+    AND Estado_Rol = 1;
 END $$
 DELIMITER ;
 
@@ -1954,11 +1885,11 @@ DROP PROCEDURE IF EXISTS sp_tbl_rol_eliminar;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_rol_eliminar(
-    IN p_ID_Rol INT
+    IN p_ID_Rol TINYINT
 )
 BEGIN
     UPDATE tbl_rol 
-    SET Estado_Rol = 'INACTIVE' 
+    SET Estado_Rol = 0 
     WHERE ID_Rol = p_ID_Rol;
 END $$
 DELIMITER ;
@@ -1982,7 +1913,7 @@ BEGIN
     VALUES(
         p_Nombre_Rol,
         p_Descripcion_Rol,
-        'ACTIVE'
+        1
     );
 END $$
 DELIMITER ;
@@ -2015,7 +1946,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_sesiones_consultar;
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_sesiones_consultar()
 BEGIN
-    SELECT * FROM tbl_sesiones WHERE Estado_Sesiones = 'ACTIVE';
+    SELECT * FROM tbl_sesiones WHERE Estado_Sesiones = 1;
 END $$
 DELIMITER ;
 
@@ -2031,7 +1962,7 @@ CREATE PROCEDURE sp_tbl_sesiones_consultar_id(
 BEGIN
     SELECT * FROM tbl_sesiones 
     WHERE ID_Sesion = p_ID_Sesion 
-    AND Estado_Sesiones = 'ACTIVE';
+    AND Estado_Sesiones = 1;
 END $$
 DELIMITER ;
 
@@ -2043,7 +1974,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_sesiones_eliminar;
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_sesiones_eliminar(IN p_ID_Sesion BIGINT)
 BEGIN
-    UPDATE tbl_sesiones SET Estado_Sesiones = 'INACTIVE' WHERE ID_Sesion = p_ID_Sesion;
+    UPDATE tbl_sesiones SET Estado_Sesiones = 0 WHERE ID_Sesion = p_ID_Sesion;
 END $$
 DELIMITER ;
 
@@ -2055,7 +1986,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_sesiones_insertar;
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_sesiones_insertar (IN p_IP_Usuario VARCHAR(50), IN p_FK_ID_Usuario INT)
 BEGIN
-    INSERT INTO tbl_sesiones(IP_Usuario, FK_ID_Usuario, Estado_Sesiones) VALUES(p_IP_Usuario, p_FK_ID_Usuario, 'ACTIVE');
+    INSERT INTO tbl_sesiones(IP_Usuario, FK_ID_Usuario, Estado_Sesiones) VALUES(p_IP_Usuario, p_FK_ID_Usuario, 1);
 END $$
 DELIMITER ;
 
@@ -2072,8 +2003,8 @@ CREATE PROCEDURE sp_tbl_ticket_actualizar(
     IN p_Fecha_Cierre DATETIME,
     IN p_Puntaje_Prioridad INT,
     IN p_FK_ID_Usuario_Tecnico INT,
-    IN p_FK_ID_Estado_Ticket INT,
-    IN p_FK_ID_Tipo_Caso INT,
+    IN p_FK_ID_Estado_Ticket TINYINT,
+    IN p_FK_ID_Tipo_Caso TINYINT,
     IN p_FK_ID_Barrio INT,
     IN p_Tiempo_Residencia VARCHAR(20)
 )
@@ -2126,7 +2057,7 @@ DELIMITER $$
 CREATE PROCEDURE sp_tbl_ticket_comentario_consultar()
 BEGIN
     SELECT * FROM tbl_ticket_comentario 
-    WHERE Estado_Comentario_Ticket = 'ACTIVE';
+    WHERE Estado_Comentario_Ticket = 1;
 END $$
 DELIMITER ;
 
@@ -2142,7 +2073,7 @@ CREATE  PROCEDURE sp_tbl_ticket_comentario_consultar_id(
 BEGIN
     SELECT * FROM tbl_ticket_comentario 
     WHERE ID_Ticket_Comentario = p_ID_Ticket_Comentario 
-    AND Estado_Comentario_Ticket = 'ACTIVE';
+    AND Estado_Comentario_Ticket = 1;
 END $$
 DELIMITER ;
 
@@ -2157,7 +2088,7 @@ CREATE PROCEDURE sp_tbl_ticket_comentario_eliminar(
 )
 BEGIN
     UPDATE tbl_ticket_comentario 
-    SET Estado_Comentario_Ticket = 'INACTIVE' 
+    SET Estado_Comentario_Ticket = 0 
     WHERE ID_Ticket_Comentario = p_ID_Ticket_Comentario;
 END $$
 DELIMITER ;
@@ -2193,7 +2124,7 @@ BEGIN
         p_Es_Interno,
         p_FK_ID_Usuario,
         p_FK_ID_Ticket,
-        'ACTIVE'
+        1
     );
 END $$
 DELIMITER ;
@@ -2207,7 +2138,7 @@ DELIMITER $$
 CREATE PROCEDURE sp_tbl_ticket_consultar()
 BEGIN
     SELECT * FROM tbl_ticket 
-    WHERE Estado_Ticket = 'ACTIVE';
+    WHERE Estado_Ticket = 1;
 END $$
 DELIMITER ;
 
@@ -2223,7 +2154,7 @@ CREATE PROCEDURE sp_tbl_ticket_consultar_id(
 BEGIN
     SELECT * FROM tbl_ticket 
     WHERE ID_Ticket = p_ID_Ticket 
-    AND Estado_Ticket = 'ACTIVE';
+    AND Estado_Ticket = 1;
 END $$
 DELIMITER ;
 
@@ -2238,7 +2169,7 @@ CREATE PROCEDURE sp_tbl_ticket_eliminar(
 )
 BEGIN
     UPDATE tbl_ticket 
-    SET Estado_Ticket = 'INACTIVE' 
+    SET Estado_Ticket = 0 
     WHERE ID_Ticket = p_ID_Ticket;
 END $$
 DELIMITER ;
@@ -2256,8 +2187,8 @@ CREATE PROCEDURE sp_tbl_ticket_insertar(
     IN p_Puntaje_Prioridad INT,
     IN p_FK_ID_Usuario_Creador INT,
     IN p_FK_ID_Usuario_Tecnico INT,
-    IN p_FK_ID_Estado_Ticket INT,
-    IN p_FK_ID_Tipo_Caso INT,
+    IN p_FK_ID_Estado_Ticket TINYINT,
+    IN p_FK_ID_Tipo_Caso TINYINT,
     IN p_FK_ID_Barrio INT,
     IN p_Tiempo_Residencia VARCHAR(20)
 )
@@ -2286,7 +2217,7 @@ BEGIN
         p_FK_ID_Tipo_Caso,
         p_FK_ID_Barrio,
         p_Tiempo_Residencia,
-        'ACTIVE'
+        1
     );
 END $$
 DELIMITER ;
@@ -2298,7 +2229,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_tipo_afectacion_actualizar;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_tipo_afectacion_actualizar(
-    IN p_ID_Tipo_Afectacion INT,
+    IN p_ID_Tipo_Afectacion TINYINT,
     IN p_Afectacion VARCHAR(100),
     IN p_Nivel_Prioridad_TC TINYINT
 )
@@ -2319,7 +2250,7 @@ DELIMITER $$
 CREATE PROCEDURE sp_tbl_tipo_afectacion_consultar()
 BEGIN
     SELECT * FROM tbl_tipo_afectacion 
-    WHERE Estado_Afectacion = 'ACTIVE';
+    WHERE Estado_Afectacion = 1;
 END $$
 DELIMITER ;
 
@@ -2330,12 +2261,12 @@ DROP PROCEDURE IF EXISTS sp_tbl_tipo_afectacion_consultar_id;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_tipo_afectacion_consultar_id(
-    IN p_ID_Tipo_Afectacion INT
+    IN p_ID_Tipo_Afectacion TINYINT
 )
 BEGIN
     SELECT * FROM tbl_tipo_afectacion 
     WHERE ID_Tipo_Afectacion = p_ID_Tipo_Afectacion 
-    AND Estado_Afectacion = 'ACTIVE';
+    AND Estado_Afectacion = 1;
 END $$
 DELIMITER ;
 
@@ -2346,11 +2277,11 @@ DROP PROCEDURE IF EXISTS sp_tbl_tipo_afectacion_eliminar;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_tipo_afectacion_eliminar(
-    IN p_ID_Tipo_Afectacion INT
+    IN p_ID_Tipo_Afectacion TINYINT
 )
 BEGIN
     UPDATE tbl_tipo_afectacion 
-    SET Estado_Afectacion = 'INACTIVE' 
+    SET Estado_Afectacion = 0 
     WHERE ID_Tipo_Afectacion = p_ID_Tipo_Afectacion;
 END $$
 DELIMITER ;
@@ -2374,7 +2305,7 @@ BEGIN
     VALUES(
         p_Afectacion,
         p_Nivel_Prioridad_TC,
-        'ACTIVE'
+        1
     );
 END $$
 DELIMITER ;
@@ -2386,7 +2317,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_tipo_documento_actualizar;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_tipo_documento_actualizar(
-    IN p_ID_Tipo_Doc INT,
+    IN p_ID_Tipo_Doc TINYINT,
     IN p_Nombre_Tipo_Doc VARCHAR(30)
 )
 BEGIN
@@ -2405,7 +2336,7 @@ DELIMITER $$
 CREATE PROCEDURE sp_tbl_tipo_documento_consultar_v2()
 BEGIN
     SELECT * FROM tbl_tipo_documento 
-    WHERE Estado_Documentos = 'ACTIVE';
+    WHERE Estado_Documentos = 1;
 END $$
 DELIMITER ;
 
@@ -2424,7 +2355,7 @@ SELECT
     ID_Tipo_Iden,
     Nombre_Tipo_Iden
 FROM TBL_TIPO_IDENTIFICACION
-WHERE Estado_Identificacion = 'ACTIVE' AND Tipo_Usuario = 'ESTUDIANTE'
+WHERE Estado_Identificacion = 1 AND Tipo_Usuario = 'ESTUDIANTE'
 ORDER BY Nombre_Tipo_Iden;
 
 END $$
@@ -2445,7 +2376,7 @@ SELECT
     ID_Tipo_Iden,
     Nombre_Tipo_Iden
 FROM TBL_TIPO_IDENTIFICACION
-WHERE Estado_Identificacion = 'ACTIVE' AND Tipo_Usuario = 'ACUDIENTE'
+WHERE Estado_Identificacion = 1 AND Tipo_Usuario = 'ACUDIENTE'
 ORDER BY Nombre_Tipo_Iden;
 
 END $$
@@ -2459,12 +2390,12 @@ DROP PROCEDURE IF EXISTS sp_tbl_tipo_documento_consultar_id;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_tipo_documento_consultar_id(
-    IN p_ID_Tipo_Doc INT
+    IN p_ID_Tipo_Doc TINYINT
 )
 BEGIN
     SELECT * FROM tbl_tipo_documento 
     WHERE ID_Tipo_Doc = p_ID_Tipo_Doc 
-    AND Estado_Documentos = 'ACTIVE';
+    AND Estado_Documentos = 1;
 END $$
 DELIMITER ;
 
@@ -2475,11 +2406,11 @@ DROP PROCEDURE IF EXISTS sp_tbl_tipo_documento_eliminar;
 
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_tipo_documento_eliminar(
-    IN p_ID_Tipo_Doc INT
+    IN p_ID_Tipo_Doc TINYINT
 )
 BEGIN
     UPDATE tbl_tipo_documento 
-    SET Estado_Documentos = 'INACTIVE' 
+    SET Estado_Documentos = 0 
     WHERE ID_Tipo_Doc = p_ID_Tipo_Doc;
 END $$
 DELIMITER ;
@@ -2500,7 +2431,7 @@ BEGIN
     )
     VALUES(
         p_Nombre_Tipo_Doc,
-        'ACTIVE'
+        1
     );
 END $$
 DELIMITER ;
@@ -2521,7 +2452,7 @@ CREATE PROCEDURE sp_tbl_usuario_actualizar(
     IN p_Doble_Factor_Activo ENUM('ACTIVE','INACTIVE'),
     IN p_Aceptacion_Terminos ENUM('ACCEPTED','REJECTED'),
     IN p_FK_ID_Persona INT,
-    IN p_FK_ID_Rol INT
+    IN p_FK_ID_Rol TINYINT
 )
 BEGIN
 
@@ -2555,7 +2486,7 @@ DROP PROCEDURE IF EXISTS sp_tbl_usuario_consultar;
 DELIMITER $$
 CREATE PROCEDURE sp_tbl_usuario_consultar()
 BEGIN
-    SELECT * FROM tbl_usuario WHERE Estado_Usuario = 'ACTIVE';
+    SELECT * FROM tbl_usuario WHERE Estado_Usuario = 1;
 END $$
 DELIMITER ;
 
@@ -2569,7 +2500,7 @@ CREATE PROCEDURE sp_tbl_usuario_consultar_id(
     IN p_ID_Usuario INT
 )
 BEGIN
-    SELECT * FROM tbl_usuario WHERE ID_Usuario = p_ID_Usuario AND Estado_Usuario = 'ACTIVE';
+    SELECT * FROM tbl_usuario WHERE ID_Usuario = p_ID_Usuario AND Estado_Usuario = 1;
 END $$
 DELIMITER ;
 
@@ -2583,7 +2514,7 @@ CREATE PROCEDURE sp_tbl_usuario_eliminar(
     IN p_ID_Usuario INT
 )
 BEGIN
-    UPDATE tbl_usuario SET Estado_Usuario = 'INACTIVE' WHERE ID_Usuario = p_ID_Usuario;
+    UPDATE tbl_usuario SET Estado_Usuario = 0 WHERE ID_Usuario = p_ID_Usuario;
 END $$
 DELIMITER ;
 
@@ -2600,7 +2531,7 @@ CREATE PROCEDURE sp_tbl_usuario_insertar(
     IN p_Doble_Factor_Activo ENUM('ACTIVE','INACTIVE'),
     IN p_Aceptacion_Terminos ENUM('ACCEPTED','REJECTED'),
     IN p_FK_ID_Persona INT,
-    IN p_FK_ID_Rol INT
+    IN p_FK_ID_Rol TINYINT
 
 )
 BEGIN
@@ -2625,7 +2556,7 @@ VALUES(
     p_Aceptacion_Terminos,
     p_FK_ID_Persona,
     p_FK_ID_Rol,
-    'ACTIVE'
+    1
 
 );
 
@@ -2659,8 +2590,8 @@ BEGIN
     INNER JOIN TBL_PERSONA p ON u.FK_ID_Persona = p.ID_Persona
     
     WHERE u.Nombre_Usuario = p_nombre_usuario
-    AND u.Estado_Usuario = 'ACTIVE'
-    AND p.Estado_Persona = 'ACTIVE'
+    AND u.Estado_Usuario = 1
+    AND p.Estado_Persona = 1
 
     LIMIT 1;
 
@@ -2807,11 +2738,11 @@ DROP PROCEDURE IF EXISTS sp_usuario_recuperar_contraseña;
 DELIMITER $$
 
 CREATE PROCEDURE sp_usuario_recuperar_contraseña(
-    IN p_username     VARCHAR(100),
-    IN p_nuevo_hash   VARBINARY(32),
-    IN p_nuevo_salt   VARBINARY(16),
-    IN p_ip           VARCHAR(50),
-    IN p_user_agent   VARCHAR(255)
+    IN p_username VARCHAR(100),
+    IN p_nuevo_hash VARBINARY(32),
+    IN p_nuevo_salt VARBINARY(16),
+    IN p_ip VARCHAR(50),
+    IN p_user_agent VARCHAR(255)
 )
 BEGIN
 
@@ -2880,7 +2811,7 @@ SELECT
     ID_Parentesco,
     Nombre_Parentesco
 FROM TBL_PARENTESCO
-WHERE Estado_Parentesco = 'ACTIVE' AND Tipo_Usuario = 'ESTUDIANTE'
+WHERE Estado_Parentesco = 1 AND Tipo_Usuario = 'ESTUDIANTE'
 ORDER BY ID_Parentesco;
 
 END $$
@@ -2902,15 +2833,19 @@ SELECT
     ID_Parentesco,
     Nombre_Parentesco
 FROM TBL_PARENTESCO
-WHERE Estado_Parentesco = 'ACTIVE' AND Tipo_Usuario = 'ACUDIENTE'
+WHERE Estado_Parentesco = 1 AND Tipo_Usuario = 'ACUDIENTE'
 ORDER BY ID_Parentesco;
 
 END $$
 
 DELIMITER ;
 
--- --------------------------------------------------------
+-- ====================================================================================================================================================
+-- SP PARA LA PAGINA DE PROFILE
+-- ====================================================================================================================================================
 
+-- --------------------------------------------------------
+-- SP: Obtener todos los datos de un acudiente
 DROP PROCEDURE IF EXISTS sp_perfil_acudiente_consultar;
 
 DELIMITER $$
@@ -2956,10 +2891,107 @@ END $$
 DELIMITER ;
 
 
+-- --------------------------------------------------------
+-- SP: Obtener todos los estudiantes de un acudiente (lista para tarjetas)
+
+DROP PROCEDURE IF EXISTS sp_perfil_estudiantes_por_acudiente;
+
+DELIMITER $$
+CREATE PROCEDURE sp_perfil_estudiantes_por_acudiente(IN p_id_usuario INT)
+BEGIN
+    SELECT
+        e.ID_Estudiante,
+        p.Primer_Nombre,
+        p.Segundo_Nombre,
+        p.Primer_Apellido,
+        p.Segundo_Apellido,
+        p.Fecha_Nacimiento,
+        ti.Nombre_Tipo_Iden,
+        p.Num_Doc_Persona        AS Numero_Documento,
+        g.Nombre_Genero,
+        gp.Nombre_Grupo_Preferencial,
+        gr_a.Nombre_Grado        AS Nombre_Grado_Actual,
+        gr_p.Nombre_Grado        AS Nombre_Grado_Proximo,
+        c.Nombre_Colegio         AS Nombre_Colegio_Anterior,
+        e.Estado_Estudiante,
+        -- IDs para pre-poblar formulario de edición
+        e.FK_ID_Genero           AS ID_Genero,
+        e.FK_ID_Grupo_Preferencial AS ID_Grupo_Preferencial,
+        e.FK_ID_Grado_Actual     AS ID_Grado_Actual,
+        e.FK_ID_Gardo_Proximo    AS ID_Grado_Proximo,
+        e.FK_ID_Colegio_Anterior AS ID_Colegio_Anterior,
+        e.FK_ID_Persona          AS ID_Persona,
+        e.FK_ID_Tipo_Iden        AS ID_Tipo_Iden,
+        e.FK_ID_Parentesco_Es    AS ID_Parentesco
+    FROM TBL_ESTUDIANTE e
+    INNER JOIN TBL_PERSONA          p   ON e.FK_ID_Persona           = p.ID_Persona
+    INNER JOIN TBL_TIPO_IDENTIFICACION ti ON e.FK_ID_Tipo_Iden        = ti.ID_Tipo_Iden
+    INNER JOIN TBL_GENERO           g   ON e.FK_ID_Genero             = g.ID_Genero
+    INNER JOIN TBL_GRUPO_PREFERENCIAL gp ON e.FK_ID_Grupo_Preferencial = gp.ID_Grupo_Preferencial
+    INNER JOIN TBL_GRADO            gr_a ON e.FK_ID_Grado_Actual      = gr_a.ID_Grado
+    LEFT  JOIN TBL_GRADO            gr_p ON e.FK_ID_Gardo_Proximo     = gr_p.ID_Grado
+    INNER JOIN TBL_COLEGIO          c   ON e.FK_ID_Colegio_Anterior   = c.ID_Colegio
+    WHERE e.FK_ID_Acudiente = p_id_usuario
+      AND e.Estado_Estudiante = 1
+    ORDER BY p.Primer_Apellido, p.Primer_Nombre;
+END$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+-- SP: Obtener un estudiante específico por su ID (para edición)
+DROP PROCEDURE IF EXISTS sp_perfil_estudiante_por_id;
+
+DELIMITER $$
+
+CREATE PROCEDURE sp_perfil_estudiante_por_id(
+    IN p_id_estudiante INT,
+    IN p_id_usuario    INT       -- seguridad: verifica que pertenezca al acudiente
+)
+BEGIN
+    SELECT
+        e.ID_Estudiante,
+        p.ID_Persona,
+        p.Primer_Nombre,
+        p.Segundo_Nombre,
+        p.Primer_Apellido,
+        p.Segundo_Apellido,
+        p.Fecha_Nacimiento,
+        ti.Nombre_Tipo_Iden,
+        p.Num_Doc_Persona          AS Numero_Documento,
+        e.FK_ID_Genero             AS ID_Genero,
+        e.FK_ID_Grupo_Preferencial AS ID_Grupo_Preferencial,
+        e.FK_ID_Grado_Actual       AS ID_Grado_Actual,
+        e.FK_ID_Gardo_Proximo      AS ID_Grado_Proximo,
+        e.FK_ID_Colegio_Anterior   AS ID_Colegio_Anterior,
+        e.FK_ID_Tipo_Iden          AS ID_Tipo_Iden,
+        ti.Nombre_Tipo_Iden,
+        p.Num_Doc_Persona          AS Numero_Documento
+    FROM TBL_ESTUDIANTE e
+    INNER JOIN TBL_PERSONA           p  ON e.FK_ID_Persona  = p.ID_Persona
+    INNER JOIN TBL_TIPO_IDENTIFICACION ti ON e.FK_ID_Tipo_Iden = ti.ID_Tipo_Iden
+    WHERE e.ID_Estudiante   = p_id_estudiante
+      AND e.FK_ID_Acudiente = p_id_usuario       -- el estudiante debe ser del acudiente activo
+      AND e.Estado_Estudiante = 1;
+END$$
+DELIMITER ;
+
+-- --------------------------------------------------------
+-- SP: Verificar cuántos estudiantes activos tiene un acudiente
+DROP PROCEDURE IF EXISTS sp_tbl_estudiante_verificar_por_acudiente;
+
+DELIMITER $$
+CREATE PROCEDURE sp_tbl_estudiante_verificar_por_acudiente(IN p_id_acudiente INT)
+BEGIN
+    SELECT COUNT(*) AS total_estudiantes
+    FROM TBL_ESTUDIANTE
+    WHERE FK_ID_Acudiente   = p_id_acudiente
+      AND Estado_Estudiante = 1;
+END$$
+DELIMITER ;
 
 
 -- ====================================================================================================================================================
--- Procedures Para registro
+-- SP PARA EL REGISTRO DE UN USUARIO
 -- ====================================================================================================================================================
 
 DROP PROCEDURE IF EXISTS sp_registrar_usuario_completo;
@@ -2978,18 +3010,18 @@ CREATE PROCEDURE sp_registrar_usuario_completo(
     -- DATOS ADICIONALES
     IN p_Email VARCHAR(255),
     IN p_Telefono VARCHAR(45),
-    IN p_FK_ID_Parentesco INT,
-    IN p_FK_ID_Tipo_Iden INT,
-    IN p_FK_ID_Genero INT,
-    IN p_FK_ID_Grupo_Preferencial INT,
-    IN p_FK_ID_Estrato INT,
+    IN p_FK_ID_Parentesco TINYINT,
+    IN p_FK_ID_Tipo_Iden TINYINT,
+    IN p_FK_ID_Genero TINYINT,
+    IN p_FK_ID_Grupo_Preferencial TINYINT,
+    IN p_FK_ID_Estrato TINYINT,
     IN p_FK_ID_Barrio INT,
 
     -- USUARIO
     IN p_Nombre_Usuario VARCHAR(50),
     IN p_password_salt VARBINARY(16),
     IN p_password_hash VARBINARY(32),
-    IN p_FK_ID_Rol INT,
+    IN p_FK_ID_Rol TINYINT,
 
     -- AUDITORÍA
     IN p_IP VARCHAR(50),
@@ -3017,7 +3049,7 @@ BEGIN
         Primer_Apellido, Segundo_Apellido, Fecha_Nacimiento, Estado_Persona
     ) VALUES (
         p_Num_Doc_Persona, p_Primer_Nombre, p_Segundo_Nombre,
-        p_Primer_Apellido, p_Segundo_Apellido, p_Fecha_Nacimiento, 'ACTIVE'
+        p_Primer_Apellido, p_Segundo_Apellido, p_Fecha_Nacimiento, 1
     );
 
     SET v_ID_Persona = LAST_INSERT_ID();
@@ -3038,7 +3070,7 @@ BEGIN
     ) VALUES (
         p_Email, p_Telefono, p_FK_ID_Parentesco, p_FK_ID_Tipo_Iden,
         v_ID_Persona, p_FK_ID_Genero, p_FK_ID_Grupo_Preferencial,
-        p_FK_ID_Estrato, p_FK_ID_Barrio, 'ACTIVE'
+        p_FK_ID_Estrato, p_FK_ID_Barrio, 1
     );
 
     SET v_ID_Datos_Adicionales = LAST_INSERT_ID();
@@ -3065,7 +3097,7 @@ BEGIN
         CURRENT_TIMESTAMP, 'INACTIVE', NULL,
         NULL, NULL, 0,
         0, 'ACCEPTED', v_ID_Persona,
-        p_FK_ID_Rol, 'ACTIVE'
+        p_FK_ID_Rol, 1
     );
 
     SET v_ID_Usuario = LAST_INSERT_ID();
@@ -3295,8 +3327,10 @@ END $$
 DELIMITER ;
 
 
+
+
 -- ====================================================================================================================================================
--- SP PARA EL PAGINA DE SETTINGS DE SEGURIDAD
+-- SP PARA LA PAGINA DE SETTINGS
 -- ====================================================================================================================================================
 
 -- --------------------------------------------------------
@@ -3314,7 +3348,7 @@ BEGIN
         Notificaciones_Navegador
     FROM TBL_USUARIO
     WHERE ID_Usuario = p_id_usuario
-      AND Estado_Usuario = 'ACTIVE';
+      AND Estado_Usuario = 1;
 END $$
 DELIMITER ;
  
@@ -3326,16 +3360,16 @@ DROP PROCEDURE IF EXISTS sp_configuracion_actualizar_notif_email;
  
 DELIMITER $$
 CREATE PROCEDURE sp_configuracion_actualizar_notif_email(
-    IN p_id_usuario    INT,
-    IN p_activo        TINYINT(1)   -- 1 = activar, 0 = desactivar
+    IN p_id_usuario INT,
+    IN p_activo TINYINT(1)
 )
 BEGIN
     DECLARE v_existe INT DEFAULT 0;
  
     SELECT COUNT(*) INTO v_existe
     FROM TBL_USUARIO
-    WHERE ID_Usuario   = p_id_usuario
-      AND Estado_Usuario = 'ACTIVE';
+    WHERE ID_Usuario = p_id_usuario
+      AND Estado_Usuario = 1;
  
     IF v_existe = 0 THEN
         SIGNAL SQLSTATE '45000'
@@ -3361,8 +3395,8 @@ DROP PROCEDURE IF EXISTS sp_configuracion_actualizar_notif_navegador;
  
 DELIMITER $$
 CREATE PROCEDURE sp_configuracion_actualizar_notif_navegador(
-    IN p_id_usuario    INT,
-    IN p_activo        TINYINT(1)   -- 1 = activar, 0 = desactivar
+    IN p_id_usuario INT,
+    IN p_activo TINYINT(1)
 )
 BEGIN
     DECLARE v_existe INT DEFAULT 0;
@@ -3370,7 +3404,7 @@ BEGIN
     SELECT COUNT(*) INTO v_existe
     FROM TBL_USUARIO
     WHERE ID_Usuario    = p_id_usuario
-      AND Estado_Usuario = 'ACTIVE';
+      AND Estado_Usuario = 1;
  
     IF v_existe = 0 THEN
         SIGNAL SQLSTATE '45000'
@@ -3389,14 +3423,12 @@ END $$
 DELIMITER ;
 
 
-
 -- --------------------------------------------------------
 -- SP: Eliminar Usuario y Estudiante asociado
 
 DROP PROCEDURE IF EXISTS sp_eliminar_cuenta_completa;
 
 DELIMITER $$
-
 CREATE PROCEDURE sp_eliminar_cuenta_completa(
     IN p_ID_Usuario INT,
     IN p_IP VARCHAR(50),
@@ -3422,14 +3454,14 @@ BEGIN
         -- (Se hace primero por las dependencias de FK)
         UPDATE TBL_PERSONA 
         SET Num_Doc_Persona = CONCAT('DEL_', v_Timestamp, '_', Num_Doc_Persona),
-            Estado_Persona = 'INACTIVE'
+            Estado_Persona = 0
         WHERE ID_Persona IN (
             SELECT FK_ID_Persona FROM TBL_ESTUDIANTE WHERE FK_ID_Acudiente = p_ID_Usuario
         );
 
         -- 2. INACTIVAR REGISTROS EN TBL_ESTUDIANTE
         UPDATE TBL_ESTUDIANTE 
-        SET Estado_Estudiante = 'INACTIVE'
+        SET Estado_Estudiante = 0
         WHERE FK_ID_Acudiente = p_ID_Usuario;
 
         -- Registro de auditoría para los estudiantes
@@ -3442,9 +3474,9 @@ BEGIN
         -- 3. [LOGICA DE OFUSCACIÓN DE USUARIO Y DATOS ADICIONALES]
         UPDATE TBL_USUARIO u
         JOIN TBL_DATOS_ADICIONALES d ON u.FK_ID_Persona = d.FK_ID_Persona
-        SET u.Estado_Usuario = 'INACTIVE',
+        SET u.Estado_Usuario = 0,
             u.Nombre_Usuario = CONCAT('del_', v_Timestamp, '_', u.Nombre_Usuario),
-            d.Estado_Datos_Adicionales = 'INACTIVE',
+            d.Estado_Datos_Adicionales = 0,
             d.Email = CONCAT('del_', v_Timestamp, '_', d.Email),
             d.Telefono = CONCAT('del_', v_Timestamp, '_', d.Telefono) -- Corregido: antes usaba d.Email
         WHERE u.ID_Usuario = p_ID_Usuario;
@@ -3452,7 +3484,7 @@ BEGIN
         -- 4. INACTIVAR Y OFUSCAR PERSONA DEL USUARIO (Acudiente)
         UPDATE TBL_PERSONA p
         JOIN TBL_USUARIO u ON p.ID_Persona = u.FK_ID_Persona
-        SET p.Estado_Persona = 'INACTIVE',
+        SET p.Estado_Persona = 0,
             p.Num_Doc_Persona = CONCAT('DEL_', v_Timestamp, '_', p.Num_Doc_Persona)
         WHERE u.ID_Usuario = p_ID_Usuario;
 
@@ -3465,6 +3497,4 @@ BEGIN
 
     COMMIT;
 END $$
-
 DELIMITER ;
-

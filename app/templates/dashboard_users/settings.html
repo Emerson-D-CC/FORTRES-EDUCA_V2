@@ -1,7 +1,7 @@
 <!-- #Llamar a layout_dashboard.html -->
 {% extends 'layout_dashboard.html' %}
 
-{% block titulo %}Fortress Educa - Configuración Usuario{% endblock %}
+{% block titulo %}Configuración Usuario - Fortress Educa{% endblock %}
 
 <!-- Titulo del Header -->
 {% set header_title = "Ajustes Adicionales" %}
@@ -150,7 +150,8 @@
                             </div>
                         </div>
                         <h4 class="fw-bold mb-2 logout-title">¿Estás absolutamente seguro?</h4>
-                        <p class="text-muted mb-0">Esta acción desactivará tu acceso y el de tus estudiantes vinculados de forma inmediata.</p>
+                        <p class="text-muted mb-0">Esta acción desactivará tu acceso y eliminara tus datos de forma inmediata.</p>
+                        <p class="text-muted mb-0">Los datos de los estudiantes asociados a la cuenta tambien seran eliminados.</p>
                     </div>
                     <div class="modal-footer border-0 d-flex justify-content-center pb-5 px-4">
                         <button type="button" class="btn btn-light logout-btn-cancel px-4 py-2 me-2" data-bs-dismiss="modal">Cancelar</button>

@@ -1,7 +1,7 @@
 <!-- #Llamar a layout_dashboard.html -->
 {% extends 'layout_dashboard.html' %}
 
-{% block titulo %}Fortress Educa - Seguridad{% endblock %}
+{% block titulo %}Centro de  Seguridad - Fortress Educa{% endblock %}
 
 <!-- Titulo del Header -->
 {% set header_title = "Centro de Seguridad" %}
@@ -292,10 +292,7 @@
                     <button type="button" class="btn btn-light logout-btn-cancel px-4 py-2 me-2" data-bs-dismiss="modal">
                         Cancelar
                     </button>
-                    <!-- 
-                        El action se inyecta dinámicamente con JS usando url_for como base.
-                        El CSRF se pasa como hidden input (no como {{ csrf_token() }} en form action).
-                    -->
+
                     <form id="formCerrarUnaSesion" method="POST">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="btn logout-btn-confirm px-4 py-2">

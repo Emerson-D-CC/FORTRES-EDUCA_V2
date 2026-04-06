@@ -1,11 +1,13 @@
 from flask_jwt_extended import create_access_token, create_refresh_token, unset_jwt_cookies
 from flask import redirect, url_for, flash, session, make_response
+from flask import current_app
+from datetime import timedelta
 
 # Generar Access Token
 def generar_access_token(user_id, role_id):
-    # Los datos extra (role_id) se pasan en additional_claims
     additional_claims = {"role_id": role_id}
-    return create_access_token(identity=str(user_id), additional_claims=additional_claims)
+    expires_delta = current_app.config.get('JWT_ACCESS_TOKEN_EXPIRES', timedelta(minutes=55))
+    return create_access_token(identity=str(user_id), additional_claims=additional_claims, expires_delta=expires_delta)
 
 # Generar Refresh Token
 def generar_refresh_token(user_id):

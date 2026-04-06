@@ -1,172 +1,155 @@
 from app.database.connection_db_v2 import db
 
 # ====================================================================================================================================================
+#                                           SISTEMA DE TICKETS
+# ====================================================================================================================================================
+
+# DATOS PARA LISTAS DE OPCIONES
+
+def sp_obtener_tipos_afectacion():
+    return db.call_procedure("sp_tbl_tipo_afectacion_consultar", ()) or []
+
+def sp_obtener_jornadas():
+    return db.call_procedure("sp_tbl_jornada_consultar", ()) or []
+
+def sp_obtener_tiempos_residencia():
+    return db.call_procedure("sp_tbl_tiempo_residencia_consultar", ()) or []
+
+
+# VERIFICACIONES
+
+def sp_ticket_verificar_activo(id_estudiante, id_usuario):
+    """Retorna True si el estudiante ya tiene un ticket abierto."""
+    resultado = db.call_procedure(
+        "sp_ticket_verificar_activo",
+        (id_estudiante, id_usuario)
+    )
+    if not resultado:
+        return False
+    return resultado[0].get("total_activos", 0) > 0
+
+
+# CREACIÓN
+
+def sp_ticket_crear(data):
+    """Llama al SP que inserta el ticket y retorna el ID generado"""
+    return db.call_procedure(
+        "sp_ticket_crear",
+        data,
+        commit=False
+    )
+
+def sp_documento_ticket_insertar(data):
+    return db.call_procedure(
+        "sp_documento_ticket_insertar",
+        data,
+        commit=False
+    )
+
+def sp_ticket_obtener_ultimo_numero():
+    """Retorna el número secuencial del último ticket creado"""
+    resultado = db.call_procedure("sp_ticket_obtener_ultimo_numero", ())
+    if not resultado:
+        return 0
+    return resultado[0].get("ultimo_numero", 0)
+
+
+# ====================================================================================================================================================
 #                                           PAGINA PROFILE.HTML
 # ====================================================================================================================================================
 
-# POBLAR OPCIONES PARA EL CABIO DE DATOS
+# DATOS PARA LISTAS DE OPCIONES 
 
 def sp_obtener_generos():
-    return db.call_procedure(
-        "sp_tbl_genero_consultar",
-        ()
-    ) or []
-
+    return db.call_procedure("sp_tbl_genero_consultar", ()) or []
 
 def sp_obtener_grupos_preferenciales():
-    return db.call_procedure(
-        "sp_tbl_grupo_preferencial_consultar",
-        ()
-    ) or []
-
+    return db.call_procedure("sp_tbl_grupo_preferencial_consultar", ()) or []
 
 def sp_obtener_grados():
-    return db.call_procedure(
-        "sp_tbl_grado_consultar",
-        ()
-    ) or []
-
+    return db.call_procedure("sp_tbl_grado_consultar", ()) or []
 
 def sp_obtener_colegios():
-    return db.call_procedure(
-        "sp_tbl_colegio_consultar",
-        ()
-    ) or []
-
+    return db.call_procedure("sp_tbl_colegio_consultar", ()) or []
 
 def sp_obtener_tipos_identificacion():
-    return db.call_procedure(
-        "sp_tbl_tipo_identificacion_consultar_est",
-        ()
-    ) or []
-
+    return db.call_procedure("sp_tbl_tipo_identificacion_consultar_est", ()) or []
 
 def sp_obtener_estratos():
-    return db.call_procedure(
-        "sp_tbl_estrato_consultar",
-        ()
-    ) or []
-    
-    
-def sp_obtener_localidades():
-    return db.call_procedure(
-        "sp_tbl_localidad_consultar", 
-        ()
-    ) or []
+    return db.call_procedure("sp_tbl_estrato_consultar", ()) or []
 
+def sp_obtener_localidades():
+    return db.call_procedure("sp_tbl_localidad_consultar", ()) or []
 
 def sp_obtener_barrios():
-    return db.call_procedure(
-        "sp_tbl_barrio_consultar", 
-        ()
-    ) or []
-
+    return db.call_procedure("sp_tbl_barrio_consultar", ()) or []
 
 def sp_obtener_parentesco_est():
-    return db.call_procedure(
-        "sp_tbl_parentesco_consultar_est",
-        ()
-    ) or []
-
+    return db.call_procedure("sp_tbl_parentesco_consultar_est", ()) or []
 
 def sp_obtener_parentesco_acu():
-    return db.call_procedure(
-        "sp_tbl_parentesco_consultar_acu",
-        ()
-    ) or []
+    return db.call_procedure("sp_tbl_parentesco_consultar_acu", ()) or []
 
 
-def sp_verificar_estudiante_acudiente(id_acudiente):
-    """Verifica si un acudiente ya tiene un estudiante registrado"""
-    return db.call_procedure(
-        "sp_tbl_estudiante_verificar_por_acudiente",
-        (id_acudiente,)
-    )
-
-# PERFIL — Carga de datos
+#  PERFIL DEL USUARIO (ACUDIENTE)
 
 def sp_obtener_perfil_acudiente(id_usuario):
     resultado = db.call_procedure("sp_perfil_acudiente_consultar", (id_usuario,))
     return resultado[0] if resultado else None
 
+def sp_actualizar_datos_adicionales(data):
+    return db.call_procedure("sp_tbl_datos_adicionales_actualizar", data, commit=False)
+
+
+# PERFIL DE ESTUDIANTES
+
+def sp_obtener_estudiantes_por_acudiente(id_usuario):
+    """Retorna la lista de todos los estudiantes activos del acudiente."""
+    return db.call_procedure(
+        "sp_perfil_estudiantes_por_acudiente", (id_usuario,)
+    ) or []
+
+def sp_obtener_estudiante_por_id(id_estudiante, id_usuario):
+    """Retorna los datos de un estudiante específico."""
+    resultado = db.call_procedure(
+        "sp_perfil_estudiante_por_id", (id_estudiante, id_usuario)
+    )
+    return resultado[0] if resultado else None
+
+def sp_verificar_estudiante_acudiente(id_acudiente):
+    """Retorna {'total_estudiantes': N} — si N > 0 el acudiente ya tiene al menos uno."""
+    resultado = db.call_procedure(
+        "sp_tbl_estudiante_verificar_por_acudiente", (id_acudiente,)
+    )
+    return resultado[0] if resultado else {"total_estudiantes": 0}
 
 def sp_obtener_perfil_estudiante(id_usuario):
     resultado = db.call_procedure("sp_perfil_estudiante_consultar", (id_usuario,))
     return resultado[0] if resultado else None
 
 
-# TBL_PERSONA
+# ACTUALIZAR DATOS 
 
 def sp_actualizar_persona(data):
-    return db.call_procedure(
-        "sp_tbl_persona_actualizar",
-        data,
-        commit=False
-    )
-
-
-# TBL_DATOS_ADICIONALES
-
-
-def sp_actualizar_datos_adicionales(data):
-    return db.call_procedure(
-        "sp_tbl_datos_adicionales_actualizar",
-        data,
-        commit=False
-    )
-
-
-# TBL_ESTUDIANTE
-
-def sp_estudiante_existe(id_estudiante, id_usuario):
-    return db.call_procedure(
-        "sp_tbl_estudiante_verificar_existente",
-        (id_estudiante, id_usuario)
-    )
-
-
-def sp_insertar_estudiante(data):
-    return db.call_procedure(
-        "sp_tbl_estudiante_insertar",
-
-        data,
-        commit=False
-    )
-
+    return db.call_procedure("sp_tbl_persona_actualizar", data, commit=False)
 
 def sp_actualizar_estudiante(data):
-    return db.call_procedure(
-        "sp_tbl_estudiante_actualizar",
-        data,
-        commit=False
-    )
+    return db.call_procedure("sp_tbl_estudiante_actualizar", data, commit=False)
 
 
-# REGISTER (Acudiente)
-
-def sp_usuario_existe(email, persona_id):
-    return db.call_procedure(
-        "sp_usuario_verificar_existente",
-        (email, persona_id)
-    )
-
-
-def sp_insertar_usuario(data):
-    return db.call_procedure(
-        "sp_tbl_usuario_insertar",
-        data,
-        commit=False
-    )
-
-# REGISTER (Acudiente)
+# REGISTRAR ESTUDIANTE
 
 def sp_registrar_estudiante(data):
-    return db.call_procedure(
-        "sp_registrar_estudiante_completo",
-        data,
-        commit=False
-    )
+    return db.call_procedure("sp_registrar_estudiante_completo", data, commit=False)
 
+def sp_estudiante_existe(num_doc_estudiante, id_usuario):
+    resultado = db.call_procedure(
+        "sp_tbl_estudiante_verificar_existente",
+        (num_doc_estudiante, id_usuario)
+    )
+    if not resultado:
+        return False
+    return resultado[0].get("existe", 0) > 0
 
 
 
@@ -270,7 +253,7 @@ def sp_verificar_jti(jti):
     
     
 # ====================================================================================================================================================
-#                                           PAGINA SECURITY.HTML
+#                                           PAGINA SETTINGS.HTML
 # ====================================================================================================================================================
 
 # SISTEMA DE CONFIGURACIONES VARIAS

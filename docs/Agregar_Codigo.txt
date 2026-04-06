@@ -1,5 +1,2 @@
-REGISTRO
-1. Agregar campo de fecha de nacimiento
-
-SETTINGS
-1. Modificar el modal de eliminación de la cuenta para que el usuario tenga que ingresar su contraseña para poder proceder con la acción
+Nueva Pagina para dashboard_users
+- Sistema de envio de quejas (por correo por medio de un forms) por problemas / afectaciones en la pagina

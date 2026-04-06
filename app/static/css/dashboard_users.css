@@ -13,93 +13,93 @@ body {
     min-height: 100vh;
     background-color: var(--color-bg-body);
 }
-/* ============================================================
-   STEP INDICATOR — Para dashboard_users/request.html
-   ============================================================ */
+    /* ============================================================
+    STEP INDICATOR — Para dashboard_users/request.html
+    ============================================================ */
 
-.wizard-step {
-    display: none;
-}
+    .wizard-step {
+        display: none;
+    }
 
-.wizard-step.active {
-    display: block;
-}
+    .wizard-step.active {
+        display: block;
+    }
 
-.step-indicator {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 3rem;
-    position: relative;
-}
+    .step-indicator {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 3rem;
+        position: relative;
+    }
 
-.step-indicator::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: #dee2e6;
-    z-index: 1;
-}
+    .step-indicator::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #dee2e6;
+        z-index: 1;
+    }
 
-.step-item {
-    position: relative;
-    z-index: 2;
-    background: white;
-    padding: 0 10px;
-    text-align: center;
-}
+    .step-item {
+        position: relative;
+        z-index: 2;
+        background: white;
+        padding: 0 10px;
+        text-align: center;
+    }
 
-.step-number {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #f8f9fa;
-    border: 2px solid #dee2e6;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    margin: 0 auto 5px;
-    transition: all 0.3s;
-}
+    .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #f8f9fa;
+        border: 2px solid #dee2e6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin: 0 auto 5px;
+        transition: all 0.3s;
+    }
 
-.step-item.active .step-number {
-    background: var(--color-primary-light);
-    border-color: var(--color-primary-light);
-    color: white;
-}
+    .step-item.active .step-number {
+        background: var(--color-primary-light);
+        border-color: var(--color-primary-light);
+        color: white;
+    }
 
-.step-item.completed .step-number {
-    background: var(--color-accent-green);
-    border-color: var(--color-accent-green);
-    color: white;
-}
+    .step-item.completed .step-number {
+        background: var(--color-accent-green);
+        border-color: var(--color-accent-green);
+        color: white;
+    }
 
-.step-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #6c757d;
-}
+    .step-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6c757d;
+    }
 
-.step-item.active .step-label {
-    color: var(--color-primary-dark);
-}
+    .step-item.active .step-label {
+        color: var(--color-primary-dark);
+    }
 
-.upload-area {
-    border: 2px dashed #dee2e6;
-    border-radius: 12px;
-    padding: 2rem;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s;
-}
+    .upload-area {
+        border: 2px dashed #dee2e6;
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
 
-.upload-area:hover {
-    border-color: var(--color-accent-green);
-    background: rgba(56, 239, 125, 0.05);
-}
+    .upload-area:hover {
+        border-color: var(--color-accent-green);
+        background: rgba(56, 239, 125, 0.05);
+    }
 
 /* ============================================================
    SECURITY — Para dashboard_users/security.html

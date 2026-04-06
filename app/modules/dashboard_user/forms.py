@@ -1,8 +1,118 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, DateField, TelField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, SelectField, DateField, TelField, PasswordField, BooleanField, SubmitField, HiddenField, TextAreaField
+from flask_wtf.file import FileField, FileRequired, FileAllowed, MultipleFileField
 from wtforms.validators import DataRequired, Length, Optional, EqualTo, ValidationError
 
 from app.core.regexs import regex
+
+# FUNCIÓN PARA VALIDAR SI EL ID = 0
+def seleccion_valida(form, field):
+    """Validador para SelectField"""
+    if not field.data or field.data == 0:
+        raise ValidationError("Debe seleccionar una opción válida.")
+
+
+# ====================================================================================================================================================
+#                                           PAGINA REQUEST.HTML
+# ====================================================================================================================================================
+
+class FormTicketPaso1(FlaskForm):
+    """Paso 1 — Selección del estudiante."""
+    
+    id_estudiante = SelectField(
+        "Estudiante",
+        validators=[DataRequired(), seleccion_valida],
+        coerce=int
+    )
+
+
+class FormTicketPaso2(FlaskForm):
+    """Paso 2 — Vulnerabilidad."""
+    
+    id_tipo_afectacion = SelectField(
+        "Tipo de Afectación",
+        validators=[DataRequired(), seleccion_valida],
+        coerce=int
+    )
+    
+    descripcion = TextAreaField(
+        "Descripción del Caso",
+        validators=[DataRequired(), Length(min=50, max=2000)]
+    )
+
+
+class FormTicketPaso3(FlaskForm):
+    """Paso 3 — Ubicación."""
+    
+    id_barrio = SelectField(
+        "Barrio",
+        validators=[DataRequired(), seleccion_valida],
+        coerce=int
+    )
+    
+    id_tiempo_residencia = SelectField(
+        "Tiempo de Residencia",
+        validators=[DataRequired(), seleccion_valida],
+        coerce=int
+    )
+
+
+class FormTicketPaso4(FlaskForm):
+    """Paso 4 — Preferencias educativas."""
+    
+    id_jornada = SelectField(
+        "Jornada Preferida",
+        validators=[DataRequired(), seleccion_valida],
+        coerce=int
+    )
+    
+    id_colegio = SelectField(
+        "Colegio de Preferencia",
+        validators=[Optional()],
+        coerce=int
+    )
+
+
+class FormTicketPaso5(FlaskForm):
+    """Paso 5 — Documentos."""
+    doc_acudiente = FileField(
+        "Documento del Acudiente",
+        validators=[
+            FileRequired(message="El documento del acudiente es obligatorio."),
+            FileAllowed(["pdf", "jpg", "jpeg", "png"], "Solo PDF, JPG o PNG.")
+        ]
+    )
+    
+    doc_menor = FileField(
+        "Documento del Menor",
+        validators=[
+            Optional(),
+            FileAllowed(["pdf", "jpg", "jpeg", "png"], "Solo PDF, JPG o PNG.")
+        ]
+    )
+    
+    doc_certificados = MultipleFileField(
+        "Certificados / Boletines",
+        validators=[Optional()]
+    )
+    
+    doc_victima = FileField(
+        "Documento de Víctima",
+        validators=[
+            Optional(),
+            FileAllowed(["pdf", "jpg", "jpeg", "png"], "Solo PDF, JPG o PNG.")
+        ]
+    )
+
+
+class FormTicketPaso6(FlaskForm):
+    """Paso 6 — Confirmación."""
+    acepta_terminos = BooleanField(
+        "Acepto y declaro que la información es verídica.",
+        validators=[DataRequired(message="Debe aceptar los términos para continuar.")]
+    )
+
+
 
 # ====================================================================================================================================================
 #                                           PAGINA PROFILE.HTML
@@ -33,25 +143,25 @@ class FormAcudienteDatosEditables(FlaskForm):
     
     barrio = SelectField(
         "Barrio",
-        validators = [DataRequired()],
+        validators = [DataRequired(), seleccion_valida],
         coerce = int
     )
     
     genero = SelectField(
         "Género",
-        validators = [DataRequired()],
+        validators = [DataRequired(), seleccion_valida],
         coerce = int
     )
 
     grupo_preferencial = SelectField(
         "Grupo Preferencial",
-        validators = [DataRequired()],
+        validators = [DataRequired(), seleccion_valida],
         coerce = int
     )
 
     estrato = SelectField(
         "Estrato",
-        validators = [DataRequired()],
+        validators = [DataRequired(), seleccion_valida],
         coerce = int
     )
 
@@ -68,7 +178,12 @@ class FormEstudianteDatosPersonales(FlaskForm):
 
 class FormEstudianteDatosEditables(FlaskForm):
     """Campos editables del estudiante en perfil."""
-
+    
+    id_estudiante = HiddenField(
+        "ID Estudiante",
+        validators=[DataRequired()]
+    )
+    
     primer_nombre = StringField(
         "Primer Nombre",
         validators = [DataRequired(), Length(max=50)]
@@ -96,33 +211,34 @@ class FormEstudianteDatosEditables(FlaskForm):
 
     genero = SelectField(
         "Género",
-        validators = [DataRequired()],
+        validators = [DataRequired(), seleccion_valida],
         coerce = int
     )
 
     grupo_preferencial = SelectField(
         "Grupo Preferencial",
-        validators = [DataRequired()],
+        validators = [DataRequired(), seleccion_valida],
         coerce = int
     )
 
     grado_actual = SelectField(
         "Último Grado Aprobado",
-        validators = [DataRequired()],
+        validators = [DataRequired(), seleccion_valida],
         coerce = int
     )
 
     grado_proximo = SelectField(
         "Grado a Cursar",
-        validators = [DataRequired()],
+        validators = [DataRequired(), seleccion_valida],
         coerce = int
     )
 
     colegio_anterior = SelectField(
         "Última Institución Educativa",
-        validators = [DataRequired()],
+        validators = [DataRequired(), seleccion_valida],
         coerce = int
     )
+
 
 
 # ====================================================================================================================================================
@@ -161,7 +277,7 @@ class FormRegistroEstudiante(FlaskForm):
     # Datos del estudiante (TBL_ESTUDIANTE)
     tipo_identificacion = SelectField(
         "Tipo de Identificación",
-        validators = [DataRequired()],
+        validators = [DataRequired(), seleccion_valida],
         coerce = int,
         choices = [],
         validate_choice = False
@@ -174,7 +290,7 @@ class FormRegistroEstudiante(FlaskForm):
 
     genero = SelectField(
         "Género",
-        validators = [DataRequired()],
+        validators = [DataRequired(), seleccion_valida],
         coerce = int,
         choices = [],
         validate_choice = False
@@ -182,7 +298,7 @@ class FormRegistroEstudiante(FlaskForm):
 
     grupo_preferencial = SelectField(
         "Grupo Preferencial",
-        validators = [DataRequired()],
+        validators = [DataRequired(), seleccion_valida],
         coerce = int,
         choices = [],
         validate_choice = False
@@ -190,7 +306,7 @@ class FormRegistroEstudiante(FlaskForm):
 
     grado_actual = SelectField(
         "Último Grado Aprobado",
-        validators = [DataRequired()],
+        validators = [DataRequired(), seleccion_valida],
         coerce = int,
         choices = [],
         validate_choice = False
@@ -198,7 +314,7 @@ class FormRegistroEstudiante(FlaskForm):
 
     grado_proximo = SelectField(
         "Grado a Cursar",
-        validators = [DataRequired()],
+        validators = [DataRequired(), seleccion_valida],
         coerce = int,
         choices = [],
         validate_choice = False
@@ -206,7 +322,7 @@ class FormRegistroEstudiante(FlaskForm):
 
     colegio_anterior = SelectField(
         "Última Institución Educativa",
-        validators = [DataRequired()],
+        validators = [DataRequired(), seleccion_valida],
         coerce = int,
         choices = [],
         validate_choice = False
@@ -214,11 +330,13 @@ class FormRegistroEstudiante(FlaskForm):
 
     parentesco = SelectField(
         "Parentesco con el Acudiente",
-        validators = [DataRequired()],
+        validators = [DataRequired(), seleccion_valida],
         coerce=str,
         choices = [],
         validate_choice = False
     )
+
+
 
 # ====================================================================================================================================================
 #                                           PAGINA SECURITY.HTML
